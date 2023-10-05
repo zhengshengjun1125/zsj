@@ -1,4 +1,5 @@
-## 这是一个关于郑声军个人信息以及学习笔记的应用网站后台系统
+## 这是一个关于郑声军个人信息
+## 学习笔记的应用网站后台系统
 <div>
 <div align="center"><img width="300" src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg"/>
 <h1> ZSJ-SELF</h1>
