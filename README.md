@@ -3,7 +3,7 @@
 <div>
 <div align="center"><img width="300" src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg"/>
 <h1> ZSJ-SELF</h1>
-<p>你不坚持下去吗！</p>
+<p>加个好友一起讨论加油吧！</p>
 </div>
 
 
