@@ -1,7 +1,9 @@
 package com.zsj.system.service.impl;
 
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -25,5 +27,24 @@ public class UserTokenServiceImpl extends ServiceImpl<UserTokenDao, UserTokenEnt
 
         return new PageUtils(page);
     }
+
+    @Override
+    public boolean saveOrUpdateToken(UserTokenEntity entity) {
+        Long userId = entity.getUserId();
+        UserTokenEntity one = baseMapper.selectOne(new QueryWrapper<UserTokenEntity>().eq("user_id", userId));
+        try {
+            if (null != one) {
+                //修改
+                int i = baseMapper.updateToken(entity);
+            }else {
+                int i = baseMapper.saveToken(entity);
+            }
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 }

@@ -16,5 +16,7 @@ import java.util.Map;
 public interface CaptchaService extends IService<CaptchaEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    boolean saveCaptcha(CaptchaEntity captcha);
 }
 

@@ -3,13 +3,26 @@
 
 <mapper namespace="com.zsj.system.dao.UserTokenDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.zsj.system.entity.UserTokenEntity" id="userTokenMap">
         <result property="userId" column="user_id"/>
         <result property="token" column="token"/>
         <result property="expireTime" column="expire_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
+    <!--int saveToken(UserTokenEntity entity);-->
+    <insert id="saveToken">
+        insert into sys_user_token(user_id, token, expire_time, update_time)
+        values (#{entity.userId}, #{entity.token}, #{entity.expireTime}, #{entity.updateTime})
+    </insert>
 
+    <!--int updateToken(UserTokenEntity entity);-->
+    <update id="updateToken">
+        update sys_user_token
+        set token =#{entity.token},
+            expire_time = #{entity.expireTime},
+            update_time = #{entity.updateTime}
+        where user_id = #{entity.userId}
+    </update>
 
 </mapper>

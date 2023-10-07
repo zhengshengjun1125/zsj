@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -18,6 +20,18 @@ import lombok.Data;
 @TableName("sys_user_token")
 public class UserTokenEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
+
+
+	public UserTokenEntity() {
+	}
+
+
+	public UserTokenEntity(Long userId, String token, Date expireTime, Date updateTime) {
+		this.userId = userId;
+		this.token = token;
+		this.expireTime = expireTime;
+		this.updateTime = updateTime;
+	}
 
 	/**
 	 * 

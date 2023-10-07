@@ -22,7 +22,8 @@ public class GuliCorsConfiguration {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.addAllowedHeader("*");//请求头
         corsConfiguration.addAllowedMethod("*");//请求方法
-        corsConfiguration.addAllowedOrigin("*");//任意来源
+//        corsConfiguration.addAllowedOrigin("*");//任意来源
+        corsConfiguration.addAllowedOriginPattern("*");//任意来源
         corsConfiguration.setAllowCredentials(true);//是否允许携带cookie进行跨域
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsWebFilter(source);

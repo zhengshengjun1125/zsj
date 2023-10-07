@@ -19,6 +19,25 @@ import lombok.Data;
 public class CaptchaEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	public CaptchaEntity(String uuid, String code) {
+		this.uuid = uuid;
+		this.code = code;
+	}
+
+	public CaptchaEntity(String uuid, String code, Date expireTime) {
+		this.uuid = uuid;
+		this.code = code;
+		this.expireTime = expireTime;
+	}
+
+
+	public CaptchaEntity(String uuid, String code, Date expireTime, String base64) {
+		this.uuid = uuid;
+		this.code = code;
+		this.expireTime = expireTime;
+		this.base64 = base64;
+	}
+
 	/**
 	 * uuid
 	 */
@@ -33,4 +52,6 @@ public class CaptchaEntity implements Serializable {
 	 */
 	private Date expireTime;
 
+
+	private String base64;
 }

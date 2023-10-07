@@ -16,5 +16,7 @@ import java.util.Map;
 public interface UserTokenService extends IService<UserTokenEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    boolean saveOrUpdateToken(UserTokenEntity entity);
 }
 
