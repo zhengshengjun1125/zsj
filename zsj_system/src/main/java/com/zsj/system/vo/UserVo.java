@@ -17,6 +17,7 @@ public class UserVo {
         this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
+        this.avatar = user.getAvatar();
         this.mobile = user.getMobile();
         this.createTime = user.getCreateTime();
         this.creatUserId = user.getCreatUserId();
@@ -31,6 +32,10 @@ public class UserVo {
      * 账号
      */
     private String username;
+    /**
+     * 头像
+     */
+    private String avatar;
 
     /**
      * 邮箱

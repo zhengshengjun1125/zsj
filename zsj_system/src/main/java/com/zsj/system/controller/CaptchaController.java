@@ -52,7 +52,7 @@ public class CaptchaController {
     @GetMapping("/get")
     public R getCaptcha() throws IOException {
         ArithmeticCaptcha captcha = new ArithmeticCaptcha(120,40);
-        captcha.setLen(2);
+        captcha.setLen(3);
         String result = captcha.text();
         UUID uuid = UUID.randomUUID();
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
