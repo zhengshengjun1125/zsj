@@ -111,6 +111,14 @@
             <version>4.0.1</version>
         </dependency>
 
+        <!--mybatis-plus 插件分页依赖-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+
+
     </dependencies>
 
 

@@ -12,10 +12,7 @@ import com.zsj.common.utils.PageUtils;
 import com.zsj.common.utils.R;
 
 
-
 /**
- * 
- *
  * @author zsj
  * @email zsjemail666@163.com
  * @date 2023-10-07 20:47:17
@@ -27,16 +24,24 @@ public class ClassController {
     private ClassService classService;
 
 
-    @GetMapping("/test")
-    public R test(){
-        return R.ok("success");
+    @GetMapping("/getAllClass")
+    public R getAllClass() {
+        //获取所有分类并且以树形结果展示
+        return R.ok().put("data", classService.listTree());
+    }
+
+
+    @GetMapping("/getAllClassEasy")
+    public R getAllClassEasy() {
+        //获取所有分类并且以树形结果展示
+        return R.ok().put("data", classService.list());
     }
 
     /**
      * 列表
      */
     @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = classService.queryPage(params);
         return R.ok().put("page", page);
     }
@@ -46,8 +51,8 @@ public class ClassController {
      * 信息
      */
     @RequestMapping("/info/{id}")
-    public R info(@PathVariable("id") Long id){
-		ClassEntity classEntity = classService.getById(id);
+    public R info(@PathVariable("id") Long id) {
+        ClassEntity classEntity = classService.getById(id);
 
         return R.ok().put("class", classEntity);
     }
@@ -56,8 +61,8 @@ public class ClassController {
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody ClassEntity classEntity){
-		classService.save(classEntity);
+    public R save(@RequestBody ClassEntity classEntity) {
+        classService.save(classEntity);
 
         return R.ok();
     }
@@ -66,8 +71,8 @@ public class ClassController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody ClassEntity classEntity){
-		classService.updateById(classEntity);
+    public R update(@RequestBody ClassEntity classEntity) {
+        classService.updateById(classEntity);
 
         return R.ok();
     }
@@ -76,8 +81,8 @@ public class ClassController {
      * 删除
      */
     @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] ids){
-		classService.removeByIds(Arrays.asList(ids));
+    public R delete(@RequestBody Long[] ids) {
+        classService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

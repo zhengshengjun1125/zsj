@@ -18,5 +18,10 @@
         <result property="artStatus" column="art_status"/>
     </resultMap>
 
-
+    <!-- List<EntityEntity> getAllArt();-->
+    <select id="getAllArt" resultType="com.zsj.article.entity.EntityEntity">
+        select *
+        from art_entity
+        where art_status = 1;
+    </select>
 </mapper>

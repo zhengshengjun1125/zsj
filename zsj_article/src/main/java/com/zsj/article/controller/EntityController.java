@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.zsj.article.entity.EntityVoForHomePage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zsj.article.vo.EntityVoForHomePage;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +38,26 @@ public class EntityController {
         }
         return R.ok("首页信息").put("data", result);
     }
+
+    /**
+     * 返回所有文章并且附带文章分类信息
+     */
+    @GetMapping("/getAllPage")
+    public R getAllPage() {
+        return R.ok().put("data",
+                entityService.getAllArticle());
+    }
+
+    /**
+     * 返回所有文章并且附带文章分类信息 并且分页
+     */
+    @GetMapping("/getAllPageByIndex")
+    public R getAllPageLimit(@Param("cur") Integer cur,@Param("size")Integer size) {
+        Page<EntityEntity> page = new Page<>(cur,size);
+        return R.ok().put("data",entityService.getAllArticle(page));
+    }
+
+
 
     /**
      * 列表

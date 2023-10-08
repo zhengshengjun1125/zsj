@@ -1,5 +1,6 @@
-package com.zsj.article.entity;
+package com.zsj.article.vo;
 
+import com.zsj.article.entity.EntityEntity;
 import lombok.Data;
 
 /**
