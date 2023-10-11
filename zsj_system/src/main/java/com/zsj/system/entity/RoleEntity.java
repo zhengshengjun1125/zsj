@@ -12,43 +12,24 @@ import lombok.Data;
  * 
  * @author zsj
  * @email zsjemail666@163.com
- * @date 2023-10-05 20:07:09
+ * @date 2023-10-09 13:02:12
  */
 @Data
-@TableName("sys_user")
-public class UserEntity implements Serializable {
+@TableName("sys_role")
+public class RoleEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * id
+	 *  
 	 */
+	@TableId
 	private Long id;
 	/**
-	 * 账号
+	 * 角色名称
 	 */
-	private String username;
+	private String roleName;
 	/**
-	 * 密码
-	 */
-	private String password;
-	/**
-	 * 头像
-	 */
-	private String avatar;
-	/**
-	 * 邮箱
-	 */
-	private String email;
-	/**
-	 * 角色
-	 */
-	private String roleId;
-	/**
-	 * 电话
-	 */
-	private String mobile;
-	/**
-	 * 状态：0禁用 1正常
+	 * 角色状态
 	 */
 	private Integer status;
 	/**
@@ -56,8 +37,8 @@ public class UserEntity implements Serializable {
 	 */
 	private Date createTime;
 	/**
-	 * 创建者id
+	 * 修改时间
 	 */
-	private Long creatUserId;
+	private Date updateTime;
 
 }

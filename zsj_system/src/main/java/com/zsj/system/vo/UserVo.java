@@ -23,6 +23,17 @@ public class UserVo {
         this.creatUserId = user.getCreatUserId();
     }
 
+
+    public UserVo(UserEntity user,String roleName) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.roleName = roleName;
+        this.avatar = user.getAvatar();
+        this.mobile = user.getMobile();
+        this.createTime = user.getCreateTime();
+        this.creatUserId = user.getCreatUserId();
+    }
     /**
      * id
      */
@@ -32,6 +43,10 @@ public class UserVo {
      * 账号
      */
     private String username;
+    /**
+     * 角色名称
+     */
+    private String roleName;
     /**
      * 头像
      */

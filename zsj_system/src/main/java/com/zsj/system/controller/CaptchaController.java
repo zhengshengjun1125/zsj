@@ -74,7 +74,7 @@ public class CaptchaController {
                 return R.ok("验证成功");
             }
         }
-        return R.error("验证失败！");
+        return R.ok("验证失败！");
     }
 
 
