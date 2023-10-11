@@ -34,8 +34,11 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useApp } from '@/pinia/modules/app'
 
+const base = 'http://localhost:88'
+
 const service = axios.create({
-  baseURL: '/',
+  // baseURL: '/',
+  baseURL: base,
   timeout: 10000,
   withCredentials: true,
 })
@@ -45,7 +48,11 @@ service.interceptors.request.use(
   config => {
     const { authorization } = useApp()
     if (authorization) {
-      config.headers.Authorization = `Bearer ${authorization.token}`
+      // config.headers.Authorization = `Bearer ${authorization.token}`
+      config.headers.system_api_Authorize = `${authorization.token}`
+      config.headers.system_api_Authorize_name = `${localStorage.getItem(
+        'username'
+      )}`
     }
     return config
   },

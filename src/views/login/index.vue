@@ -13,10 +13,10 @@
   <div class="login">
     <el-form class="form" :model="model" :rules="rules" ref="loginForm">
       <h1 class="title">ZSJ ADMIN</h1>
-      <el-form-item prop="userName">
+      <el-form-item prop="username">
         <el-input
           class="text"
-          v-model="model.userName"
+          v-model="model.username"
           prefix-icon="User"
           clearable
           :placeholder="$t('login.username')"
@@ -32,6 +32,19 @@
           :placeholder="$t('login.password')"
         />
       </el-form-item>
+
+      <el-form-item prop="captcha">
+        <div class="captcha">
+          <el-input
+            class="text"
+            v-model="model.code"
+            prefix-icon="Picture"
+            placeholder="请计算右侧图片结果"
+          ></el-input>
+          <img :src="captchaSrc" @click="refreshCaptcha" />
+        </div>
+      </el-form-item>
+
       <el-form-item>
         <el-button
           :loading="loading"
@@ -59,8 +72,9 @@ import {
   ref,
   computed,
   watch,
+  onMounted,
 } from 'vue'
-import { Login } from '@/api/login'
+import { Login, GetValidateCode } from '@/api/login'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLang from '@/layout/components/Topbar/ChangeLang.vue'
 import useLang from '@/i18n/useLang'
@@ -92,23 +106,37 @@ export default defineComponent({
           trigger: 'blur',
         },
         {
-          min: 6,
+          min: 3,
           max: 12,
           message: ctx.$t('login.rules-regpassword'),
           trigger: 'blur',
         },
       ],
     })
+
+    // onMounted钩子函数
+    onMounted(() => {
+      state.refreshCaptcha()
+    })
     const state = reactive({
       model: {
-        userName: 'admin',
-        password: '123456',
+        username: 'zsj',
+        password: '123',
+        code: '', // 用户输入的验证码
+        key: '', // 后端返回的验证码key
+      },
+      captchaSrc: '',
+      refreshCaptcha: async () => {
+        const data = await GetValidateCode()
+        state.model.key = data.key_id
+        state.captchaSrc = data.captcha
       },
       rules: getRules(),
       loading: false,
       btnText: computed(() =>
         state.loading ? ctx.$t('login.logining') : ctx.$t('login.login')
       ),
+
       loginForm: ref(null),
       submit: () => {
         if (state.loading) {
@@ -117,13 +145,14 @@ export default defineComponent({
         state.loginForm.validate(async valid => {
           if (valid) {
             state.loading = true
-            const { code, data, message } = await Login(state.model)
+            const { code, data, msg } = await Login(state.model)
             if (+code === 200) {
+              ///我们需要将用户账号保存到localstorge中
+              localStorage.setItem('username', state.model.username)
               ctx.$message.success({
                 message: ctx.$t('login.loginsuccess'),
                 duration: 1000,
               })
-
               const targetPath = decodeURIComponent(route.query.redirect)
               if (targetPath.startsWith('http')) {
                 // 如果是一个url地址
@@ -136,7 +165,7 @@ export default defineComponent({
               }
               useApp().initToken(data)
             } else {
-              ctx.$message.error(message)
+              ctx.$message.error(msg)
             }
             state.loading = false
           }
@@ -201,6 +230,20 @@ export default defineComponent({
     }
   }
 }
+
+.captcha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.captcha img {
+  width: 200px;
+  cursor: pointer;
+  margin-left: 20px;
+}
+
 .change-lang {
   position: fixed;
   right: 20px;
