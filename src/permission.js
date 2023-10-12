@@ -37,7 +37,7 @@ import { ElLoading } from 'element-plus'
 import router from '@/router'
 // import store from '@/store'
 // import { TOKEN } from '@/store/modules/app' // TOKEN变量名
-import { TOKEN } from '@/pinia/modules/app' 
+import { TOKEN } from '@/pinia/modules/app'
 import { nextTick } from 'vue'
 import { useApp } from './pinia/modules/app'
 import { useAccount } from './pinia/modules/account'
@@ -67,6 +67,7 @@ router.beforeEach(async to => {
   if (WhiteList.includes(to.name)) {
     return true
   }
+  //如果在缓存中token和username不存在 打回登录界面
   if (!window.localStorage[TOKEN]) {
     return {
       name: 'login',

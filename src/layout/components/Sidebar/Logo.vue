@@ -35,7 +35,7 @@
 <template>
   <div class="brand">
     <img class="logo" src="~@/assets/logo.svg" @click="goHome" />
-    <div class="title">ZSJ Admin</div> 
+    <div class="title">ZSJ Admin</div>
   </div>
 </template>
 <script>
