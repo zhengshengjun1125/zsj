@@ -15,6 +15,14 @@ export const getrole = (cur, size, data) => {
   })
 }
 
+//获取所有角色
+export const getAllRoleByIndex = () => {
+  return request({
+    url: '/api/system/role/getAll',
+    method: 'get',
+  })
+}
+
 //添加角色信息
 export const addRoleInfo = data => {
   return request({
