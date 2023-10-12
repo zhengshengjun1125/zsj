@@ -2,9 +2,12 @@
 
 import com.zsj.system.entity.RoleEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zsj.system.vo.RoleParams;
 import org.apache.ibatis.annotations.Mapper;
 
-/**
+import java.util.List;
+
+    /**
  * 
  * 
  * @author zsj
@@ -13,5 +16,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface RoleDao extends BaseMapper<RoleEntity> {
-	
+	List<RoleEntity> findByPage(RoleParams roleParams);
 }

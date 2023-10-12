@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -16,6 +18,8 @@ import lombok.Data;
  */
 @Data
 @TableName("sys_user")
+@Getter
+@Setter
 public class UserEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +46,7 @@ public class UserEntity implements Serializable {
 	/**
 	 * 角色
 	 */
-	private String roleId;
+	private Long roleId;
 	/**
 	 * 电话
 	 */

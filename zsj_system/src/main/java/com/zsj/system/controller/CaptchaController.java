@@ -63,8 +63,10 @@ public class CaptchaController {
     }
 
     /**
+     * @deprecated 此方法已经废弃
      * 检测验证码
      */
+    @Deprecated
     @GetMapping("/check")
     public R checkCaptcha(@Param("key")String key,@Param("code")String code){
         ValueOperations<String, String> op = redisTemplate.opsForValue();

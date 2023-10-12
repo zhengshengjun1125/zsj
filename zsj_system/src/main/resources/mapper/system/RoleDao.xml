@@ -12,5 +12,28 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="columns">
+        id,role_name,status,create_time,update_time
+    </sql>
+
+    <!--模糊查询-->
+    <sql id="findPageWhere">
+        <where>
+            <if test="roleName != null and roleName != ''">
+                and role_name like CONCAT('%',#{roleName},'%')
+            </if>
+            and status = 1
+        </where>
+    </sql>
+
+    <select id="findByPage" resultMap="roleMap">
+        select <include refid="columns" />
+        from sys_role
+        <include refid="findPageWhere"/>
+        order by id desc
+    </select>
+
+
 
 </mapper>

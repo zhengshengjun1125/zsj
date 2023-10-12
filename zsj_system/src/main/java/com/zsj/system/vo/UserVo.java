@@ -34,6 +34,10 @@ public class UserVo {
         this.createTime = user.getCreateTime();
         this.creatUserId = user.getCreatUserId();
     }
+
+    public UserVo() {
+    }
+
     /**
      * id
      */

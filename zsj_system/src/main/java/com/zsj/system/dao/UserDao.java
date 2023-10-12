@@ -2,7 +2,11 @@ package com.zsj.system.dao;
 
 import com.zsj.system.entity.UserEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zsj.system.vo.UserVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 
@@ -14,6 +18,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserDao extends BaseMapper<UserEntity> {
 
-
+    List<UserEntity> getAllUserByCondition(@Param("user") UserEntity user);
 
 }
