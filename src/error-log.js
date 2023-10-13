@@ -42,7 +42,6 @@ export default app => {
           url: window.location.href,
           id: Date.now(),
         })
-        console.error(err, info)
       })
     }
   }

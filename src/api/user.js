@@ -14,3 +14,30 @@ export const getAllUser = (cur, size, data) => {
     data,
   })
 }
+
+//注册用户
+export const registerUser = data => {
+  return request({
+    url: '/api/system/user/register',
+    method: 'post',
+    data,
+  })
+}
+
+//干掉用户
+export const cancellationUser = data => {
+  return request({
+    url: '/api/system/user/cancellation',
+    method: 'post',
+    data,
+  })
+}
+
+//修改用户
+export const upgradeUserInfo = data => {
+  return request({
+    url: '/api/system/user/upgradeUserInfo',
+    method: 'post',
+    data,
+  })
+}
