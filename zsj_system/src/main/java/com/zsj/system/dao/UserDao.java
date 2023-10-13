@@ -20,4 +20,6 @@ public interface UserDao extends BaseMapper<UserEntity> {
 
     List<UserEntity> getAllUserByCondition(@Param("user") UserEntity user);
 
+    List<UserEntity> getUpgradeExistInfo(@Param("user")UserVo user);
+
 }

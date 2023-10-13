@@ -5,7 +5,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zsj.common.utils.*;
 import com.zsj.system.entity.RoleEntity;
 import com.zsj.system.entity.UserTokenEntity;
@@ -14,15 +15,15 @@ import com.zsj.system.service.UserTokenService;
 import com.zsj.system.vo.LoginBody;
 import com.zsj.system.vo.Token;
 import com.zsj.system.vo.UserVo;
-import io.netty.util.internal.StringUtil;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.annotations.Param;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.lang.Nullable;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
@@ -98,21 +99,23 @@ public class UserController {
                 queryWrapper.eq("username", username);
                 UserEntity entity = userService.getOne(queryWrapper);
                 if (null != entity) {
-                    //说明查到了
-                    if (Encrypt.encrypt_md5(user.getPassword()).equals(entity.getPassword())) {
-                        //说明密码正确
-                        String token = JwtUtil.getJwtToken(username);
-                        ops.set(username, token, 1, TimeUnit.DAYS);
-                        //用户账号对应的token  并且设置1天的过期时间
-                        UserTokenEntity tokenEntity = new UserTokenEntity();
-                        tokenEntity.setUserId(entity.getId());
-                        tokenEntity.setToken(token);
-                        tokenEntity.setExpireTime(new Date(System.currentTimeMillis() + 86400000));
-                        tokenEntity.setUpdateTime(new Date(System.currentTimeMillis()));
-                        userTokenService.saveOrUpdateToken(tokenEntity);
-                        //缓存用户信息 token为键  设置一天的过期时间
-                        ops.set(token, GsonUtil.gson.toJson(entity), 1, TimeUnit.DAYS);
-                        return R.ok("恭喜你登录成功！").put("data", new Token(token));
+                    if (entity.getStatus().equals(1)) {
+                        //说明查到了
+                        if (Encrypt.encrypt_md5(user.getPassword()).equals(entity.getPassword())) {
+                            //说明密码正确
+                            String token = JwtUtil.getJwtToken(username);
+                            ops.set(username, token, 1, TimeUnit.DAYS);
+                            //用户账号对应的token  并且设置1天的过期时间
+                            UserTokenEntity tokenEntity = new UserTokenEntity();
+                            tokenEntity.setUserId(entity.getId());
+                            tokenEntity.setToken(token);
+                            tokenEntity.setExpireTime(new Date(System.currentTimeMillis() + 86400000));
+                            tokenEntity.setUpdateTime(new Date(System.currentTimeMillis()));
+                            userTokenService.saveOrUpdateToken(tokenEntity);
+                            //缓存用户信息 token为键  设置一天的过期时间
+                            ops.set(token, GsonUtil.gson.toJson(entity), 1, TimeUnit.DAYS);
+                            return R.ok("恭喜你登录成功！").put("data", new Token(token));
+                        } else return R.error("此账号已经被一个人派杀手杀死了");
                     } else return R.error("不对哦~ 对哦~ 哦~");
                 } else {
                     return R.error("没有此用户你个小笨蛋");
@@ -145,9 +148,14 @@ public class UserController {
             UserEntity entity = GsonUtil.gson.fromJson(userJSon, UserEntity.class);
             RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", entity.getRoleId()));
             return R.ok().put("data", new UserVo(entity, role.getRoleName()));
+        } else {
+            //说明缓存没拿到
+            UserTokenEntity one = userTokenService.getOne(new QueryWrapper<UserTokenEntity>().eq("token", token));
+            Long userId = one.getUserId();
+            UserEntity no_do_info = userService.getOne(new QueryWrapper<UserEntity>().eq("id", userId));
+            RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", no_do_info.getRoleId()));
+            return R.ok().put("data", new UserVo(no_do_info, role.getRoleName()));
         }
-        //todo think cache cant find user info
-        return R.error("获取失败");
     }
 
 
@@ -162,7 +170,7 @@ public class UserController {
         String userList = ops.get("userList");
         if (StringUtils.isNotEmpty(userList)) {
             return R.ok("获取成功").put("data",
-                    GsonUtil.gson.fromJson(userList,UserVo[].class));
+                    GsonUtil.gson.fromJson(userList, UserVo[].class));
         } else {
             //说明缓存没查到 从db里去查
             List<UserEntity> list = userService.list();
@@ -181,8 +189,8 @@ public class UserController {
     @PostMapping("/getAllUserByPage/{cur}/{size}")
     public R getAllUserByPage(@PathVariable("cur") Integer cur,
                               @PathVariable("size") Integer size,
-                               @RequestBody UserEntity user) {
-        return R.ok().put("data",userService.getAllUserByCondition(cur, size, user));
+                              @RequestBody UserEntity user) {
+        return R.ok().put("data", userService.getAllUserByCondition(cur, size, user));
     }
 
 
@@ -190,7 +198,8 @@ public class UserController {
      * 注册用户
      */
     @PostMapping("/register")
-    public R register(@RequestBody UserEntity user) {
+    public R register(@RequestHeader("system_api_Authorize_name") String register
+            , @RequestBody UserEntity user) {
         String count = user.getUsername();
         UserEntity userEntity = userService.getOne(new QueryWrapper<UserEntity>().eq("username", count));
         if (!Objects.isNull(userEntity)) {
@@ -201,15 +210,66 @@ public class UserController {
         if (!Objects.isNull(entity)) {
             return R.error("手机号已经被使用了");
         }
+        //开始校验邮箱  手机号 是否合法
+        if (!user.getMobile().matches(MatcherFormat.mobile_matcher)) return R.error("手机格式错误");
+        if (!user.getEmail().matches(MatcherFormat.email_matcher)) return R.error("邮箱格式错误");
+        QueryWrapper<UserEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", register);
+        UserEntity one = userService.getOne(wrapper);//建造者
         user.setPassword(Encrypt.encrypt_md5(user.getPassword()));
         user.setCreateTime(new Date(System.currentTimeMillis()));
         user.setStatus(1);
+        user.setCreatUserId(one.getId());
         if (userService.save(user)) {
             //添加成功
             initUserList();//重新初始化我们的用户列表缓存
             return R.ok("注册成功");
         }
         return R.error("注册失败");
+    }
+
+
+    /**
+     * 干掉某一个用户
+     */
+    @PostMapping("/cancellation")
+    public R removeUserById(@RequestHeader("system_api_Authorize_name") String name,
+                            @RequestBody UserEntity user) {
+        //因为删除系统用户 只有能从表中点击 基本不太可能空指针
+        if (Objects.isNull(user)) return R.error("要杀人你至少给个目标啊?");
+        Long id = user.getId();
+        QueryWrapper<UserEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", id);
+        QueryWrapper<UserEntity> check = new QueryWrapper<>();
+        check.eq("username", name);
+        UserEntity one = userService.getOne(wrapper);//操作对象
+        UserEntity two = userService.getOne(check);//当前对象
+        //第一不可以删除zsj
+        if (one.getUsername().equals("zsj")) return R.error("你不可以杀掉作者呜呜呜/(ㄒoㄒ)/~~");
+        //自己不能干掉自己
+        if (one.getUsername().equals(name)) return R.error("你不可以杀掉你自己 就像鲁迅不可以杀掉周树人");
+        if (!name.equals("zsj")) {
+            RoleEntity roleServiceOne = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", one.getRoleId()));
+            RoleEntity roleServiceTwo = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", two.getRoleId()));
+            //需要校验当前用户的角色等级是否高于它要删除的对象
+            if (roleServiceTwo.getLevel() >= roleServiceOne.getLevel())
+                return R.error("你不可以杀掉级别比您高或者一样的人");
+        }
+        //到这里说明杀掉就完事了
+        UpdateWrapper<UserEntity> killer = new UpdateWrapper<>();
+        killer.eq("id", id);
+        killer.set("status", 0);
+        boolean kill_is_success = userService.update(killer);
+        return kill_is_success ? R.ok("你干掉他/她了") : R.error("任务失败了");
+    }
+
+    /**
+     * 修改用户信息
+     */
+    @PostMapping("/upgradeUserInfo")
+    public R upgradeUserInfo(@RequestHeader("system_api_Authorize_name") String name, @RequestBody UserVo vo) {
+        //根据用户id修改用户信息
+        return R.ok(userService.updateUserInfoById(vo, name));
     }
 
     /**

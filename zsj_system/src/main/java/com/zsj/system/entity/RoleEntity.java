@@ -31,6 +31,11 @@ public class RoleEntity implements Serializable {
 	 */
 	private String roleName;
 	/**
+	 * 角色权重
+	 */
+	private Long level;
+	/**
+	/**
 	 * 角色状态
 	 */
 	private Integer status;
