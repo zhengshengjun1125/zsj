@@ -195,7 +195,7 @@
       </el-form>
     </el-dialog>
 
-    <el-table :data="userList" style="width: 100%">
+    <el-table :data="userList" border style="width: 100%">
       <el-table-column prop="id" label="Id" width="180" />
       <el-table-column prop="username" label="账号" width="180" />
       <el-table-column prop="avatar" label="头像" width="180">
@@ -430,7 +430,7 @@ const rmUserById = async row => {
 const upUserById = async row => {
   osdateDrawer.value = true
   curUpObject.value = row
-  console.log(curUpObject.value)
+  // console.log(curUpObject.value)
 }
 const submitUpdateUser = async () => {
   //将表单数据提交
@@ -473,9 +473,7 @@ const submitUpdateUser = async () => {
   height: 178px;
   display: block;
 }
-</style>
 
-<style>
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;
