@@ -1,7 +1,7 @@
 ## 这是一个关于郑声军个人信息
 ## 学习笔记的应用网站后台系统
 <div>
-<div align="center"><img width="300" src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg"/>
+<div align="center"><img  src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg"/>
 <h1> ZSJ-SELF</h1>
 <p>加个好友一起讨论加油吧！</p>
 </div>
@@ -40,8 +40,11 @@
     设计初衷 让身边的朋友可以使用一个博客网页用来记录自己的学习笔记或者博客
         
    web后端
-   
+      使用gateway全局入口 并且动态路由
+      使用nacos注册服务与发现
+      gson作为json序列化
+      微服务架构
    
 ~~~
-## 🗃️ 效果图
+
 
