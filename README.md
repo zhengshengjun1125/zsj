@@ -1,8 +1,9 @@
 ###  :kissing_heart: 简介 
 ~~~
     这是一个基于vue3+vite+elementplus的后台管理系统前端项目
-    [基于此分支的后端系统开发维护](https://gitee.com/zhengshengjun/zsj/tree/develop/)
+    
 ~~~
+- [基于此分支的后端系统开发维护](https://gitee.com/zhengshengjun/zsj/tree/develop/)
 ###   :heart: 项目亮点
 ~~~
     1、混和使用了markdown编辑器 可以在自己的博客中插入各种各样的表情图片以及对markdown语法的更好支持
@@ -69,6 +70,6 @@ npm run lint
 npm run lint -- --fix
 ```
 
-### 鸣谢开源作者
-- [国内访问](https://panjiachen.gitee.io/vue-element-admin-site/zh/) 文档（方便没翻墙的用户查看）
-- [国外链接](https://github.com/PanJiaChen/vue-element-admin/)文档
+### 鸣谢开源框架作者
+- [国内访问](https://panjiachen.gitee.io/vue-element-admin-site/zh/)
+- [国外链接](https://github.com/PanJiaChen/vue-element-admin/)
