@@ -45,4 +45,9 @@ public class ClassEntity implements Serializable {
 	 */
 	private Long classFatherId;
 
+	/**
+	 * 分类的创建者
+	 */
+	private String classCreater;
+
 }

@@ -33,6 +33,7 @@ public class EntityToForce implements Serializable {
 		this.artAuther = entity.getArtAuther();;
 		this.createTime = entity.getCreateTime();;
 		this.updateTime = entity.getUpdateTime();;
+		this.status = entity.getArtStatus();
 	}
 
 	/**
@@ -49,10 +50,9 @@ public class EntityToForce implements Serializable {
 	 */
 	private Long artClassId;
 	/**
-	 * 文章所属分类id
+	 * 文章所属分类名称
 	 */
 	private String artClassName;
-
 	/**
 	 * 文章内容 需要是一个html格式或者md格式
 	 */
@@ -81,5 +81,8 @@ public class EntityToForce implements Serializable {
 	 * 文章修改时间
 	 */
 	private Date updateTime;
-
+	/**
+	 * 0表示删除 1表示正常
+	 */
+	private Integer status;
 }

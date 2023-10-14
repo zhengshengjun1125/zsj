@@ -56,7 +56,14 @@ public class RoleController {
         entity.setUpdateTime(new Date(System.currentTimeMillis()));
         entity.setStatus(1);
         long count = roleService.count(new QueryWrapper<RoleEntity>().eq("role_name", entity.getRoleName()));
-        if (count != 0) return R.error("数据已经存在");
+        if (count != 0) {
+            //说明数据存在 将status改回来就行 并且设置默认level
+            UpdateWrapper<RoleEntity> roleEntityUpdateWrapper = new UpdateWrapper<>();
+            roleEntityUpdateWrapper.set("status",1);
+            roleEntityUpdateWrapper.eq("role_name",entity.getRoleName());
+            boolean update = roleService.update(roleEntityUpdateWrapper);
+            return update?R.ok("添加成功"):R.error("添加失败");
+        };
         return roleService.save(entity) ? R.ok("添加成功") : R.error("添加失败");
     }
 

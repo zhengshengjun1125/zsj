@@ -30,6 +30,12 @@ public class ClassController {
         return R.ok().put("data", classService.listTree());
     }
 
+    @GetMapping("/getAllClassForELE")
+    public R getAllClassForELE() {
+        //获取所有分类并且以树形结果展示
+        return R.ok().put("data", classService.listTree4ELE());
+    }
+
 
     @GetMapping("/getAllClassEasy")
     public R getAllClassEasy() {

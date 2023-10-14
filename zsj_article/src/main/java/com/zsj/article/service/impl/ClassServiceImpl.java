@@ -1,10 +1,9 @@
 package com.zsj.article.service.impl;
 
 import com.zsj.article.vo.ClassVoForTree;
+import com.zsj.article.vo.ClassVoForTreeForElement;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,6 +51,39 @@ public class ClassServiceImpl extends ServiceImpl<ClassDao, ClassEntity> impleme
                 .collect(Collectors.toList());*/
 
         return buildClassTree(all);
+    }
+
+    @Override
+    public List<ClassVoForTreeForElement> listTree4ELE() {
+        // 获取所有可用分类的数据
+        List<ClassEntity> all = baseMapper.selectList(new QueryWrapper<ClassEntity>().eq("status",1));
+        return buildClassTree4ELE(all);
+    }
+
+
+    public List<ClassVoForTreeForElement> buildClassTree4ELE(List<ClassEntity> all) {
+        //先找到所有根节点
+        List<ClassEntity> roots = all.stream()
+                .filter(classEntity -> classEntity.getClassFatherId().equals(0L))
+                .collect(Collectors.toList());
+
+        return roots.stream()
+                .map(root -> buildTree4ELE(root, all))
+                .collect(Collectors.toList());
+    }
+
+
+    //递归寻找最深子节点
+    private ClassVoForTreeForElement buildTree4ELE(ClassEntity parent, List<ClassEntity> all) {
+        //从所有数据中晒出当前父id为当前parent的id的数据
+        List<ClassEntity> children = all.stream()
+                .filter(classEntity -> classEntity.getClassFatherId().equals(parent.getId()))
+                .collect(Collectors.toList());
+
+        List<ClassVoForTreeForElement> childTree = children.stream()
+                .map(child -> buildTree4ELE(child, all))
+                .collect(Collectors.toList());
+        return new ClassVoForTreeForElement(parent.getId().toString(), parent.getClassName(), parent.getClassCreater(), childTree);
     }
 
     //构建分类树

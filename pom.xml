@@ -23,7 +23,6 @@
         <module>zsj_common</module>
         <module>zsj_article</module>
         <module>renren-generator</module>
-        <module>zsj_subscriber</module>
     </modules>
 
 </project>

@@ -2,6 +2,7 @@ package com.zsj.article.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.article.vo.ClassVoForTree;
+import com.zsj.article.vo.ClassVoForTreeForElement;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.article.entity.ClassEntity;
 
@@ -20,5 +21,7 @@ public interface ClassService extends IService<ClassEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     List<ClassVoForTree> listTree();
+
+    List<ClassVoForTreeForElement> listTree4ELE();
 }
 

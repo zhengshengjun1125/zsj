@@ -1,6 +1,5 @@
 package com.zsj.article.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.article.Page.ArticlePage;
@@ -23,6 +22,11 @@ public interface EntityService extends IService<EntityEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     List<EntityToForce> getAllArticle();
+
     ArticlePage getAllArticle(Page<EntityEntity> cur);
+
+    ArticlePage getAllArticleByUserName(Page<EntityEntity> page, EntityEntity entity, String name);
+
+    boolean resetContentById(Long id, String artContent, String artTitle);
 }
 
