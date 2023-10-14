@@ -1,7 +1,7 @@
 ## 这是一个关于郑声军个人信息
 ## 学习笔记的应用网站后台系统
 <div>
-<div align="center"><img width="200" height="200" src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg"/>
+<div align="center"><img width="500" height="400" src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg"/>
 <h1> ZSJ-SELF</h1>
 <p>加个好友一起讨论加油吧！</p>
 </div>
