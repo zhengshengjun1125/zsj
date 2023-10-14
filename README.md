@@ -27,7 +27,7 @@
 
 ```bash
 # 克隆项目
-git https://gitee.com/zhengshengjun/zsj.git
+git clone https://gitee.com/zhengshengjun/zsj.git
 
 # 进入项目目录
 cd zsj
