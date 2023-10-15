@@ -91,7 +91,9 @@ public class UserController {
         //验证码的校验
         String key = user.getKey();
         String code = user.getCode();
+        //验证码过期了
         if (ops.get(key) != null) {
+            //回答错了
             if (code.equals(ops.get(key))) {
                 redisTemplate.delete(key);//删除对应key
                 String username = user.getUsername();
@@ -120,9 +122,11 @@ public class UserController {
                 } else {
                     return R.error("没有此用户你个小笨蛋");
                 }
+            }else {
+                return R.error("验证码错误").put("data", new Token());
             }
         }
-        return R.error("验证码错误").put("data", new Token());
+        return R.error("验证码已经过期,请刷新").put("data", new Token());
     }
 
 
@@ -216,6 +220,18 @@ public class UserController {
         QueryWrapper<UserEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("username", register);
         UserEntity one = userService.getOne(wrapper);//建造者
+        Long register_role_id = one.getRoleId();
+        if (user.getRoleId() == 1 && !register.equals("zsj")) {
+            //如果注册的是超级管理员
+            return R.error("越权操作");
+        }
+        RoleEntity register_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", register_role_id));
+        Long register_roleLevel = register_role.getLevel();
+        RoleEntity user_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", user.getRoleId()));
+        Long user_roleLevel = user_role.getLevel();
+        if (register_roleLevel >= user_roleLevel) {
+            return R.error("越权操作");
+        }
         user.setPassword(Encrypt.encrypt_md5(user.getPassword()));
         user.setCreateTime(new Date(System.currentTimeMillis()));
         user.setStatus(1);

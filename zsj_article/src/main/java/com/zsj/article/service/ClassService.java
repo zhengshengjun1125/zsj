@@ -23,5 +23,9 @@ public interface ClassService extends IService<ClassEntity> {
     List<ClassVoForTree> listTree();
 
     List<ClassVoForTreeForElement> listTree4ELE();
+
+    boolean zccg(Long id);
+
+    List<ClassEntity> getChildById(Long id);
 }
 

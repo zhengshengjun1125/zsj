@@ -32,7 +32,7 @@ public class R extends HashMap<String, Object> {
 
 
     public static R No_auth() {
-        return error(HttpStatus.SC_INTERNAL_SERVER_ERROR, "请先登录好吗？");
+        return error(HttpStatus.SC_UNAUTHORIZED, "请先登录好吗？");
     }
 
     public static R error(String msg) {
