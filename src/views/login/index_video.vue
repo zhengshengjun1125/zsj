@@ -1,65 +1,69 @@
 <!--
- * @Descripttion: 
- * @version: 
- * @Date: 2021-04-20 11:06:21
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2022-09-27 18:24:27
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
+视频背景
 -->
 <template>
   <div class="login">
-    <el-form class="form" :model="model" :rules="rules" ref="loginForm">
-      <h1 class="title">{{ $t('login.title') }}</h1>
-      <el-form-item prop="username">
-        <el-input
-          class="text"
-          v-model="model.username"
-          prefix-icon="User"
-          clearable
-          :placeholder="$t('login.username')"
-        />
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input
-          class="text"
-          v-model="model.password"
-          prefix-icon="Lock"
-          show-password
-          clearable
-          :placeholder="$t('login.password')"
-        />
-      </el-form-item>
-
-      <el-form-item prop="captcha">
-        <div class="captcha">
+    <div class="video-box">
+      <video
+        class="video-background"
+        preload="auto"
+        loop
+        playsinline
+        autoplay
+        src="https://request-oss-zsj.oss-cn-beijing.aliyuncs.com/login_video/Chainsaw%20Man%20Girls%201080p.mp4"
+        tabindex="-1"
+        muted="muted"
+      ></video>
+      <el-form class="form" :model="model" :rules="rules" ref="loginForm">
+        <h1 class="title">{{ $t('login.title') }}</h1>
+        <el-form-item prop="username">
           <el-input
             class="text"
-            v-model="model.code"
-            prefix-icon="Picture"
-            :placeholder="$t('login.tips')"
-          ></el-input>
-          <img :src="captchaSrc" @click="refreshCaptcha" />
-        </div>
-      </el-form-item>
+            v-model="model.username"
+            prefix-icon="User"
+            clearable
+            :placeholder="$t('login.username')"
+          />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            class="text"
+            v-model="model.password"
+            prefix-icon="Lock"
+            show-password
+            clearable
+            :placeholder="$t('login.password')"
+          />
+        </el-form-item>
 
-      <el-form-item>
-        <el-button
-          :loading="loading"
-          type="primary"
-          class="btn"
-          size="large"
-          @click="submit"
-        >
-          {{ btnText }}
-        </el-button>
-      </el-form-item>
-    </el-form>
-  </div>
-  <div class="change-lang">
-    <change-lang />
+        <el-form-item prop="captcha">
+          <div class="captcha">
+            <el-input
+              class="text"
+              v-model="model.code"
+              prefix-icon="Picture"
+              :placeholder="$t('login.tips')"
+            ></el-input>
+            <img :src="captchaSrc" @click="refreshCaptcha" />
+          </div>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button
+            :loading="loading"
+            type="primary"
+            class="btn"
+            size="large"
+            @click="submit"
+          >
+            {{ btnText }}
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="change-lang">
+      <change-lang />
+    </div>
   </div>
 </template>
 
@@ -187,8 +191,8 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #2d3a4b;
   .form {
+    color: black;
     width: 520px;
     max-width: 100%;
     padding: 0 24px;
@@ -209,7 +213,8 @@ export default defineComponent({
       }
     }
     .title {
-      color: #fff;
+      z-index: 2;
+      color: red;
       text-align: center;
       font-size: 24px;
       margin: 0 0 24px;
@@ -259,5 +264,32 @@ export default defineComponent({
       }
     }
   }
+}
+
+video {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+}
+
+.video-box {
+  position: relative;
+  height: 100vh;
+  /*进行视频裁剪*/
+  overflow: hidden;
+  z-index: -1;
+}
+
+.video-box .video-background {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /*保证视频内容始终居中*/
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  /*保证视频充满屏幕*/
+  object-fit: cover;
+  min-height: 800px;
 }
 </style>

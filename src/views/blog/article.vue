@@ -69,7 +69,12 @@
         :render-after-expand="false"
         clearable
       />
-      <v-md-editor v-model="curAddContent" height="400px"></v-md-editor>
+      <!-- " -->
+      <v-md-editor
+        v-model="curAddContent"
+        height="400px"
+        left-toolbar="undo redo | h bold italic emoji strikethrough quote ul ol table hr link image code save"
+      ></v-md-editor>
       <el-button class="md_submit" type="success" @click="addARTINFOSUBMITNOW">
         提交
       </el-button>
@@ -116,7 +121,7 @@
     </el-dialog>
 
     <el-table :data="articleData" border style="width: 100%">
-      <el-table-column prop="artTitle" label="标题" width="180" />
+      <el-table-column prop="artTitle" label="标题" width="250" />
       <el-table-column prop="artClassName" label="分类" width="120" />
       <el-table-column prop="artAuther" label="作者" width="180" />
       <el-table-column prop="artRequestDay" label="日访问量" />

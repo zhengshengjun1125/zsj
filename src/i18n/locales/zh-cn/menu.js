@@ -1,6 +1,8 @@
 export default {
   homepage: '首页',
   dashboard: '工作台',
+  blog: '博客管理',
+  system: '系统管理',
   test: '测试页面',
   testList: '列表',
   testAdd: '添加',

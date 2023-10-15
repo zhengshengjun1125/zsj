@@ -1,6 +1,8 @@
 export default {
   homepage: 'Homepage',
   dashboard: 'Dashboard',
+  blog: 'blog management',
+  system: 'system management',
   test: 'Test page',
   testList: 'List',
   testAdd: 'Add',

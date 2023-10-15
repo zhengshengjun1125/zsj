@@ -22,6 +22,7 @@
   "dependencies": {
     "@kangc/v-md-editor": "^2.3.17",
     "axios": "^0.21.1",
+    "caniuse-lite": "^1.0.30001549",
     "pinia": "^2.0.14",
     "vue": "3.2.33",
     "vue-router": "^4.0.5",
@@ -54,6 +55,11 @@
       "npm run lint",
       "git add"
     ]
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-unused-vars": "off"
+    }
   },
   "husky": {
     "hooks": {

@@ -10,5 +10,5 @@
  * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
 -->
 <template>
-  home
+  todo 做一些好看好玩的东西
 </template>

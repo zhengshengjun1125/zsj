@@ -13,7 +13,7 @@ export default [
     component: Layout,
     name: 'system',
     meta: {
-      title: '系统管理',
+      title: 'menu.system',
     },
     icon: 'Operation',
     children: [
@@ -51,7 +51,7 @@ export default [
     component: Layout,
     name: 'blog',
     meta: {
-      title: '博客管理',
+      title: 'menu.blog',
     },
     icon: 'HomeFilled',
     children: [
