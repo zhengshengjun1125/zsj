@@ -13,6 +13,7 @@ import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.RoleService;
 import com.zsj.system.service.UserTokenService;
 import com.zsj.system.vo.LoginBody;
+import com.zsj.system.vo.PassFormByUser;
 import com.zsj.system.vo.Token;
 import com.zsj.system.vo.UserVo;
 
@@ -122,7 +123,7 @@ public class UserController {
                 } else {
                     return R.error("没有此用户你个小笨蛋");
                 }
-            }else {
+            } else {
                 return R.error("验证码错误").put("data", new Token());
             }
         }
@@ -277,6 +278,45 @@ public class UserController {
         killer.set("status", 0);
         boolean kill_is_success = userService.update(killer);
         return kill_is_success ? R.ok("你干掉他/她了") : R.error("任务失败了");
+    }
+
+
+    /**
+     * 修改用户的密码  todo
+     * 需要保证用户不会直接请求到用户服务这里 我们还是需要进行鉴权 todo
+     */
+    @PostMapping("/resetPass")
+    public R resetCurUserPass(@RequestHeader("system_api_Authorize_name") String name,
+                              @RequestHeader("system_api_Authorize") String token,
+                              @RequestBody PassFormByUser user) {
+        //直接根据请求头中的用户名称来进行修改 因为 我们网关的写法 不会导致出现token和name不对应的情况
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String sign = ops.get(name);
+        if (!Objects.isNull(sign) && !sign.isEmpty()) {
+            //如果redis中存在
+            //校验token的合法性
+            if (sign.equals(token)) {
+                //说明token校验通过
+                //还需要校验旧密码
+                String oldPassword = user.getOldPassword();
+                QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("username",name);
+                UserEntity one = userService.getOne(queryWrapper);
+                if (Encrypt.encrypt_md5(oldPassword).equals(one.getPassword())){
+                    //旧密码正确
+                    UpdateWrapper<UserEntity> wrapper = new UpdateWrapper<>();
+                    wrapper.eq("username",name);//对指定账号进行修改 因为账号是唯一的
+                    wrapper.set("password",Encrypt.encrypt_md5(user.getNewPassword()));
+                    return userService.update(wrapper)?R.ok("修改成功"):R.error("修改失败");
+                }else {
+                    return R.error("旧密码错误");
+                }
+
+            } else {
+                return R.error(401, "请重新登录");
+            }
+        }
+        return R.error("非法操作");
     }
 
     /**
