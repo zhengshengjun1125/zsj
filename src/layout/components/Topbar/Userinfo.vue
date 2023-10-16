@@ -45,6 +45,39 @@
  -->
 
 <template>
+  <!-- 修改密码对话框 todo -->
+  <el-dialog v-model="openResetPassDig" title="修改密码" width="30%" draggable>
+    <el-form label-width="120px">
+      <el-form-item label="旧密码">
+        <el-input
+          type="password"
+          show-password
+          v-model="ordPass"
+          placeholder="请输入旧密码"
+        />
+      </el-form-item>
+      <el-form-item label="新密码">
+        <el-input
+          type="password"
+          show-password
+          v-model="newPass"
+          placeholder="请输入新密码"
+        />
+      </el-form-item>
+      <el-form-item label="确认新密码">
+        <el-input
+          type="password"
+          show-password
+          v-model="checkNewPass"
+          placeholder="请在输入一次新密码"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submitResetPassword">提交</el-button>
+        <el-button @click="openResetPassDig = false">取消</el-button>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
   <el-dropdown trigger="hover">
     <div class="userinfo">
       <template v-if="!userinfo">
@@ -59,7 +92,9 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item>{{ $t('topbar.center') }}</el-dropdown-item>
-        <el-dropdown-item>{{ $t('topbar.password') }}</el-dropdown-item>
+        <el-dropdown-item @click="openResetPass">
+          {{ $t('topbar.password') }}
+        </el-dropdown-item>
         <lock-modal />
         <el-dropdown-item @click="logout">
           {{ $t('topbar.logout') }}
@@ -69,23 +104,71 @@
   </el-dropdown>
 </template>
 <script>
-import { defineComponent, getCurrentInstance } from 'vue'
+import { defineComponent, getCurrentInstance, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserinfo } from '@/components/Avatar/hooks/useUserinfo'
 import LockModal from './LockModal.vue'
 import { useApp } from '@/pinia/modules/app'
 import { Logout } from '@/api/login'
+import { resetPass } from '@/api/user'
 
 export default defineComponent({
   components: {
     LockModal,
   },
   setup() {
+    const ordPass = ref('')
+    const newPass = ref('')
+    const checkNewPass = ref('')
+
+    const openResetPassDig = ref(false)
     const router = useRouter()
 
     const { userinfo } = useUserinfo()
 
     const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
+
+    const openResetPass = () => {
+      openResetPassDig.value = true
+    }
+
+    const submitResetPassword = async () => {
+      //提交之前的验证
+      if (
+        ordPass.value == null ||
+        ordPass.value == '' ||
+        ordPass.value == undefined
+      ) {
+        ctx.$message.error('旧密码不能为空')
+      } else if (
+        newPass.value == null ||
+        newPass.value == '' ||
+        newPass.value == undefined
+      ) {
+        ctx.$message.error('新密码不能为空')
+      } else if (
+        checkNewPass.value == null ||
+        checkNewPass.value == '' ||
+        checkNewPass.value == undefined
+      ) {
+        ctx.$message.error('确认密码框不能为空')
+      } else if (checkNewPass.value != newPass.value) {
+        ctx.$message.error('两次输入的密码不一致')
+      } else {
+        //验证通过
+        const { msg, code } = await resetPass({
+          oldPassword: ordPass.value,
+          newPassword: newPass.value,
+        })
+        if (code == 200) {
+          //提示修改成功后将路由跳转到login
+          ctx.$message.success(msg)
+          router.push('/login')
+        } else {
+          ctx.$message.error(msg)
+        }
+      }
+    }
 
     // 退出
     const logout = async () => {
@@ -104,6 +187,12 @@ export default defineComponent({
     return {
       userinfo,
       logout,
+      openResetPass,
+      openResetPassDig,
+      ordPass,
+      newPass,
+      checkNewPass,
+      submitResetPassword,
     }
   },
 })

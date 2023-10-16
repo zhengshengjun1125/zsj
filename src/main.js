@@ -100,11 +100,11 @@ import hljs from 'highlight.js'
 VMdPreview.use(githubTheme, {
   Hljs: hljs,
 })
-
-VueMarkdownEditor.use(createEmojiPlugin())
 VueMarkdownEditor.use(vuepressTheme, {
   Prism,
 })
+VueMarkdownEditor.use(createEmojiPlugin())
+
 useErrorHandler(app)
 app
   .use(VMdPreview)

@@ -41,3 +41,12 @@ export const upgradeUserInfo = data => {
     data,
   })
 }
+
+//修改用户密码
+export const resetPass = data => {
+  return request({
+    url: '/api/system/user/resetPass',
+    method: 'post',
+    data,
+  })
+}

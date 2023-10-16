@@ -91,7 +91,12 @@
         placeholder="当前文章标题"
         clearable
       />
-      <v-md-editor v-model="curContent" height="400px"></v-md-editor>
+
+      <v-md-editor
+        v-model="curContent"
+        height="400px"
+        left-toolbar="undo redo | h bold italic emoji strikethrough quote ul ol table hr link image code save"
+      ></v-md-editor>
       <!-- 预览模式<v-md-editor
         v-model="curContent"
         height="400px"
