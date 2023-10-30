@@ -118,8 +118,8 @@ public class UserController {
                             //缓存用户信息 token为键  设置一天的过期时间
                             ops.set(token, GsonUtil.gson.toJson(entity), 1, TimeUnit.DAYS);
                             return R.ok("恭喜你登录成功！").put("data", new Token(token));
-                        } else return R.error("此账号已经被一个人派杀手杀死了");
-                    } else return R.error("不对哦~ 对哦~ 哦~");
+                        }  else return R.error("不对哦~ 对哦~ 哦~");
+                    }else return R.error("此账号已经被一个人派杀手杀死了");
                 } else {
                     return R.error("没有此用户你个小笨蛋");
                 }

@@ -8,6 +8,7 @@ import com.zsj.system.entity.UserEntity;
 import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.UserTokenService;
 import com.zsj.system.vo.UserVo;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 @SpringBootTest
+@Slf4j
 class ZsjSystemApplicationTests {
 
 
@@ -31,12 +33,8 @@ class ZsjSystemApplicationTests {
 
     @Test
     void contextLoads() {
-        UserEntity entity = new UserEntity();
-//        entity.setUsername("zsj");
-
-//        entity.setRoleId(1L);
-        List<UserEntity> all = userDao.getAllUserByCondition(entity);
-        all.forEach(System.out::println);
+        String s = Encrypt.encrypt_md5("123456");
+        log.info("password {}",s);
     }
 
 }
