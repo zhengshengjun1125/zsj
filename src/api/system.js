@@ -50,3 +50,20 @@ export const updateRoleById = data => {
     data,
   })
 }
+
+// 查询指定角色所对应的菜单id
+export const GetSysRoleMenuIds = roleId => {
+  return request({
+    url: '/api/system/rolemenu/findSysRoleMenuByRoleId/' + roleId,
+    method: 'get',
+  })
+}
+
+// 根据角色分配菜单请求方法
+export const DoAssignMenuIdToSysRole = assignMenuDto => {
+  return request({
+    url: '/api/system/rolemenu/doAssign',
+    method: 'post',
+    data: assignMenuDto,
+  })
+}

@@ -46,6 +46,27 @@
       </el-form>
     </el-dialog>
 
+    <!-- 分配菜单的对话框 
+// tree组件添加ref属性，后期方便进行tree组件对象的获取
+-->
+    <el-dialog v-model="dialogMenuVisible" title="分配菜单" width="40%">
+      <el-form label-width="80px">
+        <el-tree
+          :data="sysMenuTreeList"
+          ref="tree"
+          show-checkbox
+          default-expand-all
+          :check-on-click-node="true"
+          node-key="id"
+          :props="defaultProps"
+        />
+        <el-form-item>
+          <el-button type="primary" @click="doAssign">提交</el-button>
+          <el-button @click="dialogMenuVisible = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
     <!-- 修改用户对话框 -->
     <el-dialog
       v-model="updateRoledialogVisible"
@@ -75,6 +96,13 @@
         <el-button type="danger" size="small" @click="removeRole(scope.row)">
           删除
         </el-button>
+        <el-button
+          type="warning"
+          size="small"
+          @click="showAssignMenu(scope.row)"
+        >
+          分配菜单
+        </el-button>
       </el-table-column>
     </el-table>
 
@@ -99,6 +127,64 @@ import {
   updateRoleById,
 } from '@/api/system'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { GetSysRoleMenuIds, DoAssignMenuIdToSysRole } from '@/api/system'
+
+const defaultProps = {
+  children: 'children',
+  label: 'title',
+}
+const dialogMenuVisible = ref(false)
+const sysMenuTreeList = ref([])
+
+const doAssign = async () => {
+  const checkedNodes = tree.value.getCheckedNodes() // 获取选中的节点
+  const checkedNodesIds = checkedNodes.map(node => {
+    // 获取选中的节点的id
+    return {
+      id: node.id,
+      isHalf: 0,
+    }
+  })
+
+  // 获取半选中的节点数据，当一个节点的子节点被部分选中时，该节点会呈现出半选中的状态
+  const halfCheckedNodes = tree.value.getHalfCheckedNodes()
+  const halfCheckedNodesIds = halfCheckedNodes.map(node => {
+    // 获取半选中节点的id
+    return {
+      id: node.id,
+      isHalf: 1,
+    }
+  })
+
+  // 将选中的节点id和半选中的节点的id进行合并
+  const menuIds = [...checkedNodesIds, ...halfCheckedNodesIds]
+  console.log(menuIds)
+
+  // 构建请求数据
+  const assignMenuDto = {
+    roleId: roleId,
+    menuIdList: menuIds,
+  }
+
+  // 发送请求
+  await DoAssignMenuIdToSysRole(assignMenuDto)
+  ElMessage.success('操作成功')
+  dialogMenuVisible.value = false
+}
+
+// 树对象变量
+const tree = ref()
+
+// 默认选中的菜单数据集合
+let roleId = ref()
+const showAssignMenu = async row => {
+  dialogMenuVisible.value = true
+  roleId = row.id
+  const { list } = await GetSysRoleMenuIds(row.id) // 请求后端地址获取所有的菜单数据，以及当前角色所对应的菜单数据
+  console.log(list)
+  sysMenuTreeList.value = list.sysMenuList
+  tree.value.setCheckedKeys(list.roleMenuIds) // 进行数据回显
+}
 
 const curRole = ref({})
 const addRoledialogVisible = ref(false)
