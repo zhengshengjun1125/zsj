@@ -96,6 +96,7 @@ export const useMenus = defineStore('menu', () => {
 
       // 生成菜单
       const menus = getFilterMenus([...fixedRoutes, ...filterRoutes])
+      console.log(menus)
       setMenus(menus)
     }
   }

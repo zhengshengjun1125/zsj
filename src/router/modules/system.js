@@ -3,6 +3,7 @@ const Layout = () => import('@/layout/index.vue')
 const sysRole = () => import('@/views/system/sysRole.vue')
 const sysUser = () => import('@/views/system/sysUser.vue')
 const sysMenu = () => import('@/views/system/sysMenu.vue')
+const sysOperLog = () => import('@/views/system/sysOperLog.vue')
 const article = () => import('@/views/blog/article.vue')
 const classType = () => import('@/views/blog/classType.vue')
 const theHomeImg = () => import('@/views/blog/theHomeImg.vue')
@@ -41,6 +42,15 @@ export default [
         component: sysMenu,
         meta: {
           title: '菜单管理',
+        },
+        hidden: false,
+      },
+      {
+        path: '/log',
+        name: 'sysOperLog',
+        component: sysOperLog,
+        meta: {
+          title: '日志管理',
         },
         hidden: false,
       },

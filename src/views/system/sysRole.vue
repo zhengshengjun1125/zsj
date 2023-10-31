@@ -169,6 +169,7 @@ const doAssign = async () => {
   // 发送请求
   await DoAssignMenuIdToSysRole(assignMenuDto)
   ElMessage.success('操作成功')
+  window.location.reload()
   dialogMenuVisible.value = false
 }
 

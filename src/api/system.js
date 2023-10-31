@@ -67,3 +67,19 @@ export const DoAssignMenuIdToSysRole = assignMenuDto => {
     data: assignMenuDto,
   })
 }
+
+// 获取日志集合
+export const getLogList = (cur, size) => {
+  return request({
+    url: '/api/system/log/list/' + cur + '/' + size,
+    method: 'get',
+  })
+}
+
+// 获取日志集合
+export const gettenLogList = () => {
+  return request({
+    url: '/api/system/log/listTen',
+    method: 'get',
+  })
+}
