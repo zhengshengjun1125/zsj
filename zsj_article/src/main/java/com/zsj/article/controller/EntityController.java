@@ -5,9 +5,16 @@ import java.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.reflect.TypeToken;
+import com.zsj.article.Page.ArticlePage;
 import com.zsj.article.vo.EntityVoForHomePage;
+import com.zsj.common.utils.GsonUtil;
+import com.zsj.common.utils.ObjectUtil;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +35,16 @@ public class EntityController {
     @Autowired
     private EntityService entityService;
 
+    @Autowired
+    @Lazy
+    private StringRedisTemplate stringRedisTemplate;
 
+
+    /**
+     * 根据周点赞数量来排序文章列表 todo
+     *
+     * @return
+     */
     @GetMapping("/homeInfo")
     public R getHomeInfo() {
         List<EntityEntity> list = entityService.list();
@@ -65,8 +81,23 @@ public class EntityController {
                              @PathVariable("cur") Integer cur,
                              @PathVariable("size") Integer size,
                              @Nullable @RequestBody EntityEntity entity) {
-        //根据条件进行文章信息的查询
-        return R.ok().put("data", entityService.getAllArticleByUserName(new Page<>(cur, size), entity, name));
+        ValueOperations<String, String> ops =
+                stringRedisTemplate.opsForValue();
+
+        String json = ops.get("articlePage/" + cur + '/' + size);
+        if (ObjectUtil.isNullOrEmpty(json)) {
+            //根据条件进行文章信息的查询
+            ArticlePage articlePage = getArticlePage(name, cur, size, entity, ops);
+            return R.ok().put("data", articlePage);
+        }
+        return R.ok().put("data", GsonUtil.gson.fromJson(json, ArticlePage.class));
+    }
+
+    private ArticlePage getArticlePage(String name, Integer cur, Integer size, EntityEntity entity, ValueOperations<String, String> ops) {
+        ArticlePage articlePage = entityService.getAllArticleByUserName(new Page<>(cur, size), entity, name);
+        String gsonJson = GsonUtil.gson.toJson(articlePage);
+        ops.set("articlePage/" + cur + '/' + size, gsonJson);
+        return articlePage;
     }
 
     /**
@@ -79,13 +110,21 @@ public class EntityController {
             String artContent = entity.getArtContent();
             String artTitle = entity.getArtTitle();
             if (id != null && artContent != null && artTitle != null && !artTitle.equals("")) {
+                //更新缓存
+                boolean b = entityService.resetContentById(id, artContent, artTitle);
+                extracted();
                 //传入的参数不能为空
-                return entityService.resetContentById(id, artContent, artTitle) ?
+                return b ?
                         R.ok("修改成功")
                         : R.error("未知错误,请联系管理员");
             }
         }
         return R.error("非法操作");
+    }
+
+    private void extracted() {
+        Set<String> keys = stringRedisTemplate.keys("articlePage/*");
+        stringRedisTemplate.delete(keys);//删除缓存中的分页文章信息 下次拿的时候更新缓存即可
     }
 
     /**
@@ -100,6 +139,7 @@ public class EntityController {
                 UpdateWrapper<EntityEntity> wrapper = new UpdateWrapper<>();
                 wrapper.set("art_class_id", artClassId);
                 wrapper.eq("id", id);
+                extracted();
                 return entityService.update(wrapper) ? R.ok("修改成功") : R.error("修改失败");
             }
         }
@@ -122,7 +162,9 @@ public class EntityController {
         entity.setArtAuther(auther);
         entity.setCreateTime(new Date(System.currentTimeMillis()));
         entity.setUpdateTime(new Date(System.currentTimeMillis()));
-        return entityService.save(entity) ? R.ok("添加成功") : R.error("添加失败");
+        boolean save = entityService.save(entity);
+        extracted();
+        return save ? R.ok("添加成功") : R.error("添加失败");
     }
 
     /**
@@ -150,7 +192,9 @@ public class EntityController {
                         //可以删
                         wrapper.eq("id", id);
                         wrapper.set("art_status", 0);
-                        return entityService.update(wrapper) ? R.ok("删除成功") : R.error("删除失败");
+                        boolean update = entityService.update(wrapper);
+                        extracted();
+                        return update ? R.ok("删除成功") : R.error("删除失败");
                     }
                 }
             }

@@ -15,4 +15,11 @@
     </resultMap>
 
 
+    <select id="getTen" resultMap="logMap">
+        SELECT *
+        FROM sys_log
+        WHERE id > (SELECT MAX(id) FROM sys_log) - 10 -- 获取最后十条数据
+          AND operation NOT LIKE '%log%' -- 排除字段值包含"log"的数据
+        ORDER BY id DESC;
+    </select>
 </mapper>

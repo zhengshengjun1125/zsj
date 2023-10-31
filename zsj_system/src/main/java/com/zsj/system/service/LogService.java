@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.system.entity.LogEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface LogService extends IService<LogEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    List<LogEntity> getTen();
 }
 

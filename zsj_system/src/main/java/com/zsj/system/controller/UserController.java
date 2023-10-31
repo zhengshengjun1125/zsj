@@ -32,6 +32,8 @@ import com.zsj.system.entity.UserEntity;
 import com.zsj.system.service.UserService;
 
 
+
+
 /**
  * @author zsj
  * @email zsjemail666@163.com
@@ -59,17 +61,12 @@ public class UserController {
     RedisTemplate<String, String> redisTemplate;
 
 
+
     void initUserList() {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         //将所有信息缓存到redis中
-        List<UserEntity> list = userService.list(new QueryWrapper<UserEntity>().eq("status", 1));
-        List<UserVo> curList = list.stream().map(user ->
-        {
-            RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", user.getRoleId()));
-            return new UserVo(user, role.getRoleName());
-        }).collect(Collectors.toList());
-
-        ops.set("userList", GsonUtil.gson.toJson(curList));//缓存用户集合
+        List<UserVo> userList = getUserList();
+        ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
     }
 
     /**
@@ -118,8 +115,8 @@ public class UserController {
                             //缓存用户信息 token为键  设置一天的过期时间
                             ops.set(token, GsonUtil.gson.toJson(entity), 1, TimeUnit.DAYS);
                             return R.ok("恭喜你登录成功！").put("data", new Token(token));
-                        }  else return R.error("不对哦~ 对哦~ 哦~");
-                    }else return R.error("此账号已经被一个人派杀手杀死了");
+                        } else return R.error("不对哦~ 对哦~ 哦~");
+                    } else return R.error("此账号已经被一个人派杀手杀死了");
                 } else {
                     return R.error("没有此用户你个小笨蛋");
                 }
@@ -178,11 +175,9 @@ public class UserController {
                     GsonUtil.gson.fromJson(userList, UserVo[].class));
         } else {
             //说明缓存没查到 从db里去查
-            List<UserEntity> list = userService.list();
-            return R.ok("获取成功").put("data", list.stream().map(user -> {
-                RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", user.getRoleId()));
-                return new UserVo(user, role.getRoleName());
-            }).collect(Collectors.toList()));
+            List<UserVo> collect = getUserList();
+            ops.set("userList", GsonUtil.gson.toJson(collect));
+            return R.ok("获取成功").put("data", collect);
         }
     }
 
@@ -240,6 +235,7 @@ public class UserController {
         if (userService.save(user)) {
             //添加成功
             initUserList();//重新初始化我们的用户列表缓存
+            //注册成功后利用消息队列发送邮件给予注册成功的用户的邮箱账号 todo
             return R.ok("注册成功");
         }
         return R.error("注册失败");
@@ -277,13 +273,14 @@ public class UserController {
         killer.eq("id", id);
         killer.set("status", 0);
         boolean kill_is_success = userService.update(killer);
+        initUserList();
         return kill_is_success ? R.ok("你干掉他/她了") : R.error("任务失败了");
     }
 
 
     /**
-     * 修改用户的密码  todo
-     * 需要保证用户不会直接请求到用户服务这里 我们还是需要进行鉴权 todo
+     * 修改用户的密码
+     * 需要保证用户不会直接请求到用户服务这里 我们还是需要进行鉴权
      */
     @PostMapping("/resetPass")
     public R resetCurUserPass(@RequestHeader("system_api_Authorize_name") String name,
@@ -300,15 +297,16 @@ public class UserController {
                 //还需要校验旧密码
                 String oldPassword = user.getOldPassword();
                 QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("username",name);
+                queryWrapper.eq("username", name);
                 UserEntity one = userService.getOne(queryWrapper);
-                if (Encrypt.encrypt_md5(oldPassword).equals(one.getPassword())){
+                if (Encrypt.encrypt_md5(oldPassword).equals(one.getPassword())) {
                     //旧密码正确
                     UpdateWrapper<UserEntity> wrapper = new UpdateWrapper<>();
-                    wrapper.eq("username",name);//对指定账号进行修改 因为账号是唯一的
-                    wrapper.set("password",Encrypt.encrypt_md5(user.getNewPassword()));
-                    return userService.update(wrapper)?R.ok("修改成功"):R.error("修改失败");
-                }else {
+                    wrapper.eq("username", name);//对指定账号进行修改 因为账号是唯一的
+                    wrapper.set("password", Encrypt.encrypt_md5(user.getNewPassword()));
+                    initUserList();
+                    return userService.update(wrapper) ? R.ok("修改成功") : R.error("修改失败");
+                } else {
                     return R.error("旧密码错误");
                 }
 
@@ -324,10 +322,21 @@ public class UserController {
      */
     @PostMapping("/upgradeUserInfo")
     public R upgradeUserInfo(@RequestHeader("system_api_Authorize_name") String name, @RequestBody UserVo vo) {
+        String message = userService.updateUserInfoById(vo, name);
         //根据用户id修改用户信息
-        return R.ok(userService.updateUserInfoById(vo, name));
+        if (message.equals("修改成功")) initUserList();
+        return R.ok(message);
     }
 
+
+    List<UserVo> getUserList(){
+        List<UserEntity> list = userService.list(new QueryWrapper<UserEntity>().eq("status", 1));
+        return list.stream().map(user ->
+        {
+            RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", user.getRoleId()));
+            return new UserVo(user, role.getRoleName());
+        }).collect(Collectors.toList());
+    }
     /**
      * 列表
      */
@@ -336,47 +345,6 @@ public class UserController {
         PageUtils page = userService.queryPage(params);
 
         return R.ok().put("page", page);
-    }
-
-
-    /**
-     * 信息
-     */
-    @RequestMapping("/info/{id}")
-    public R info(@PathVariable("id") Long id) {
-        UserEntity user = userService.getById(id);
-
-        return R.ok().put("user", user);
-    }
-
-    /**
-     * 保存
-     */
-    @RequestMapping("/save")
-    public R save(@RequestBody UserEntity user) {
-        userService.save(user);
-
-        return R.ok();
-    }
-
-    /**
-     * 修改
-     */
-    @RequestMapping("/update")
-    public R update(@RequestBody UserEntity user) {
-        userService.updateById(user);
-
-        return R.ok();
-    }
-
-    /**
-     * 删除
-     */
-    @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] ids) {
-        userService.removeByIds(Arrays.asList(ids));
-
-        return R.ok();
     }
 
 }

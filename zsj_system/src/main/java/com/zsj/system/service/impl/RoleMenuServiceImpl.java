@@ -51,7 +51,6 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuDao, RoleMenuEntity
         Map<String , Object> result = new HashMap<>() ;
         result.put("sysMenuList" , sysMenuList) ;
         result.put("roleMenuIds" , roleMenuIds) ;
-
         // 返回
         return result;
     }
@@ -60,7 +59,6 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuDao, RoleMenuEntity
     @Transactional
     @Override
     public void doAssign(AssginMenuDto assginMenuDto) {
-
         // 根据角色的id删除其所对应的菜单数据
         sysRoleMenuMapper.deleteByRoleId(assginMenuDto.getRoleId());
 

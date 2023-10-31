@@ -59,19 +59,4 @@ public class BaseUtil {
     }
 
 
-    /**
-     * 将一个对象的属性填充到另外一个对象中
-     * 对应名称 TODO
-     */
-    public static void pullPropertiesToObject(Object source, Object target) {
-        Field[] source_fields = source.getClass().getDeclaredFields();
-        Field[] target_fields = target.getClass().getDeclaredFields();
-
-        Map<String,String> source_properties = new HashMap<>();
-        Map<String,String> target_properties = new HashMap<>();
-
-
-
-
-    }
 }

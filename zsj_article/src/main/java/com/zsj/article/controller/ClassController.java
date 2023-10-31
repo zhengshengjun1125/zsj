@@ -4,9 +4,19 @@ import java.util.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.zsj.article.vo.ClassVoForTree;
+import com.zsj.article.vo.ClassVoForTreeForElement;
+import com.zsj.common.annotation.SysLog;
+import com.zsj.common.utils.GsonUtil;
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import com.zsj.article.entity.ClassEntity;
@@ -27,6 +37,9 @@ public class ClassController {
     private ClassService classService;
 
 
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+    @SysLog("新增根节点")
     @PostMapping("/setRootClass")
     public R setRootClass(@RequestHeader("system_api_Authorize_name") String name,
                           @Nullable @RequestBody ClassEntity entity) {
@@ -45,6 +58,7 @@ public class ClassController {
             ClassEntity one = classService.getOne(queryWrapper);
             if (!Objects.isNull(one)) {
                 Integer status = one.getClassStatus();
+                extracted();
                 if (status == 1) return R.error("分类已经存在啦");
                 else {
                     UpdateWrapper<ClassEntity> wrapper = new UpdateWrapper<>();
@@ -74,9 +88,11 @@ public class ClassController {
             if (name.equals("zsj")) {
                 //超级管理 想干什么就干什么
                 //逻辑删除这个id的分类和他id下的所有子分类
+                extracted();
                 return classService.zccg(id) ? R.ok() : R.error();
             } else if (one.getClassCreater().equals(name)) {
                 //说明作者是他 进行删除
+                extracted();
                 return classService.zccg(id) ? R.ok() : R.error();
             }
         }
@@ -107,7 +123,9 @@ public class ClassController {
             entity.setCreateTime(new Date(System.currentTimeMillis()));
             entity.setUpdateTime(new Date(System.currentTimeMillis()));
             entity.setClassStatus(1);
-            return classService.save(entity)?R.ok("添加成功"):R.error("添加失败");
+            boolean save = classService.save(entity);
+            extracted();
+            return save?R.ok("添加成功"):R.error("添加失败");
         }
         return R.error("非法操作");
     }
@@ -121,7 +139,24 @@ public class ClassController {
     @GetMapping("/getAllClassForELE")
     public R getAllClassForELE() {
         //获取所有分类并且以树形结果展示
-        return R.ok().put("data", classService.listTree4ELE());
+        ValueOperations<String, String> ops =
+                stringRedisTemplate.opsForValue();
+        String data = ops.get("getAllClassForELE");
+        if (StringUtil.isNullOrEmpty(data)){
+            List<ClassVoForTreeForElement> classVoForTreeForElements = getClassVoForTreeForElements(ops);
+            return R.ok().put("data",classVoForTreeForElements);
+        }
+        return R.ok().put("data",GsonUtil.gson.fromJson(data, new TypeToken<List<ClassVoForTreeForElement>>(){}.getType()));
+    }
+
+    private List<ClassVoForTreeForElement> getClassVoForTreeForElements(ValueOperations<String, String> ops) {
+        List<ClassVoForTreeForElement> classVoForTreeForElements = classService.listTree4ELE();
+        ops.set("getAllClassForELE", GsonUtil.gson.toJson(classVoForTreeForElements));
+        return classVoForTreeForElements;
+    }
+    private void extracted() {
+        Set<String> keys = stringRedisTemplate.keys("getAllClassForELE*");
+        stringRedisTemplate.delete(keys);//删除缓存中的分页文章信息 下次拿的时候更新缓存即可
     }
 
 

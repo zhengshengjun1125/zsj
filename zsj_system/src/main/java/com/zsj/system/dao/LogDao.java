@@ -4,6 +4,8 @@ import com.zsj.system.entity.LogEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 
  * 
@@ -13,5 +15,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface LogDao extends BaseMapper<LogEntity> {
-	
+
+    List<LogEntity> getTen();
 }
