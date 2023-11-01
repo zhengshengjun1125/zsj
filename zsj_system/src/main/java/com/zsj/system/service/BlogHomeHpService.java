@@ -3,7 +3,9 @@ package com.zsj.system.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.system.entity.BlogHomeHpEntity;
+import com.zsj.system.vo.BlogHomeImgVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +18,9 @@ import java.util.Map;
 public interface BlogHomeHpService extends IService<BlogHomeHpEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    List<BlogHomeImgVo> getByUserID(String name);
+
+    List<BlogHomeImgVo> listALL();
 }
 

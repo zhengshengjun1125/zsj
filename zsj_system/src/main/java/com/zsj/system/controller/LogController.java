@@ -1,16 +1,16 @@
 package com.zsj.system.controller;
 
-import java.util.Arrays;
+
 import java.util.List;
-import java.util.Map;
+
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zsj.system.entity.MenuEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.zsj.system.entity.LogEntity;
 import com.zsj.system.service.LogService;
-import com.zsj.common.utils.PageUtils;
 import com.zsj.common.utils.R;
 
 
@@ -50,6 +50,13 @@ public class LogController {
         Page<LogEntity> logEntityPage = new Page<>(cur, size);
         Page<LogEntity> page = logService.page(logEntityPage);
         return R.ok().put("data", page);
+    }
+
+
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public R save(@RequestBody LogEntity e) {
+        if (logService.save(e)) return R.ok();
+        return R.error();
     }
 
 }

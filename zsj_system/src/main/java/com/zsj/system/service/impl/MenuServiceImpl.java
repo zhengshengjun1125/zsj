@@ -57,8 +57,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, MenuEntity> implements
         QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username",username);
         UserEntity one = userService.getOne(queryWrapper);
-        // 获取当前登录用户的id
-        Long userId = one.getId();
+        // 获取当前登录用户的角色id
+        Long userId = one.getRoleId();
         List<MenuEntity> sysMenuList = sysMenuMapper.selectListByUserId(userId);
         //构建树形数据
         List<MenuEntity> sysMenuTreeList = MenuUtil.buildTree(sysMenuList);

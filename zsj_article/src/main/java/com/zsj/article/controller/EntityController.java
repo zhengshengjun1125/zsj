@@ -83,8 +83,8 @@ public class EntityController {
                              @Nullable @RequestBody EntityEntity entity) {
         ValueOperations<String, String> ops =
                 stringRedisTemplate.opsForValue();
-
-        String json = ops.get("articlePage/" + cur + '/' + size);
+        //进行权限控制 每个用户只能查到自己的
+        String json = ops.get("articlePage/" + cur + '/' + size+'/'+name);
         if (ObjectUtil.isNullOrEmpty(json)) {
             //根据条件进行文章信息的查询
             ArticlePage articlePage = getArticlePage(name, cur, size, entity, ops);
@@ -96,7 +96,7 @@ public class EntityController {
     private ArticlePage getArticlePage(String name, Integer cur, Integer size, EntityEntity entity, ValueOperations<String, String> ops) {
         ArticlePage articlePage = entityService.getAllArticleByUserName(new Page<>(cur, size), entity, name);
         String gsonJson = GsonUtil.gson.toJson(articlePage);
-        ops.set("articlePage/" + cur + '/' + size, gsonJson);
+        ops.set("articlePage/" + cur + '/' + size+'/'+name, gsonJson);
         return articlePage;
     }
 

@@ -82,6 +82,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         }).start();
         return chain.filter(exchange);
 
+        // 是否登录的鉴权
 
 //        if (path.contains("login") || path.contains("captcha/get")) {
 //            //登录接口放行
