@@ -2,7 +2,7 @@
 ## 学习笔记的应用网站后台系统
 <div>
 <div align = "left">    
-<img src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg" width = 600 height = 300/>
+<img src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg" width = 300 height = 300/>
 </div>
 <p align = "center">    
 </p>
