@@ -21,11 +21,15 @@ export const useAccount = defineStore('account', {
     // 清除用户信息
     clearUserinfo() {
       this.userinfo = null
+      localStorage.removeItem('cur_user_id')
+      localStorage.removeItem('username')
     },
     // 获取用户信息
     async getUserinfo() {
       const { code, data } = await GetUserinfo()
       if (+code === 200) {
+        const cur_user_id = data.id
+        localStorage.setItem('cur_user_id', cur_user_id)
         this.userinfo = data
         return Promise.resolve(data)
       }

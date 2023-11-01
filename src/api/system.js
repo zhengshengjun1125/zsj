@@ -83,3 +83,20 @@ export const gettenLogList = () => {
     method: 'get',
   })
 }
+
+//获取背景图列表
+export const getImgList = () => {
+  return request({
+    url: 'api/system/bloghomehp/getImgByName',
+    method: 'get',
+  })
+}
+
+//获取背景图列表 TODO
+export const insertImg = data => {
+  return request({
+    url: '/api/system/bloghomehp/insert',
+    method: 'post',
+    data,
+  })
+}

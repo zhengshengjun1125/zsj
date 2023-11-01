@@ -247,6 +247,7 @@ import {
 } from '@/api/user'
 import { getAllRoleByIndex } from '@/api/system'
 import { OssPolicyToPhoto } from '@/api/oss'
+import { isAssetTypeAnImage } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 //当前实例
 const { proxy: ctx } = getCurrentInstance()
@@ -289,6 +290,12 @@ let rolesListOptions = ref([])
 const rolesList = ref([])
 //上传头像之前的接口
 const beforceUpload = async file => {
+  let file_name = file.name
+  const suffix = file_name.substring(file_name.lastIndexOf('.') + 1)
+  if (!isAssetTypeAnImage(suffix)) {
+    ElMessage.error('文件格式必须是图片哦！')
+    return false
+  }
   const response = await OssPolicyToPhoto()
   policyInfo.value.policy = response.data.policy
   policyInfo.value.signature = response.data.signature

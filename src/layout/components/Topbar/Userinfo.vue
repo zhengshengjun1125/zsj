@@ -177,6 +177,7 @@ export default defineComponent({
         // 清除token
         ctx.$message.info(msg)
         localStorage.removeItem('username') //删除用户账号名称
+        localStorage.removeItem('cur_user_id') //删除用户账号名称
         useApp().clearToken()
         router.push('/login')
       } else {

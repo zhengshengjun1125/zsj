@@ -11,6 +11,7 @@
 -->
 <template>
   <div>
+    <h1>你好!我的朋友（HELLO! MY FRIEND）(●'◡'●)</h1>
     <el-card class="box-card" shadow="always">
       <template #header>
         <div class="card-header">
