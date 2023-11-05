@@ -7,7 +7,6 @@ import com.zsj.system.service.RoleService;
 import com.zsj.system.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +40,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<UserEntity> page = this.page(
                 new Query<UserEntity>().getPage(params),
-                new QueryWrapper<UserEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);

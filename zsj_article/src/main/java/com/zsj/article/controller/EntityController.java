@@ -1,6 +1,7 @@
 package com.zsj.article.controller;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -23,6 +24,19 @@ import com.zsj.article.service.EntityService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.common.utils.R;
 
+/*
+ 文章需要加一个默认的图片 或者由用户自己设置
+文章评论表
+评论回复表
+需求说明:{
+每个文章都需要有它的评论,而评论可以被回复,同样回复也可以被回复
+文章:
+评论1:你做的真好
+（作者）回复1 评论1:谢谢
+回复2 回复1:我也觉得他写得好
+}
+todo
+ */
 
 /**
  * @author zsj
@@ -84,7 +98,7 @@ public class EntityController {
         ValueOperations<String, String> ops =
                 stringRedisTemplate.opsForValue();
         //进行权限控制 每个用户只能查到自己的
-        String json = ops.get("articlePage/" + cur + '/' + size+'/'+name);
+        String json = ops.get("articlePage/" + cur + '/' + size + '/' + name);
         if (ObjectUtil.isNullOrEmpty(json)) {
             //根据条件进行文章信息的查询
             ArticlePage articlePage = getArticlePage(name, cur, size, entity, ops);
@@ -96,7 +110,7 @@ public class EntityController {
     private ArticlePage getArticlePage(String name, Integer cur, Integer size, EntityEntity entity, ValueOperations<String, String> ops) {
         ArticlePage articlePage = entityService.getAllArticleByUserName(new Page<>(cur, size), entity, name);
         String gsonJson = GsonUtil.gson.toJson(articlePage);
-        ops.set("articlePage/" + cur + '/' + size+'/'+name, gsonJson);
+        ops.set("articlePage/" + cur + '/' + size + '/' + name, gsonJson,1, TimeUnit.HOURS);
         return articlePage;
     }
 
@@ -124,6 +138,7 @@ public class EntityController {
 
     private void extracted() {
         Set<String> keys = stringRedisTemplate.keys("articlePage/*");
+        assert keys != null;
         stringRedisTemplate.delete(keys);//删除缓存中的分页文章信息 下次拿的时候更新缓存即可
     }
 

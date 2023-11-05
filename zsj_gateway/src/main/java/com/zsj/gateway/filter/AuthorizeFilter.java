@@ -80,32 +80,31 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
                 log.info(r.getMessage());
             }
         }).start();
-        return chain.filter(exchange);
 
         // 是否登录的鉴权
 
-//        if (path.contains("login") || path.contains("captcha/get")) {
-//            //登录接口放行
-//            return chain.filter(exchange);
-//        }
-//
-//        if (StringUtil.isNullOrEmpty(token_name) || StringUtil.isNullOrEmpty(token)) {
-//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-//            String json = GsonUtil.gson.toJson(R.No_auth());
-//            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
-//            return response.writeWith(Flux.just(wrap));
-//        }
-//        //说明有密钥 那我们就查
-//        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-//        String get_token = ops.get(token_name);
-//        //token不存在或者token不正确都不给返回
-//        if (StringUtil.isNullOrEmpty(get_token) || !token.equals(get_token)) {
-//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-//            String json = GsonUtil.gson.toJson(R.No_auth());
-//            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
-//            return response.writeWith(Flux.just(wrap));
-//        }
-//        return chain.filter(exchange);
+        if (path.contains("login") || path.contains("captcha/get")) {
+            //登录接口放行
+            return chain.filter(exchange);
+        }
+
+        if (StringUtil.isNullOrEmpty(token_name) || StringUtil.isNullOrEmpty(token)) {
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            String json = GsonUtil.gson.toJson(R.No_auth());
+            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
+            return response.writeWith(Flux.just(wrap));
+        }
+        //说明有密钥 那我们就查
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String get_token = ops.get(token_name);
+        //token不存在或者token不正确都不给返回
+        if (StringUtil.isNullOrEmpty(get_token) || !token.equals(get_token)) {
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            String json = GsonUtil.gson.toJson(R.No_auth());
+            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
+            return response.writeWith(Flux.just(wrap));
+        }
+        return chain.filter(exchange);
     }
 
 

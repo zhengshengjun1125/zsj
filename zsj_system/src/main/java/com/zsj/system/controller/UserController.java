@@ -74,7 +74,7 @@ public class UserController {
      * 每十分钟去更新一下
      */
     @Scheduled(fixedRate = 600000)
-    public void initRoleList() throws InterruptedException {
+    public void initRoleList()  {
         List<RoleEntity> list = roleService.list(new QueryWrapper<RoleEntity>().eq("status", 1));
         list.stream().map(roleEntity -> {
             //将对应的数据保存到我们的全局角色变量中
@@ -134,6 +134,7 @@ public class UserController {
     @GetMapping("/logout")
     public R logout(@RequestHeader("system_api_Authorize") String token,
                     @RequestHeader("system_api_Authorize_name") String name) {
+        //删除所有值为name的key todo
         return R.ok(Boolean.TRUE.equals(redisTemplate.delete(token))
                 && Boolean.TRUE.equals(redisTemplate.delete(name)) ? "退出登录成功" : "退出登录失败");
     }
@@ -236,6 +237,7 @@ public class UserController {
             //添加成功
             initUserList();//重新初始化我们的用户列表缓存
             //注册成功后利用消息队列发送邮件给予注册成功的用户的邮箱账号 todo
+//            String email = user.getEmail();
             return R.ok("注册成功");
         }
         return R.error("注册失败");
