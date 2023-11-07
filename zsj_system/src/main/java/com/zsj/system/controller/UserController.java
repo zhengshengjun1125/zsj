@@ -43,7 +43,8 @@ import com.zsj.system.service.UserService;
 @RequestMapping("system/user")
 @Slf4j
 public class UserController {
-    public static Map<Long, String> roleMap = new HashMap<>();
+    //角色列表本地缓存
+
 
     @Autowired
     private UserService userService;
@@ -61,7 +62,7 @@ public class UserController {
     RedisTemplate<String, String> redisTemplate;
 
 
-
+    @Scheduled(fixedRate = 600000)
     void initUserList() {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         //将所有信息缓存到redis中
@@ -73,15 +74,8 @@ public class UserController {
      * 初始化角色信息列表
      * 每十分钟去更新一下
      */
-    @Scheduled(fixedRate = 600000)
-    public void initRoleList()  {
-        List<RoleEntity> list = roleService.list(new QueryWrapper<RoleEntity>().eq("status", 1));
-        list.stream().map(roleEntity -> {
-            //将对应的数据保存到我们的全局角色变量中
-            return roleMap.put(roleEntity.getId(), roleEntity.getRoleName());
-        });
-        initUserList();
-    }
+
+
 
     @PostMapping("/login")
     public R login(@RequestBody LoginBody user) {
