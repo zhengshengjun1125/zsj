@@ -77,13 +77,8 @@ export const useMenus = defineStore('menu', () => {
   }
 
   const generateMenus = async () => {
-    // // 方式一：只有固定菜单
-    // const menus = getFilterMenus(fixedRoutes)
-    // setMenus(menus)
-
-    // 方式二：有动态菜单
-    // 从后台获取菜单
     const { code, data } = await GetMenus()
+    console.log(data)
 
     if (+code === 200) {
       // 添加路由之前先删除所有动态路由
@@ -100,29 +95,6 @@ export const useMenus = defineStore('menu', () => {
       setMenus(menus)
     }
   }
-  // const generateMenus = async () => {
-  //   // // 方式一：只有固定菜单
-  //   const menus = getFilterMenus(fixedRoutes)
-  //   setMenus(menus)
-
-  //   // 方式二：有动态菜单
-  //   // 从后台获取菜单
-  //   // const { code, data } = await GetMenus()
-
-  //   // if (+code === 200) {
-  //   //   // 添加路由之前先删除所有动态路由
-  //   //   asyncRoutes.forEach(item => {
-  //   //     router.removeRoute(item.name)
-  //   //   })
-  //   //   // 过滤出需要添加的动态路由
-  //   //   const filterRoutes = getFilterRoutes(asyncRoutes, data)
-  //   //   filterRoutes.forEach(route => router.addRoute(route))
-
-  //   //   // 生成菜单
-  //   //   const menus = getFilterMenus([...fixedRoutes, ...filterRoutes])
-  //   //   setMenus(menus)
-  //   // }
-  // }
   return {
     menus,
     setMenus,

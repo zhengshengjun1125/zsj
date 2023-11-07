@@ -23,6 +23,7 @@ const COLLAPSE = 'VEA-COLLAPSE'
 export const useApp = defineStore('app', {
   state: () => ({
     title: 'ZSJ Admin',
+    userAcc: getItem('userAcc'),
     authorization: getItem(TOKEN),
     sidebar: {
       collapse: getItem(COLLAPSE),
@@ -30,6 +31,11 @@ export const useApp = defineStore('app', {
     device: 'desktop',
   }),
   actions: {
+    setUserAcc(data) {
+      console.log(data)
+      removeItem('userAcc')
+      setItem('userAcc', data)
+    },
     setCollapse(data) {
       this.sidebar.collapse = data
       // 保存到localStorage

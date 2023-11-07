@@ -1,13 +1,10 @@
 <!--
  * @Descripttion: 
  * @version: 
- * @Date: 2021-04-20 11:06:21
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2022-09-27 18:24:27
+ * @Date: 2023-11-01 11:06:21
+ * @LastEditors: zsj
+ * @LastEditTime: 2023-11-07 22:00:21
  * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
 -->
 <template>
   <div class="login">
@@ -147,8 +144,6 @@ export default defineComponent({
             state.loading = true
             const { code, data, msg } = await Login(state.model)
             if (+code === 200) {
-              ///我们需要将用户账号保存到localstorge中
-              localStorage.setItem('username', state.model.username)
               ctx.$message.success({
                 message: ctx.$t('login.loginsuccess'),
                 duration: 1000,
@@ -163,6 +158,7 @@ export default defineComponent({
               } else {
                 router.push('/')
               }
+              localStorage.setItem('username', state.model.username)
               useApp().initToken(data)
             } else {
               ctx.$message.error(msg)

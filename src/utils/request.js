@@ -1,44 +1,17 @@
-/*
- *                        .::::.
- *                      .::::::::.
- *                     :::::::::::
- *                  ..:::::::::::'
- *               '::::::::::::'
- *                 .::::::::::
- *            '::::::::::::::..
- *                 ..::::::::::::.
- *               ``::::::::::::::::
- *                ::::``:::::::::'        .:::.
- *               ::::'   ':::::'       .::::::::.
- *             .::::'      ::::     .:::::::'::::.
- *            .:::'       :::::  .:::::::::' ':::::.
- *           .::'        :::::.:::::::::'      ':::::.
- *          .::'         ::::::::::::::'         ``::::.
- *      ...:::           ::::::::::::'              ``::.
- *     ````':.          ':::::::::'                  ::::..
- *                        '.:::::'                    ':'````..
- *
- * @Descripttion:
- * @version:
- * @Date: 2021-04-20 11:06:21
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2022-09-27 18:17:20
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
- */
-
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 import { useApp } from '@/pinia/modules/app'
 
-const base = 'http://localhost:88'
+// const base = 'http://localhost:81' nginx
+
+const prod = 'http://124.70.34.218:88'
+
+// const base = 'http://localhost:88'
 
 const service = axios.create({
   // baseURL: '/',
-  baseURL: base,
+  baseURL: prod,
   timeout: 10000,
   withCredentials: true,
 })
@@ -53,6 +26,7 @@ service.interceptors.request.use(
       config.headers.system_api_Authorize_name = `${localStorage.getItem(
         'username'
       )}`
+      // config.headers.system_api_Authorize_name = 'zsj'
     }
     return config
   },

@@ -12,7 +12,7 @@
 <template>
   <div>
     <h1>你好!我的朋友（HELLO! MY FRIEND）(●'◡'●)</h1>
-    <el-card class="box-card" shadow="always">
+    <!-- <el-card class="box-card" shadow="always">
       <template #header>
         <div class="card-header">
           <span>最近日志</span>
@@ -23,7 +23,7 @@
           <el-table-column prop="ip" label="Ip地址" />
         </el-table>
       </template>
-    </el-card>
+    </el-card> -->
   </div>
 </template>
 <script setup>

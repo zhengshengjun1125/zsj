@@ -229,7 +229,6 @@ const openMdPrivew = row => {
 const getAllClass = async () => {
   const { msg, data, code } = await getAllClassForELE()
   typeList.value = data
-  // console.log(typeList.value)
 }
 
 const flushARTList = async () => {
