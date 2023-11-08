@@ -107,10 +107,10 @@
       </el-button>
     </el-drawer>
 
-    <!-- 修改用户对话框 -->
+    <!-- 修改文章分类对话框 -->
     <el-dialog v-model="openUpType" title="修改文章分类" width="30%" draggable>
       <el-form label-width="120px">
-        <el-form-item label="角色名称">
+        <el-form-item label="分类名称">
           <el-tree-select
             v-model="value"
             :data="typeList"

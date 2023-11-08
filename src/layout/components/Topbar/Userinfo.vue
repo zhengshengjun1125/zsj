@@ -34,14 +34,12 @@
  *                不见满街漂亮妹，哪个归得程序员？
  * 
  * @Descripttion: 
- * @version: 
- * @Date: 2021-04-20 11:06:21
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2022-09-27 17:56:21
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
+ * * @version: 1.1
+ *
+ * @LastEditors:  zsj
+ *: 
+ * @Author:   zsj
+
  -->
 
 <template>
@@ -134,6 +132,7 @@ export default defineComponent({
 
     const submitResetPassword = async () => {
       //提交之前的验证
+      //新密码的长度最少为6个
       if (
         ordPass.value == null ||
         ordPass.value == '' ||
@@ -143,9 +142,10 @@ export default defineComponent({
       } else if (
         newPass.value == null ||
         newPass.value == '' ||
-        newPass.value == undefined
+        newPass.value == undefined ||
+        newPass.value.length < 6
       ) {
-        ctx.$message.error('新密码不能为空')
+        ctx.$message.error('新密码不能为空并且长度最短为6位')
       } else if (
         checkNewPass.value == null ||
         checkNewPass.value == '' ||

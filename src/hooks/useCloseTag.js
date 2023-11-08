@@ -25,13 +25,11 @@
  *
  * @Descripttion:
  * @version:
- * @Date: 2021-08-20 11:15:27
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2022-09-27 16:15:56
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
+ *
+ * @LastEditors:  zsj
+ *: 
+ * @Author:   zsj
+
  */
 
 import { useTags } from '@/pinia/modules/tags'

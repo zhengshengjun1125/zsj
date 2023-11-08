@@ -3,6 +3,7 @@ export default {
   dashboard: 'Dashboard',
   blog: 'blog management',
   system: 'system management',
+  fun: 'function list',
   test: 'Test page',
   testList: 'List',
   testAdd: 'Add',

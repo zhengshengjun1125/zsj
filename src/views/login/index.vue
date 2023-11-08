@@ -1,10 +1,10 @@
 <!--
  * @Descripttion: 
- * @version: 
- * @Date: 2023-11-01 11:06:21
+ * * @version: 1.1
+ *
  * @LastEditors: zsj
- * @LastEditTime: 2023-11-07 22:00:21
- * @Author: huzhushan@126.com
+ *: 
+ * @Author:   zsj
 -->
 <template>
   <div class="login">
@@ -103,8 +103,8 @@ export default defineComponent({
           trigger: 'blur',
         },
         {
-          min: 3,
-          max: 12,
+          min: 6,
+          max: 100,
           message: ctx.$t('login.rules-regpassword'),
           trigger: 'blur',
         },

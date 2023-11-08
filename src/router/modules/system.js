@@ -7,6 +7,8 @@ const sysOperLog = () => import('@/views/system/sysOperLog.vue')
 const article = () => import('@/views/blog/article.vue')
 const classType = () => import('@/views/blog/classType.vue')
 const theHomeImg = () => import('@/views/blog/theHomeImg.vue')
+const chat = () => import('@/views/fun/chat.vue')
+const upFile = () => import('@/views/fun/upFile.vue')
 // 导出该组件
 export default [
   {
@@ -89,6 +91,36 @@ export default [
         component: theHomeImg,
         meta: {
           title: '封面管理',
+        },
+        hidden: false,
+      },
+    ],
+  },
+  {
+    path: '/fun',
+    component: Layout,
+    name: 'fun',
+    meta: {
+      title: 'menu.fun',
+    },
+    icon: 'StarFilled',
+
+    children: [
+      {
+        path: '/chat',
+        name: 'chat',
+        component: chat,
+        meta: {
+          title: '来聊天吧',
+        },
+        hidden: false,
+      },
+      {
+        path: '/upFile',
+        name: 'upFile',
+        component: upFile,
+        meta: {
+          title: '上传文件',
         },
         hidden: false,
       },

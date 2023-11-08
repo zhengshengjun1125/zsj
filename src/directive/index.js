@@ -25,13 +25,11 @@
  *
  * @Descripttion:
  * @version:
- * @Date: 2021-09-01 13:58:08
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2022-09-27 18:31:22
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
+ *
+ * @LastEditors:  zsj
+ *: 
+ * @Author:   zsj
+
  */
 
 import { useAccount } from '@/pinia/modules/account'

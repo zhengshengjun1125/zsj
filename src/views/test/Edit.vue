@@ -24,14 +24,12 @@
  *            佛祖保佑       永不宕机     永无BUG
  * 
  * @Descripttion: 
- * @version: 
- * @Date: 2021-04-28 16:50:05
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2021-09-18 17:51:25
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
+ * * @version: 1.1
+ *
+ * @LastEditors:  zsj
+ *: 
+ * @Author:   zsj
+
  -->
 
 <template>

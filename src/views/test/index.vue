@@ -209,7 +209,7 @@ export default defineComponent({
             type: 'datetimerange',
             trueNames: ['startTime', 'endTime'],
             style: { width: '400px' },
-            defaultValue: ['2020-10-10 9:00:00', '2020-10-11 18:30:00'],
+            defaultValue: ['2020-10-10 9:00:00', ''],
           },
           {
             label: 'test/list.num',

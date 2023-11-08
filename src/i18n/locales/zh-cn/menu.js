@@ -3,6 +3,7 @@ export default {
   dashboard: '工作台',
   blog: '博客管理',
   system: '系统管理',
+  fun: '功能列表',
   test: '测试页面',
   testList: '列表',
   testAdd: '添加',

@@ -48,14 +48,12 @@
  * ..................................&..............................
  * 
  * @Descripttion: 
- * @version: 
- * @Date: 2021-08-30 14:19:46
- * @LastEditors: huzhushan@126.com
- * @LastEditTime: 2021-09-18 18:18:35
- * @Author: huzhushan@126.com
- * @HomePage: https://huzhushan.gitee.io/vue3-element-admin
- * @Github: https://github.com/huzhushan/vue3-element-admin
- * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
+ * * @version: 1.1
+ *
+ * @LastEditors:  zsj
+ *: 
+ * @Author:   zsj
+
  -->
 <template>
   <el-select
