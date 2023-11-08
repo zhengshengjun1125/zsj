@@ -95,6 +95,7 @@ public class UserController {
                 if (null != entity) {
                     if (entity.getStatus().equals(1)) {
                         //说明查到了
+                        //todo 加密算法换成哈希512算法
                         if (Encrypt.encrypt_md5(user.getPassword()).equals(entity.getPassword())) {
                             //说明密码正确
                             String token = JwtUtil.getJwtToken(username);

@@ -55,6 +55,7 @@ public class RoleController {
         entity.setCreateTime(new Date(System.currentTimeMillis()));
         entity.setUpdateTime(new Date(System.currentTimeMillis()));
         entity.setStatus(1);
+        //查询status为1的数据 存在就返回提示 todo
         long count = roleService.count(new QueryWrapper<RoleEntity>().eq("role_name", entity.getRoleName()));
         if (count != 0) {
             //说明数据存在 将status改回来就行 并且设置默认level

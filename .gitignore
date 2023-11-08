@@ -17,8 +17,9 @@ buildNumber.properties
 **/.mvn
 **/target/
 .idea
-**/.gitignore
-**/*.properties
-**/*.yaml
-**/*.bootstrap
-**/*.yml
+
+#**/.gitignore
+#**/*.properties
+#**/*.yaml
+#**/*.bootstrap
+#**/*.yml

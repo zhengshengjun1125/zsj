@@ -112,10 +112,16 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
             Long cz_role_id = entity.getRoleId();
             RoleEntity bcz_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", bcz_role_id));
             RoleEntity cz_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", cz_role_id));
-            if (cz_role.getLevel() > bcz_role.getLevel() && !name.equals("zsj")){
-                return "越权操作!";
-            }
-            wrapper.set("role_id", bcz_role_id);
+            if (!name.equals("zsj")) {
+                if (cz_role.getLevel() >= bcz_role.getLevel()) {
+                    return "越权操作!";
+                }
+                if (vo.getUsername().equals("zsj")) {
+                    //当被操纵人是作者且操作人不为作者时 拒绝此请求
+                    return "越权操作!";
+                }
+                wrapper.set("role_id", bcz_role_id);
+            }else wrapper.set("role_id", bcz_role_id);
         }
         wrapper.eq("id", id);//最终归置
         return update(wrapper) ? "修改成功" : "修改失败";
