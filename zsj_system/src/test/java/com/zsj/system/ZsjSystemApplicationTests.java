@@ -33,8 +33,10 @@ class ZsjSystemApplicationTests {
 
     @Test
     void contextLoads() {
-        String s = Encrypt.encrypt_md5("123456");
+        String s = Encrypt.encrypt_hash512("123456");
+        String s2 = Encrypt.encrypt_hash512("123456");
         log.info("password {}",s);
+        System.out.println(s.equals(s2));
     }
 
 }

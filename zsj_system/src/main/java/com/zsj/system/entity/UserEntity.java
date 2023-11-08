@@ -22,7 +22,6 @@ import lombok.Setter;
 @Setter
 public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
-
     /**
      * id
      */
@@ -64,5 +63,8 @@ public class UserEntity implements Serializable {
      * 创建者id
      */
     private Long creatUserId;
-
+    /**
+     * 登录状态
+     */
+    private String loginStatus;
 }

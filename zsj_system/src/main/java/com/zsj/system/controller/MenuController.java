@@ -55,7 +55,7 @@ public class MenuController {
 
     @PutMapping("/updateById")
     public R updateById(@RequestBody MenuEntity sysMenu) {
-        if (menuService.updateById(sysMenu)) return R.ok();
+        if (menuService.updateMenuByTableId(sysMenu)) return R.ok();
         return R.error();
     }
 

@@ -21,5 +21,7 @@ public interface UserService extends IService<UserEntity> {
     PageUtils getAllUserByCondition(Integer cur, Integer size, UserEntity user);
 
     String updateUserInfoById(UserVo vo, String name);
+
+    void setLoginStatus(String username, boolean b);
 }
 

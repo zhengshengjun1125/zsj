@@ -10,4 +10,9 @@ public class ObjectUtil {
         if (s == null) return true;
         else return s.equals("");
     }
+
+    public static boolean objectIsNotNull(Object o) {
+        return o != null;
+    }
+
 }

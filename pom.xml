@@ -28,10 +28,12 @@
 
 
     <modules>
+        <module>renren-generator</module>
         <module>zsj_gateway</module>
         <module>zsj_system</module>
         <module>zsj_common</module>
         <module>zsj_article</module>
+        <module>zsj_webSocket</module>
     </modules>
 
     <build>

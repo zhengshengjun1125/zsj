@@ -21,6 +21,7 @@ public class UserVo {
         this.mobile = user.getMobile();
         this.createTime = user.getCreateTime();
         this.creatUserId = user.getCreatUserId();
+        this.loginStatus = user.getLoginStatus();
     }
 
 
@@ -33,6 +34,7 @@ public class UserVo {
         this.mobile = user.getMobile();
         this.createTime = user.getCreateTime();
         this.creatUserId = user.getCreatUserId();
+        this.loginStatus = user.getLoginStatus();
     }
 
     public UserVo() {
@@ -73,4 +75,8 @@ public class UserVo {
      * 创建者id
      */
     private Long creatUserId;
+    /**
+     * 登陆状态
+     */
+    private String loginStatus;
 }

@@ -22,5 +22,7 @@ public interface MenuService extends IService<MenuEntity> {
     public List<MenuEntity> findNodes();
 
     List<SysMenuVo> findUserMenuList(String username);
+
+    boolean updateMenuByTableId(MenuEntity sysMenu);
 }
 

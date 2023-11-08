@@ -55,16 +55,20 @@ public class RoleController {
         entity.setCreateTime(new Date(System.currentTimeMillis()));
         entity.setUpdateTime(new Date(System.currentTimeMillis()));
         entity.setStatus(1);
-        //查询status为1的数据 存在就返回提示 todo
-        long count = roleService.count(new QueryWrapper<RoleEntity>().eq("role_name", entity.getRoleName()));
+        long count = roleService.count(new QueryWrapper<RoleEntity>()
+                .eq("role_name", entity.getRoleName()).eq("status", 0));
+        long exist = roleService.count(new QueryWrapper<RoleEntity>()
+                .eq("role_name", entity.getRoleName()).eq("status", 1));
+        if (exist > 0) return R.error("角色已经存在");
         if (count != 0) {
             //说明数据存在 将status改回来就行 并且设置默认level
             UpdateWrapper<RoleEntity> roleEntityUpdateWrapper = new UpdateWrapper<>();
-            roleEntityUpdateWrapper.set("status",1);
-            roleEntityUpdateWrapper.eq("role_name",entity.getRoleName());
+            roleEntityUpdateWrapper.set("status", 1);
+            roleEntityUpdateWrapper.eq("role_name", entity.getRoleName());
             boolean update = roleService.update(roleEntityUpdateWrapper);
-            return update?R.ok("添加成功"):R.error("添加失败");
-        };
+            return update ? R.ok("添加成功") : R.error("添加失败");
+        }
+        ;
         return roleService.save(entity) ? R.ok("添加成功") : R.error("添加失败");
     }
 
@@ -79,9 +83,9 @@ public class RoleController {
     }
 
     @GetMapping("/getAll")
-    public R getAllRolesByIndex(){
-        List<RoleEntity> list = roleService.list(new QueryWrapper<RoleEntity>().eq("status",1));
-        return R.ok().put("data",list.stream().map(RoleByIndex::new).collect(Collectors.toList()));
+    public R getAllRolesByIndex() {
+        List<RoleEntity> list = roleService.list(new QueryWrapper<RoleEntity>().eq("status", 1));
+        return R.ok().put("data", list.stream().map(RoleByIndex::new).collect(Collectors.toList()));
     }
 
     /**

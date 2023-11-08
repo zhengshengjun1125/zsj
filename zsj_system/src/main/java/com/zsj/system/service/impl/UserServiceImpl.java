@@ -121,11 +121,17 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
                     return "越权操作!";
                 }
                 wrapper.set("role_id", bcz_role_id);
-            }else wrapper.set("role_id", bcz_role_id);
+            } else wrapper.set("role_id", bcz_role_id);
         }
         wrapper.eq("id", id);//最终归置
         return update(wrapper) ? "修改成功" : "修改失败";
 
+    }
+
+    @Override
+    public void setLoginStatus(String username, boolean b) {
+        if (b) this.update(new UpdateWrapper<UserEntity>().eq("username", username).set("login_status", "yeap"));
+        else this.update(new UpdateWrapper<UserEntity>().eq("username", username).set("login_status", "out"));
     }
 
 }

@@ -55,7 +55,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-//        //todo  系统开发完成后 打开以下注解 来进行登录鉴权 并且进行请求日志的记录 可以考虑存到es中
+        //todo 进行请求日志的记录 可以考虑存到es中
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
         String path = request.getURI().getPath();
@@ -81,30 +81,32 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
             }
         }).start();
 
+        //测试功能阶段直接放行 不需要登录
+        return chain.filter(exchange);
         // 是否登录的鉴权
 
-        if (path.contains("login") || path.contains("captcha/get")) {
-            //登录接口放行
-            return chain.filter(exchange);
-        }
-
-        if (StringUtil.isNullOrEmpty(token_name) || StringUtil.isNullOrEmpty(token)) {
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            String json = GsonUtil.gson.toJson(R.No_auth());
-            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
-            return response.writeWith(Flux.just(wrap));
-        }
-        //说明有密钥 那我们就查
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        String get_token = ops.get(token_name);
-        //token不存在或者token不正确都不给返回
-        if (StringUtil.isNullOrEmpty(get_token) || !token.equals(get_token)) {
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            String json = GsonUtil.gson.toJson(R.No_auth());
-            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
-            return response.writeWith(Flux.just(wrap));
-        }
-        return chain.filter(exchange);
+//        if (path.contains("login") || path.contains("captcha/get")) {
+//            //登录接口放行
+//            return chain.filter(exchange);
+//        }
+//
+//        if (StringUtil.isNullOrEmpty(token_name) || StringUtil.isNullOrEmpty(token)) {
+//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+//            String json = GsonUtil.gson.toJson(R.No_auth());
+//            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
+//            return response.writeWith(Flux.just(wrap));
+//        }
+//        //说明有密钥 那我们就查
+//        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+//        String get_token = ops.get(token_name);
+//        //token不存在或者token不正确都不给返回
+//        if (StringUtil.isNullOrEmpty(get_token) || !token.equals(get_token)) {
+//            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+//            String json = GsonUtil.gson.toJson(R.No_auth());
+//            DataBuffer wrap = response.bufferFactory().wrap(json.getBytes());
+//            return response.writeWith(Flux.just(wrap));
+//        }
+//        return chain.filter(exchange);
     }
 
 

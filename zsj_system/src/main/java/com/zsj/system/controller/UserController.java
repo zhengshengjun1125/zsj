@@ -11,6 +11,7 @@ import com.zsj.common.utils.*;
 import com.zsj.system.entity.RoleEntity;
 import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.RoleService;
+import com.zsj.system.service.UserFService;
 import com.zsj.system.service.UserTokenService;
 import com.zsj.system.vo.LoginBody;
 import com.zsj.system.vo.PassFormByUser;
@@ -32,8 +33,6 @@ import com.zsj.system.entity.UserEntity;
 import com.zsj.system.service.UserService;
 
 
-
-
 /**
  * @author zsj
  * @email zsjemail666@163.com
@@ -45,6 +44,10 @@ import com.zsj.system.service.UserService;
 public class UserController {
     //角色列表本地缓存
 
+
+    @Autowired
+    @Lazy
+    private UserFService userFService;
 
     @Autowired
     private UserService userService;
@@ -61,7 +64,10 @@ public class UserController {
     @Autowired
     RedisTemplate<String, String> redisTemplate;
 
-
+    /**
+     * 初始化角色信息列表
+     * 每十分钟去更新一下
+     */
     @Scheduled(fixedRate = 600000)
     void initUserList() {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -69,12 +75,6 @@ public class UserController {
         List<UserVo> userList = getUserList();
         ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
     }
-
-    /**
-     * 初始化角色信息列表
-     * 每十分钟去更新一下
-     */
-
 
 
     @PostMapping("/login")
@@ -95,8 +95,7 @@ public class UserController {
                 if (null != entity) {
                     if (entity.getStatus().equals(1)) {
                         //说明查到了
-                        //todo 加密算法换成哈希512算法
-                        if (Encrypt.encrypt_md5(user.getPassword()).equals(entity.getPassword())) {
+                        if (Encrypt.encrypt_hash512(user.getPassword()).equals(entity.getPassword())) {
                             //说明密码正确
                             String token = JwtUtil.getJwtToken(username);
                             ops.set(username, token, 1, TimeUnit.DAYS);
@@ -106,7 +105,16 @@ public class UserController {
                             tokenEntity.setToken(token);
                             tokenEntity.setExpireTime(new Date(System.currentTimeMillis() + 86400000));
                             tokenEntity.setUpdateTime(new Date(System.currentTimeMillis()));
+                            entity.setLoginStatus("yeap");
                             userTokenService.saveOrUpdateToken(tokenEntity);
+                            userService.setLoginStatus(username, true);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    List<UserVo> userList = getUserList();
+                                    ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
+                                }
+                            }).start();
                             //缓存用户信息 token为键  设置一天的过期时间
                             ops.set(token, GsonUtil.gson.toJson(entity), 1, TimeUnit.DAYS);
                             return R.ok("恭喜你登录成功！").put("data", new Token(token));
@@ -130,6 +138,7 @@ public class UserController {
     public R logout(@RequestHeader("system_api_Authorize") String token,
                     @RequestHeader("system_api_Authorize_name") String name) {
         //删除所有值为name的key todo
+        userService.setLoginStatus(name, false);
         return R.ok(Boolean.TRUE.equals(redisTemplate.delete(token))
                 && Boolean.TRUE.equals(redisTemplate.delete(name)) ? "退出登录成功" : "退出登录失败");
     }
@@ -149,10 +158,13 @@ public class UserController {
         } else {
             //说明缓存没拿到
             UserTokenEntity one = userTokenService.getOne(new QueryWrapper<UserTokenEntity>().eq("token", token));
-            Long userId = one.getUserId();
-            UserEntity no_do_info = userService.getOne(new QueryWrapper<UserEntity>().eq("id", userId));
-            RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", no_do_info.getRoleId()));
-            return R.ok().put("data", new UserVo(no_do_info, role.getRoleName()));
+            if (one != null) {
+                Long userId = one.getUserId();
+                UserEntity no_do_info = userService.getOne(new QueryWrapper<UserEntity>().eq("id", userId));
+                RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", no_do_info.getRoleId()));
+                return R.ok().put("data", new UserVo(no_do_info, role.getRoleName()));
+            }
+            return R.error("警告!非法请求!伪造token是非法的,请停止您的行为!");
         }
     }
 
@@ -177,6 +189,8 @@ public class UserController {
         }
     }
 
+
+    //用户列表只有超管可以使用 所以不存在过滤
 
     /**
      * 所有用户信息 分页
@@ -326,7 +340,7 @@ public class UserController {
     }
 
 
-    List<UserVo> getUserList(){
+    List<UserVo> getUserList() {
         List<UserEntity> list = userService.list(new QueryWrapper<UserEntity>().eq("status", 1));
         return list.stream().map(user ->
         {
@@ -334,14 +348,6 @@ public class UserController {
             return new UserVo(user, role.getRoleName());
         }).collect(Collectors.toList());
     }
-    /**
-     * 列表
-     */
-    @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params) {
-        PageUtils page = userService.queryPage(params);
 
-        return R.ok().put("page", page);
-    }
 
 }

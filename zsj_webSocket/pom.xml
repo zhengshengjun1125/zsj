@@ -2,14 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-
     <groupId>com.zsj</groupId>
-    <artifactId>zsj_system</artifactId>
+    <artifactId>zsj_webSocket</artifactId>
     <version>1.0</version>
-    <name>zsj_system</name>
+    <name>zsj_webSocket</name>
+    <description>zsj_webSocket模块 用于聊天以及文件上传或者下载服务</description>
     <packaging>jar</packaging>
-    <description>后台系统模块</description>
+
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -27,9 +26,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-
     <dependencies>
-
         <dependency>
             <groupId>com.zsj</groupId>
             <artifactId>zsj_common</artifactId>
@@ -58,17 +55,28 @@
             <version>2.1.0.RELEASE</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.14</version>
+        </dependency>
     </dependencies>
 
+
     <build>
-        <finalName>zsjSystem</finalName>
+        <finalName>ZsjWebSocket</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!-- 指定该Main Class为全局的唯一入口 -->
-                    <mainClass>com.zsj.system.ZsjSystemApplication</mainClass>
+                    <mainClass>com.zsj.Websocket.ZsjWebSocketApplication</mainClass>
                     <layout>ZIP</layout>
                 </configuration>
                 <executions>
