@@ -11,33 +11,35 @@
         <el-card style="width: 100%; min-height: 300px; color: #333">
           <div style="padding-bottom: 10px; border-bottom: 1px solid #ccc">
             在线用户
-            <span style="font-size: 12px">（点击聊天气泡开始聊天）</span>
           </div>
-          <div style="padding: 10px 0" v-for="user in users" :key="user">
-            <el-button
-              type="primary"
-              class="btn"
-              size="large"
-              @click="changeChatUser(user)"
-            >
-              {{ user.username }}
-            </el-button>
-            <!-- <i
-              class="el-icon-chat-dot-round"
-              style="margin-left: 10px; font-size: 16px; cursor: pointer"
-              @click="changeChatUser(user)"
-            ></i> -->
-            <span
-              style="font-size: 12px; color: limegreen; margin-left: 5px"
-              v-if="user === chatUser"
-            >
-              chatting...
-            </span>
-          </div>
+          <el-table :data="users" style="width: 100%">
+            <el-table-column prop="username" label="用户名" width="80" />
+            <el-table-column label="头像" width="80">
+              <template #default="scope">
+                <el-avatar :size="50" :src="scope.row.avatar" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="notreadC" label="未读" width="60" />
+            <el-table-column label="操作" width="100" #default="scope">
+              <el-button type="success" @click="toChat(scope.row)">
+                聊天
+              </el-button>
+              <!-- <el-button type="danger" @click="rmF(scope.row)">删除</el-button> -->
+            </el-table-column>
+          </el-table>
+        </el-card>
+        <!-- 做系统消息 -->
+        <el-card
+          style="width: 100%; min-height: 300px; color: #333; margin-top: 10px"
+        >
+          <h3>系统消息</h3>
+          <el-table :data="globalMessages" style="width: 100%">
+            <el-table-column prop="message" />
+          </el-table>
         </el-card>
       </el-col>
       <el-col :span="16">
-        <div
+        <el-card
           style="
             width: 800px;
             margin: 0 auto;
@@ -47,32 +49,25 @@
           "
         >
           <div style="text-align: center; line-height: 50px">
-            Web聊天室（{{ chatUser }}）
+            <h3>{{ chatUser }}</h3>
           </div>
           <div
             style="height: 350px; overflow: auto; border-top: 1px solid #ccc"
             v-html="content"
           ></div>
           <div style="height: 200px">
-            <textarea
+            <el-input
               v-model="text"
-              style="
-                height: 160px;
-                width: 100%;
-                padding: 20px;
-                border: none;
-                border-top: 1px solid #ccc;
-                border-bottom: 1px solid #ccc;
-                outline: none;
-              "
-            ></textarea>
+              :autosize="{ minRows: 8, maxRows: 8 }"
+              type="textarea"
+            />
             <div style="text-align: right; padding-right: 10px">
-              <el-button type="primary" size="mini" @click="send">
+              <el-button type="success" size="mini" @click="send">
                 发送
               </el-button>
             </div>
           </div>
-        </div>
+        </el-card>
       </el-col>
     </el-row>
   </div>
@@ -80,12 +75,10 @@
 <script setup>
 import request from '@/utils/request'
 import { async } from '@kangc/v-md-editor'
+import { ElMessageBox } from 'element-plus'
 import { ref, getCurrentInstance, onMounted } from 'vue'
 
-const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
-const circleUrl = ref(
-  'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
-)
+const { proxy: ctx } = getCurrentInstance()
 const user = ref({})
 const isCollapse = ref(false)
 const users = ref([])
@@ -93,6 +86,9 @@ const chatUser = ref('')
 const text = ref('')
 const messages = ref([])
 const content = ref('')
+const name_avatar = new Map()
+const unReadMessageList = ref([])
+const globalMessages = ref([])
 onMounted(() => {
   init()
 })
@@ -107,9 +103,9 @@ const init = async () => {
   let username = user.value
   let _this = ctx
   if (typeof WebSocket == 'undefined') {
-    console.log('您的浏览器不支持WebSocket')
+    alert('您的浏览器不支持WebSocket')
   } else {
-    console.log('您的浏览器支持WebSocket')
+    // console.log('您的浏览器支持WebSocket')
     let socketUrl = 'ws://localhost:88/api/chat/' + username
     if (socket != null) {
       socket.close()
@@ -120,28 +116,77 @@ const init = async () => {
     console.log(socket)
     //打开事件
     socket.onopen = function() {
-      console.log('websocket已打开')
+      // console.log('websocket已打开')
     }
     //  浏览器端收消息，获得从服务端发送过来的文本消息
     socket.onmessage = function(msg) {
-      console.log('收到数据====' + msg.data)
+      // console.log('收到msg数据====' + msg.data)
       let data = JSON.parse(msg.data) // 对收到的json数据进行解析， 类似这样的： {"users": [{"username": "zhang"},{ "username": "admin"}]}
-      if (data.users) {
+      if (data.users || data.globalMessage) {
+        const users = data.users
+        // console.log(data.globalMessage)
+        globalMessages.value.push({ message: data.globalMessage })
+        users.forEach(element => {
+          name_avatar.set(element.username, element.avatar)
+        })
+        // console.log(name_avatar)
         // 获取在线人员信息
         _this.users = data.users.filter(user => user.username !== username) // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
       } else {
+        console.log(data)
         // 如果服务器端发送过来的json数据 不包含 users 这个key，那么发送过来的就是聊天文本json数据
         //  // {"from": "zhang", "text": "hello"}
-        if (data.from === _this.chatUser) {
+        if (data.fromUser === _this.chatUser) {
           _this.messages.push(data)
-          // 构建消息内容
-          _this.createContent(data.from, null, data.text)
+          // 构建接收消息内容 todo  这里应该不着急直接生成html内容
+          _this.createContent(data.fromUser, null, data.text)
+        } else {
+          ElMessageBox.confirm(
+            '用户' + data.fromUser + '发消息给你了,是否查看?',
+            '提示',
+            {
+              type: 'info',
+              cancelButtonText: '取消',
+              confirmButtonText: '确认',
+              beforeClose: (action, instance, done) => {
+                if (action === 'confirm') {
+                  instance.onclick = (function() {
+                    let type = window.event.type
+                    if (type !== 'keydown') {
+                      done()
+                    }
+                  })()
+                } else {
+                  done()
+                }
+              },
+            }
+          )
+            .then(() => {
+              _this.chatUser = data.fromUser
+              _this.messages.push(data)
+              _this.createContent(data.fromUser, null, data.text)
+            })
+            .catch(() => {
+              //将未读消息放入到列表中
+              //并且将users的notreadC ++
+              users.value.forEach(e => {
+                if (e.username === data.fromUser) {
+                  e.notreadC++
+                }
+              })
+              unReadMessageList.value.push({
+                fromUser: data.fromUser,
+                text: data.text,
+                toUser: username,
+              })
+            })
         }
       }
     }
     //关闭事件
     socket.onclose = function() {
-      console.log('websocket已关闭')
+      // console.log('websocket已关闭')
     }
     //发生了错误事件
     socket.onerror = function() {
@@ -161,13 +206,13 @@ const send = async () => {
     if (typeof WebSocket == 'undefined') {
       console.log('您的浏览器不支持WebSocket')
     } else {
-      console.log('您的浏览器支持WebSocket')
+      // console.log('您的浏览器支持WebSocket')
       // 组装待发送的消息 json
       // {"from": "zhang", "to": "admin", "text": "聊天文本"}
       let message = {
-        from: user.value,
-        to: chatUser.value,
-        text: text.value,
+        fromUser: user.value,
+        toUser: chatUser.value,
+        message: text.value,
       }
       socket.send(JSON.stringify(message)) // 将组装好的json发送给服务端，由服务端进行转发
       messages.value.push({ user: user.value, text: text.value })
@@ -183,6 +228,7 @@ const createContent = async (remoteUser, nowUser, text) => {
   let html
   // 当前用户消息
   if (nowUser) {
+    // console.log(nowUser)
     // nowUser 表示是否显示当前用户发送的聊天消息，绿色气泡
     html =
       '<div class="el-row" style="padding: 5px 0">\n' +
@@ -193,17 +239,22 @@ const createContent = async (remoteUser, nowUser, text) => {
       '  </div>\n' +
       '  <div class="el-col el-col-2">\n' +
       '  <span class="el-avatar el-avatar--circle" style="height: 40px; width: 40px; line-height: 40px;">\n' +
-      '    <img src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" style="object-fit: cover;">\n' +
+      '    <img src="' +
+      name_avatar.get(nowUser) +
+      '" style="object-fit: cover;">\n' +
       '  </span>\n' +
       '  </div>\n' +
       '</div>'
   } else if (remoteUser) {
+    // console.log(remoteUser)
     // remoteUser表示远程用户聊天消息，蓝色的气泡
     html =
       '<div class="el-row" style="padding: 5px 0">\n' +
       '  <div class="el-col el-col-2" style="text-align: right">\n' +
       '  <span class="el-avatar el-avatar--circle" style="height: 40px; width: 40px; line-height: 40px;">\n' +
-      '    <img src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" style="object-fit: cover;">\n' +
+      '    <img src="' +
+      name_avatar.get(remoteUser) +
+      '" style="object-fit: cover;">\n' +
       '  </span>\n' +
       '  </div>\n' +
       '  <div class="el-col el-col-22" style="text-align: left; padding-left: 10px">\n' +
@@ -213,9 +264,29 @@ const createContent = async (remoteUser, nowUser, text) => {
       '  </div>\n' +
       '</div>'
   }
-  console.log(html)
+  // console.log(html)
   content.value += html
 }
+
+const toChat = async row => {
+  // console.log(row.username)
+  chatUser.value = row.username
+  //这里进行数据的渲染
+  const list = unReadMessageList.value
+  users.value.forEach(e => {
+    if (e.username === row.username) {
+      e.notreadC = 0
+    }
+  })
+  for (let i = 0; i < list.length; i++) {
+    if (row.username === list[i].fromUser) {
+      //说明这个就是你未读的消息 将其渲染上去
+      createContent(list[i].fromUser, null, list[i].text)
+    }
+  }
+}
+
+const rmF = () => {}
 </script>
 <style>
 .tip {

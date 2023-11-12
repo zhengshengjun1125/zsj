@@ -9,7 +9,11 @@
         />
       </el-form-item>
       <el-form-item label="作者查询" v-if="isROOT">
-        <el-input v-model="formInline.user" placeholder="作者名称" clearable />
+        <el-input
+          v-model="formInline.artAuther"
+          placeholder="作者名称"
+          clearable
+        />
       </el-form-item>
       <el-form-item label="日访问>=">
         <el-input
@@ -69,6 +73,7 @@
         :render-after-expand="false"
         clearable
       />
+
       <!-- " -->
       <v-md-editor
         v-model="curAddContent"
@@ -204,7 +209,7 @@ const formInline = reactive({
 })
 
 onMounted(() => {
-  const curUserName = localStorage.getItem('curUser')
+  const curUserName = localStorage.getItem('username')
   curUserName == 'zsj' ? (isROOT.value = true) : (isROOT.value = false)
   flushARTList()
   getAllClass()

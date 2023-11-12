@@ -112,6 +112,7 @@ export default [
         component: chat,
         meta: {
           title: '来聊天吧',
+          keepAlive: true,
         },
         hidden: false,
       },

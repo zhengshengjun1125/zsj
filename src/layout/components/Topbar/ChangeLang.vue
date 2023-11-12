@@ -34,10 +34,10 @@
  *                不见满街漂亮妹，哪个归得程序员？
  * 
  * @Descripttion: 
- * * @version: 1.1
+ * @version: 1.1
  *
  * @LastEditors:  zsj
- *: 
+ * 
  * @Author:   zsj
 
  -->
