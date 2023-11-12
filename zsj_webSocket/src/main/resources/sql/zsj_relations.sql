@@ -11,7 +11,7 @@
  Target Server Version : 80100
  File Encoding         : 65001
 
- Date: 09/11/2023 11:59:56
+ Date: 12/11/2023 21:59:32
 */
 
 SET NAMES utf8mb4;
@@ -35,5 +35,8 @@ CREATE TABLE `relation_message`  (
 -- ----------------------------
 -- Records of relation_message
 -- ----------------------------
+INSERT INTO `relation_message` VALUES ('1723604722735198209', 'ruike', 'zsj', 's', 'yes', '2023-11-12');
+INSERT INTO `relation_message` VALUES ('1723694876950908930', 'ruike', 'zsj', '你在干嘛阿？', 'yes', '2023-11-12');
+INSERT INTO `relation_message` VALUES ('1723694964179849217', 'zsj', 'ruike', '干你的骚嘴', 'yes', '2023-11-12');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -11,7 +11,7 @@
  Target Server Version : 80100
  File Encoding         : 65001
 
- Date: 09/11/2023 11:59:36
+ Date: 12/11/2023 21:59:50
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,7 @@ CREATE TABLE `art_class`  (
   `class_creater` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_croatian_ci NOT NULL COMMENT '分类创建者',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `class_name`(`class_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_croatian_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_croatian_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of art_class
@@ -87,7 +87,7 @@ CREATE TABLE `art_entity`  (
   `update_time` datetime NOT NULL COMMENT '文章修改时间',
   `art_status` tinyint NOT NULL DEFAULT 1 COMMENT '0表示删除 1表示正常',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_croatian_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_croatian_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of art_entity
@@ -97,7 +97,7 @@ INSERT INTO `art_entity` VALUES (2, '测试主题2', 11, ' <h1>这是一条测�
 INSERT INTO `art_entity` VALUES (3, '测试主题33', 7, ' <h1>这是一条测试文本3</h1>\n- 无序列表', 97979, 7878, 454545488, 'zsj', '2023-10-07 20:43:34', '2023-10-07 20:43:37', 0);
 INSERT INTO `art_entity` VALUES (4, '码农的自传', 4, '**粗体**\n# 哈哈哈哈', 0, 0, 0, 'zsj', '2023-10-14 22:26:00', '2023-10-14 22:26:00', 0);
 INSERT INTO `art_entity` VALUES (5, 'human的文章', 5, 'a ada **粗体**', 0, 0, 0, 'human', '2023-10-14 22:30:20', '2023-10-14 22:30:20', 0);
-INSERT INTO `art_entity` VALUES (6, '从0到1的博客系统构建(后台)', 25, '# 关于技术选型\n:grinning::fearful:\n哈哈哈', 0, 0, 0, 'zsj', '2023-10-15 19:33:54', '2023-10-15 19:33:54', 1);
+INSERT INTO `art_entity` VALUES (6, '从0到1的博客系统构建(后台)', 25, '# 关于技术选型\n:grinning::fearful:\n哈哈哈\n\n​<audio id=\"audio\" controls=\"\" preload=\"none\">\n      <source id=\"mp3\" src=\"音频地址\">\n</audio>\n\n<video src=\"\"></video>', 0, 0, 0, 'zsj', '2023-10-15 19:33:54', '2023-10-15 19:33:54', 1);
 INSERT INTO `art_entity` VALUES (7, 'ruike的专属是谁呢?', 20, '是瑞克的老婆哈哈:joy:\n但是他是一个疯狂的科学家 除了莫迪没有人会爱他:relieved:', 0, 0, 0, 'ruike', '2023-11-01 18:50:06', '2023-11-01 18:50:06', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
