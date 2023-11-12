@@ -23,6 +23,11 @@ public class BaseUtil {
         return simpleDateFormat.format(new Date());
     }
 
+    public static String year_month_day() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return simpleDateFormat.format(new Date());
+    }
+
     //生成长度15的数字串
     public static String randomNumber() {
         return String.valueOf(new Double((Math.random() + 1) * Math.pow(10, 16 - 1)).longValue());

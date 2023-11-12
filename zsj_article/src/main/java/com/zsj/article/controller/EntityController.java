@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.gson.reflect.TypeToken;
 import com.zsj.article.Page.ArticlePage;
 import com.zsj.article.vo.EntityVoForHomePage;
 import com.zsj.common.utils.GsonUtil;
@@ -97,20 +96,23 @@ public class EntityController {
                              @Nullable @RequestBody EntityEntity entity) {
         ValueOperations<String, String> ops =
                 stringRedisTemplate.opsForValue();
+        assert entity != null;
+        String param = entity.getArtTitle() + entity.getArtAuther() + entity.getArtRequestDay() + entity.getArtRequestMonth()
+                + entity.getArtRequestTotal() + entity.getArtClassId();
         //进行权限控制 每个用户只能查到自己的
-        String json = ops.get("articlePage/" + cur + '/' + size + '/' + name);
+        String json = ops.get("articlePage/" + cur + '/' + size + '/' + name + param);
         if (ObjectUtil.isNullOrEmpty(json)) {
             //根据条件进行文章信息的查询
-            ArticlePage articlePage = getArticlePage(name, cur, size, entity, ops);
+            ArticlePage articlePage = getArticlePage(name, cur, size, entity, ops, param);
             return R.ok().put("data", articlePage);
         }
         return R.ok().put("data", GsonUtil.gson.fromJson(json, ArticlePage.class));
     }
 
-    private ArticlePage getArticlePage(String name, Integer cur, Integer size, EntityEntity entity, ValueOperations<String, String> ops) {
+    private ArticlePage getArticlePage(String name, Integer cur, Integer size, EntityEntity entity, ValueOperations<String, String> ops, String param) {
         ArticlePage articlePage = entityService.getAllArticleByUserName(new Page<>(cur, size), entity, name);
         String gsonJson = GsonUtil.gson.toJson(articlePage);
-        ops.set("articlePage/" + cur + '/' + size + '/' + name, gsonJson,1, TimeUnit.HOURS);
+        ops.set("articlePage/" + cur + '/' + size + '/' + name + param, gsonJson, 1, TimeUnit.HOURS);
         return articlePage;
     }
 

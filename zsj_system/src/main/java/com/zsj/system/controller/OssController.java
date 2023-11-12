@@ -1,23 +1,43 @@
 package com.zsj.system.controller;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.OSSException;
+import com.aliyun.oss.common.auth.CredentialsProviderFactory;
+import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
+import com.aliyun.oss.common.comm.ResponseMessage;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
+import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyun.oss.model.PutObjectResult;
+import com.zsj.common.utils.BaseUtil;
+import com.zsj.common.utils.FileGlobalHelper;
+import com.zsj.system.entity.FileEntity;
+import com.zsj.system.service.FileService;
+import com.zsj.system.vo.FileVo;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import com.zsj.system.entity.OssEntity;
 import com.zsj.system.service.OssService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.common.utils.R;
+import org.springframework.web.multipart.MultipartFile;
 
 
 /**
@@ -29,10 +49,16 @@ import com.zsj.common.utils.R;
  */
 @RestController
 @RequestMapping("system/oss")
+@Slf4j
 public class OssController {
+
 
     @Autowired
     private OssService ossService;
+
+    @Autowired
+    @Lazy
+    private FileService fileService;
 
     //调用oss资源上传文件
     @Autowired
@@ -40,7 +66,7 @@ public class OssController {
     OSS ossClient;
 
     @Value("${spring.cloud.alicloud.oss.endpoint}")
-    private String endoint;
+    private String endpoint;
 
     @Value("${spring.cloud.alicloud.oss.bucket}")
     private String bucket;
@@ -48,11 +74,84 @@ public class OssController {
     @Value("${spring.cloud.alicloud.access-key}")
     private String accessId;
 
+    @Value("${spring.cloud.alicloud.secret-key}")
+    private String secret;
+
+
+    /**
+     * 单一文件上传
+     *
+     * @param requestU 请求人
+     * @param file     文件对象
+     */
+    @PostMapping("/uploadOssFileSingle")
+    public R uploadOssFileSingle(@RequestHeader("system_api_Authorize_name") String requestU,
+                                 @NotNull MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        long size = file.getSize();//文件大小 图片不可以超过
+        log.info("上传文件名为:{} 文件大小字节为:{}", originalFilename, size);
+        assert originalFilename != null;
+        String suffix = FileGlobalHelper.getSuffix(originalFilename);
+        Map<String, String> filter_map = FileGlobalHelper.fileTypeMap();
+        String type = filter_map.get(suffix) == null ? "other" : filter_map.get(suffix);
+        String objectName = requestU + '/';
+        switch (type) {
+            case "视频":
+                if (size > 52428800) {
+                    return R.error("你不可以上传超过50M的视频文件");
+                }
+                objectName += BaseUtil.year_month_day() + "/video/";
+                break;
+            case "图片":
+                if (size > 3145728) {
+                    return R.error("你不可以上传超过3M的图片文件");
+                }
+                objectName += BaseUtil.year_month_day() + "/image/";
+                break;
+            case "音乐":
+                if (size > 20971520) {
+                    return R.error("你不可以上传超过20M的音乐文件");
+                }
+                objectName += BaseUtil.year_month_day() + "/music/";
+                break;
+            default:
+                if (size > 10485760) {
+                    return R.error("文件上传未知类型时,默认大小为10M");
+                }
+                objectName += BaseUtil.year_month_day() + "/common/";
+                break;
+        }
+        String realName = BaseUtil.randomNumber(12) + '.' + suffix;
+        objectName += realName;
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessId, secret);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, objectName, file.getInputStream());
+        ossClient.putObject(putObjectRequest);
+        String url = "https://" + bucket + '.' + endpoint + '/' + objectName;
+        log.info("上传文件路径为{}", url);
+        new Thread(() -> {
+            //进行文件保存
+            fileService.save(new FileEntity(originalFilename, suffix, requestU,
+                    new Date(System.currentTimeMillis()), url, realName));
+        }).start();
+        return R.ok("上传成功").put("url",url);
+    }
+
+
+    /**
+     * 多文件上传
+     *
+     * @param file 文件对象
+     */
+    @PostMapping("/uploadOssFileMultiple")
+    public R uploadOssFileMultiple(MultipartFile[] file) {
+
+        return R.error();
+    }
 
     @GetMapping("/policyToPhoto")
     public R policyToPhoto() {
         // 填写Host地址，格式为https://bucketname.endpoint。
-        String host = "https://" + bucket + "." + endoint;
+        String host = "https://" + bucket + "." + endpoint;
         // 设置上传到OSS文件的前缀，可置空此项。置空后，文件将上传至Bucket的根目录下。
         String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String dir = format + "/photo/";
@@ -63,7 +162,7 @@ public class OssController {
     @GetMapping("/policyToVideo")
     public R policyToVideo() {
         // 填写Host地址，格式为https://bucketname.endpoint。
-        String host = "https://" + bucket + "." + endoint;
+        String host = "https://" + bucket + "." + endpoint;
         // 设置上传到OSS文件的前缀，可置空此项。置空后，文件将上传至Bucket的根目录下。
         String format = new SimpleDateFormat("yyyy:MM:hh").format(new Date());
         String dir = format + "/video";
@@ -145,6 +244,8 @@ public class OssController {
         ossService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+
     }
+
 
 }

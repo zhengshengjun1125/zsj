@@ -46,4 +46,14 @@ public class RelationMessageEntity implements Serializable {
 	 */
 	private Date createTime;
 
+	public RelationMessageEntity() {
+	}
+
+	public RelationMessageEntity(String fromuser, String touser, String message, String alreadRead, Date createTime) {
+		this.fromuser = fromuser;
+		this.touser = touser;
+		this.message = message;
+		this.alreadRead = alreadRead;
+		this.createTime = createTime;
+	}
 }

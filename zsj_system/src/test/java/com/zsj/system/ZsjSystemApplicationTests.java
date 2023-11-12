@@ -33,10 +33,19 @@ class ZsjSystemApplicationTests {
 
     @Test
     void contextLoads() {
+        String md = Encrypt.encrypt_md5("123456");
+        log.info("md5加密后的密码是{}", md);
         String s = Encrypt.encrypt_hash512("123456");
         String s2 = Encrypt.encrypt_hash512("123456");
-        log.info("password {}",s);
+        log.info("password {}", s);
         System.out.println(s.equals(s2));
     }
 
+
+    @Test
+    void contextLoads2() {
+        String md = "file.aaa.txt";
+        int i = md.lastIndexOf('.');
+        System.out.println(md.substring(i));
+    }
 }
