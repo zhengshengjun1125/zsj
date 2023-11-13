@@ -16,6 +16,13 @@
       <em>点击上传</em>
     </div>
   </el-upload>
+  <el-text class="mx-1" style="color: red">视频文件限制---50M</el-text>
+  &ensp;&ensp;
+  <el-text class="mx-1" style="color: blue">音乐文件限制---20M</el-text>
+  &ensp;&ensp;
+  <el-text class="mx-1" style="color: black">其它文件限制---10M</el-text>
+  &ensp;&ensp;
+  <el-text class="mx-1" style="color: green">图片文件限制---3M</el-text>
   <el-table :data="fileList" style="width: 100%">
     <el-table-column prop="uid" label="uid" />
     <el-table-column prop="name" label="文件名称" />
@@ -41,18 +48,45 @@
       <!-- <el-button type="danger" @click="rmF(scope.row)">删除</el-button> -->
     </el-table-column>
   </el-table>
+  <el-drawer
+    v-model="showData"
+    title="上传结果"
+    :direction="direction"
+    :before-close="handleClose"
+  >
+    <el-result icon="success" title="上传成功" sub-title="图片地址如下">
+      <template #extra>
+        <el-text class="mx-1" type="success" style="color: green">
+          URL地址为:{{ curUrl }}
+        </el-text>
+        <br />
+        <el-button
+          type="success"
+          style="margin-top: 10px"
+          @click="copyValue(curUrl)"
+        >
+          复制
+        </el-button>
+      </template>
+    </el-result>
+  </el-drawer>
 </template>
 
 <script setup>
-import { async } from '@kangc/v-md-editor'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
+import { h, onMounted, reactive, ref } from 'vue'
+import { useClipboard } from '@vueuse/core'
 //文件列表
 const fileList = ref([])
-
+const showData = ref(false)
+const curUrl = ref('aaa')
+const { text, copy, copied, isSupported } = useClipboard({ curUrl })
 //进度条集合 根据文件的uid进行存储
 const perList = reactive(new Map())
 
+onMounted(() => {
+  // console.log(useClipboard)
+})
 const successFile = new Map()
 const baseRequest = ref({
   system_api_Authorize_name: localStorage.getItem('username'),
@@ -80,11 +114,28 @@ const handleFileProgress = async (e, u, s) => {
   perList.set(u.uid, e.percent)
 }
 
-const handleFileError = () => {}
+const handleFileError = () => {
+  ElMessage.error('上传出现了错误 请联系开发者')
+}
 
 const review = e => {
-  console.log(perList.get(e.uid))
-  alert(successFile.get(e.uid))
+  if (perList.get(e.uid) != 100) {
+    ElNotification({
+      title: '提示',
+      message: h('i', { style: 'color: teal' }, '请等待上传成功'),
+    })
+  } else {
+    showData.value = true
+  }
+  curUrl.value = successFile.get(e.uid)
+}
+
+const copyValue = v => {
+  copy(v)
+  ElNotification({
+    title: '提示',
+    message: h('i', { style: 'color: teal' }, '拷贝成功'),
+  })
 }
 </script>
 

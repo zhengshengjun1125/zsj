@@ -9,6 +9,7 @@ const classType = () => import('@/views/blog/classType.vue')
 const theHomeImg = () => import('@/views/blog/theHomeImg.vue')
 const chat = () => import('@/views/fun/chat.vue')
 const upFile = () => import('@/views/fun/upFile.vue')
+const sysFile = () => import('@/views/system/file.vue')
 // 导出该组件
 export default [
   {
@@ -25,7 +26,7 @@ export default [
         name: 'sysRole',
         component: sysRole,
         meta: {
-          title: '角色管理',
+          title: 'menu.rolem',
         },
         hidden: false,
       },
@@ -34,7 +35,7 @@ export default [
         name: 'sysUser',
         component: sysUser,
         meta: {
-          title: '用户管理',
+          title: 'menu.userm',
         },
         hidden: false,
       },
@@ -43,7 +44,7 @@ export default [
         name: 'sysMenu',
         component: sysMenu,
         meta: {
-          title: '菜单管理',
+          title: 'menu.menum',
         },
         hidden: false,
       },
@@ -52,7 +53,17 @@ export default [
         name: 'sysOperLog',
         component: sysOperLog,
         meta: {
-          title: '日志管理',
+          title: 'menu.logm',
+        },
+        hidden: false,
+      },
+
+      {
+        path: '/file',
+        name: 'sysFile',
+        component: sysFile,
+        meta: {
+          title: 'menu.filem',
         },
         hidden: false,
       },
@@ -72,7 +83,7 @@ export default [
         name: 'article',
         component: article,
         meta: {
-          title: '文章管理',
+          title: 'menu.articlem',
         },
         hidden: false,
       },
@@ -81,7 +92,7 @@ export default [
         name: 'type',
         component: classType,
         meta: {
-          title: '分类管理',
+          title: 'menu.classm',
         },
         hidden: false,
       },
@@ -90,7 +101,7 @@ export default [
         name: 'theHomeImg',
         component: theHomeImg,
         meta: {
-          title: '封面管理',
+          title: 'menu.homeimgm',
         },
         hidden: false,
       },
@@ -111,7 +122,7 @@ export default [
         name: 'chat',
         component: chat,
         meta: {
-          title: '来聊天吧',
+          title: 'menu.gochat',
           keepAlive: true,
         },
         hidden: false,
@@ -121,7 +132,7 @@ export default [
         name: 'upFile',
         component: upFile,
         meta: {
-          title: '上传文件',
+          title: 'menu.upfile',
         },
         hidden: false,
       },

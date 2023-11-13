@@ -94,6 +94,9 @@ import '@kangc/v-md-editor/lib/style/preview-html.css'
 // highlightjs
 import hljs from 'highlight.js'
 
+//clipboard3.js
+// import clipboard3 from 'vue-clipboard3';
+
 VMdPreview.use(githubTheme, {
   Hljs: hljs,
 })

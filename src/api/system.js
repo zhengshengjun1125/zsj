@@ -92,10 +92,19 @@ export const getImgList = () => {
   })
 }
 
-//获取背景图列表 TODO
+//添加背景图列表
 export const insertImg = data => {
   return request({
     url: '/api/system/bloghomehp/insert',
+    method: 'post',
+    data,
+  })
+}
+
+//获取文件列表
+export const getfileList = (cur, size, data) => {
+  return request({
+    url: '/api/system/file/list/' + cur + '/' + size,
     method: 'post',
     data,
   })

@@ -9,7 +9,11 @@
 -->
 <template>
   <div>
-    <h1>你好!我的朋友（HELLO! MY FRIEND）(●'◡'●)</h1>
+    <h1>
+      你好!我的朋友
+      <span>（HELLO! MY FRIEND）&#128512;&#128512;&#128512;</span>
+      (●'◡'●)
+    </h1>
     <!-- <el-card class="box-card" shadow="always">
       <template #header>
         <div class="card-header">

@@ -41,6 +41,7 @@
       <el-col :span="16">
         <el-card
           style="
+            height: 680px;
             width: 800px;
             margin: 0 auto;
             background-color: white;
@@ -56,16 +57,40 @@
             v-html="content"
           ></div>
           <div style="height: 200px">
-            <el-input
-              v-model="text"
-              :autosize="{ minRows: 8, maxRows: 8 }"
-              type="textarea"
-            />
+            <el-popover placement="top" :width="600" trigger="click">
+              <template #reference>
+                <img
+                  src="@/assets/images/emoji.svg"
+                  style="margin-left: 10px"
+                />
+                <!-- <el-button style="margin-right: 16px">添加表情</el-button> -->
+              </template>
+              <ul class="ulclass">
+                <li
+                  style="list-style: none; text-align: center"
+                  v-for="(item, index) in emoji"
+                  :key="index"
+                >
+                  <span style="" @click="appendEmoji(index)">{{ index }}</span>
+                </li>
+              </ul>
+            </el-popover>
+
             <div style="text-align: right; padding-right: 10px">
               <el-button type="success" size="mini" @click="send">
                 发送
               </el-button>
             </div>
+
+            <el-input
+              @keyup.enter="send"
+              style="font-size: 18px"
+              v-model="text"
+              :rows="3"
+              placeholder="开始聊天吧 输入之后回车发送~"
+              :autosize="{ minRows: 6, maxRows: 6 }"
+              type="textarea"
+            />
           </div>
         </el-card>
       </el-col>
@@ -73,11 +98,12 @@
   </div>
 </template>
 <script setup>
+import emoji from '@/utils/emoji'
 import request from '@/utils/request'
 import { async } from '@kangc/v-md-editor'
 import { ElMessageBox } from 'element-plus'
 import { ref, getCurrentInstance, onMounted } from 'vue'
-
+// const inputTextArea = document.getElementById('inputTextArea')
 const { proxy: ctx } = getCurrentInstance()
 const user = ref({})
 const isCollapse = ref(false)
@@ -93,6 +119,14 @@ onMounted(() => {
   init()
 })
 let socket
+
+function showList() {
+  document.getElementById('emojiList').style.display = 'block'
+}
+
+function hideList() {
+  document.getElementById('emojiList').style.display = 'none'
+}
 
 const changeChatUser = async user => {
   chatUser.value = user.username
@@ -223,6 +257,9 @@ const send = async () => {
   }
 }
 
+const appendEmoji = e => {
+  text.value += e
+}
 const createContent = async (remoteUser, nowUser, text) => {
   // 这个方法是用来将 json的聊天消息数据转换成 html的。
   let html
@@ -249,7 +286,7 @@ const createContent = async (remoteUser, nowUser, text) => {
     // console.log(remoteUser)
     // remoteUser表示远程用户聊天消息，蓝色的气泡
     html =
-      '<div class="el-row" style="padding: 5px 0">\n' +
+      '<div class="el-row" style="padding: 5px 0;font: bold;">\n' +
       '  <div class="el-col el-col-2" style="text-align: right">\n' +
       '  <span class="el-avatar el-avatar--circle" style="height: 40px; width: 40px; line-height: 40px;">\n' +
       '    <img src="' +
@@ -303,6 +340,19 @@ const rmF = () => {}
   background-color: deepskyblue;
 }
 .left {
+  background-color: forestgreen;
+}
+.ulclass {
+  width: 500px;
+  list-style: none;
+}
+.ulclass li {
+  width: 30px;
+  float: left;
+  margin-right: 15px;
+  line-height: 20px;
+}
+.ulclass li:hover {
   background-color: forestgreen;
 }
 </style>
