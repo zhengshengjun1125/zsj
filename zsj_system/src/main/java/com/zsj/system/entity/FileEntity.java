@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zsj.common.utils.FileGlobalHelper;
 import com.zsj.common.utils.ObjectUtil;
 import lombok.Data;
@@ -54,13 +55,18 @@ public class FileEntity implements Serializable {
      */
     private String affiliation;
     /**
-     * 上传时间
-     */
-    private Date createTime;
-    /**
      * 文件路径
      */
     private String url;
+    /**
+     * 文件大小
+     */
+    private Long fileSize;
+    /**
+     * 上传时间
+     */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
     /**
      * 是否删除
      */
@@ -69,13 +75,14 @@ public class FileEntity implements Serializable {
     public FileEntity() {
     }
 
-    public FileEntity(String fileName, String fileSuffix, String affiliation, Date createTime, String url, String real) {
+    public FileEntity(String fileName, String fileSuffix, String affiliation, Date createTime, String url, String real,Long size) {
         this.fileName = fileName;
         this.fileSuffix = fileSuffix;
         this.affiliation = affiliation;
         this.createTime = createTime;
         this.upFileName = real;
         this.url = url;
+        this.fileSize = size;
         String suffix = FileGlobalHelper.fileTypeMap().get(fileSuffix);
         if (ObjectUtil.objectIsNotNull(suffix)){
             if (suffix.equals(VIDEO_TYPE)) this.type = VIDEO_TYPE;

@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -31,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import com.zsj.system.entity.OssEntity;
@@ -59,6 +57,10 @@ public class OssController {
     @Autowired
     @Lazy
     private FileService fileService;
+
+    @Autowired
+    @Lazy
+    private StringRedisTemplate stringRedisTemplate;
 
     //调用oss资源上传文件
     @Autowired
@@ -131,8 +133,16 @@ public class OssController {
         new Thread(() -> {
             //进行文件保存
             fileService.save(new FileEntity(originalFilename, suffix, requestU,
-                    new Date(System.currentTimeMillis()), url, realName));
+                    new Date(System.currentTimeMillis()), url, realName,size));
         }).start();
+        //进行redis中所有文件key的删除
+
+        new Thread(()->{
+            Set<String> keys = stringRedisTemplate.keys("fileList/*");
+            assert keys != null;
+            stringRedisTemplate.delete(keys);
+        }).start();
+
         return R.ok("上传成功").put("url",url);
     }
 

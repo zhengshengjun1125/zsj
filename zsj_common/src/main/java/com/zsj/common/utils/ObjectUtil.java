@@ -1,5 +1,8 @@
 package com.zsj.common.utils;
 
+
+import org.apache.http.entity.FileEntity;
+
 /**
  * @author https://gitee.com/zhengshengjun
  * @date 2023/10/31.
@@ -14,5 +17,7 @@ public class ObjectUtil {
     public static boolean objectIsNotNull(Object o) {
         return o != null;
     }
+
+
 
 }

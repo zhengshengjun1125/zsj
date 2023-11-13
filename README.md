@@ -18,36 +18,31 @@
 - 💅 [zsj_system](zsj_system)   系统模块
 - 🌍 [zsj_article](zsj_article) 文章模块
 - 👏 [zsj_gateway](zsj_gateway) 网关模块
+- 🤪 [zsj_webSocket](zsj_webSocket) socket模块
 
 
 ## 🌐 前端地址
-
+    暂未上线
 
 ## 📌 优势及注意事项
 
 ```
-    使用springcloudAlibaba进行后端开发
-    前端使用vue3进行开发
+    使用springcloudAlibaba基础框架
     数据库使用mysql
     缓存使用redis
+    rpc使用Feign
+    工具类使用hutool
+    网关gateway
+    分布式锁redisson
+    实体工具lombok
+    json工具Gson
     代码生成器使用的人人开源
 ```
 
 ## 💚 适合人群
     需要有自己的博客的同学
-    只需要联系作者加个账号 你就可以拥有自己的博客了
-## 💚 架构
-~~~
- 博客系统
-   web前端
-    设计初衷 让身边的朋友可以使用一个博客网页用来记录自己的学习笔记或者博客
-        
-   web后端
-      使用gateway全局入口 并且动态路由
-      使用nacos注册服务与发现
-      gson作为json序列化
-      微服务架构
-   
-~~~
+    只需要联系作者加个账号 
+    你就可以拥有自己的博客了
+
 
 

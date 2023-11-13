@@ -11,7 +11,7 @@
  Target Server Version : 80100
  File Encoding         : 65001
 
- Date: 12/11/2023 21:59:32
+ Date: 13/11/2023 22:35:32
 */
 
 SET NAMES utf8mb4;
@@ -38,5 +38,28 @@ CREATE TABLE `relation_message`  (
 INSERT INTO `relation_message` VALUES ('1723604722735198209', 'ruike', 'zsj', 's', 'yes', '2023-11-12');
 INSERT INTO `relation_message` VALUES ('1723694876950908930', 'ruike', 'zsj', '你在干嘛阿？', 'yes', '2023-11-12');
 INSERT INTO `relation_message` VALUES ('1723694964179849217', 'zsj', 'ruike', '干你的骚嘴', 'yes', '2023-11-12');
+INSERT INTO `relation_message` VALUES ('1724001737101119490', 'zsj', 'ruike', 'alert(\"哈哈\")', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724001795494219778', 'zsj', 'ruike', 'windows.aleat(\"哈哈哈哈\")', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724001882911903746', 'ruike', 'zsj', '  window.alert(\'哈哈哈\')', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724001900066607106', 'zsj', 'ruike', '  window.alert(\'哈哈哈\')', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724008871587057665', 'zsj', 'ruike', 'ddd', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724008885369540609', 'zsj', 'ruike', ':grinning:', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724011761605120002', 'ruike', 'zsj', '啊啊啊', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724014514792402945', 'zsj', 'ruike', '&#128512;', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724015238058184706', 'ruike', 'zsj', '😀', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724027232089903106', 'ruike', 'zsj', '🤡', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724028010334621698', 'ruike', 'zsj', '你是小丑吗？🤡🤡🤡🤡🤡🤡🤡🤡🤡', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724028064256593922', 'zsj', 'ruike', '🦴', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724031950224723969', 'zsj', 'ruike', '💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724031959263449090', 'zsj', 'ruike', '💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI💪EMOJIEMOJIEMOJIEMOJIEMOJIEMOJIEMOJI', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724032033401966594', 'ruike', 'zsj', 'are u fucking fool?\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033248328257538', 'zsj', 'ruike', 'dsadas\n\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033325889327105', 'zsj', 'ruike', '你好阿\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033494278049793', 'zsj', 'ruike', '我从\n\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033501882322946', 'zsj', 'ruike', '我操\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033511202066434', 'zsj', 'ruike', '你是谁阿\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033519590674433', 'zsj', 'ruike', '我喜欢你\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033535625498625', 'zsj', 'ruike', '我好饿哦\n', 'yes', '2023-11-13');
+INSERT INTO `relation_message` VALUES ('1724033559285567489', 'zsj', 'ruike', 'fuck u day and night\n', 'yes', '2023-11-13');
 
 SET FOREIGN_KEY_CHECKS = 1;
