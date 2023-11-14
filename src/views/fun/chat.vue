@@ -262,6 +262,10 @@ const appendEmoji = e => {
 }
 const createContent = async (remoteUser, nowUser, text) => {
   // 这个方法是用来将 json的聊天消息数据转换成 html的。
+
+  /*
+    TODO  请解决这里的XSS攻击 或者关闭整个服务
+  */
   let html
   // 当前用户消息
   if (nowUser) {

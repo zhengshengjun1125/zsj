@@ -30,6 +30,7 @@
     <el-table-column label="进度条" #default="scope">
       <!-- 
         进度条
+         :text-inside="true"
          :percentage="perList.get(scope.row.uid)"
          -->
       <el-progress
@@ -37,10 +38,8 @@
         striped-flow
         :stroke-width="24"
         :percentage="100"
-        :text-inside="true"
         status="success"
         :indeterminate="perList.get(scope.row.uid) != 100"
-        :duration="5"
       />
     </el-table-column>
     <el-table-column label="操作" #default="scope">
@@ -100,7 +99,6 @@ const beforceUpload = f => {
 //上传成功的钩子
 const handleFileSuccess = (r, u, s) => {
   //完成进度条
-  perList.set(u.uid, 100)
   successFile.set(u.uid, r.url)
   if (r.code == 200) {
     ElMessage.success(r.msg)
@@ -114,8 +112,10 @@ const handleFileProgress = async (e, u, s) => {
   perList.set(u.uid, e.percent)
 }
 
-const handleFileError = () => {
+const handleFileError = (e, f) => {
+  perList.set(f.uid, 0)
   ElMessage.error('上传出现了错误 请联系开发者')
+  ElMessage.error('请按照文件要求进行上传')
 }
 
 const review = e => {
@@ -126,8 +126,8 @@ const review = e => {
     })
   } else {
     showData.value = true
+    curUrl.value = successFile.get(e.uid)
   }
-  curUrl.value = successFile.get(e.uid)
 }
 
 const copyValue = v => {

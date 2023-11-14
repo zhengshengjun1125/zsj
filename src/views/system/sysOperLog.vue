@@ -1,5 +1,22 @@
 <template>
   <div>
+    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form-item label="用户查询">
+        <el-input v-model="formInline.username" placeholder="用户" clearable />
+      </el-form-item>
+      <el-form-item label="方法查询">
+        <el-input v-model="formInline.method" placeholder="方法" clearable />
+      </el-form-item>
+      <el-form-item label="操作查询">
+        <el-input v-model="formInline.operation" placeholder="操作" clearable />
+      </el-form-item>
+      <el-form-item label="IP查询">
+        <el-input v-model="formInline.ip" placeholder="IP地址" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="initLogList">查询</el-button>
+      </el-form-item>
+    </el-form>
     <el-table :data="loglist" border style="width: 100%">
       <el-table-column prop="id" label="Id" width="60" />
       <el-table-column prop="username" label="操作用户" width="180" />
@@ -30,9 +47,17 @@
 
 <script setup>
 import { async } from '@kangc/v-md-editor'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive } from 'vue'
 import { getLogList } from '@/api/system'
 import { ElMessage } from 'element-plus'
+
+//条件渲染对象
+const formInline = reactive({
+  ip: '',
+  username: '',
+  operation: '',
+  method: '',
+})
 
 const loglist = ref([])
 onMounted(() => {
@@ -47,7 +72,8 @@ const rmlogById = () => {
 const initLogList = async () => {
   const { data, msg } = await getLogList(
     pageParams.value.cur,
-    pageParams.value.size
+    pageParams.value.size,
+    formInline
   )
 
   if (msg === 'success') {

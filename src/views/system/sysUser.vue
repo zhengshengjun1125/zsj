@@ -375,7 +375,7 @@ const addUser = async () => {
 
 //发起请求获取数据刷新列表的方法
 const flushUserList = async () => {
-  const { msg, code, data } = await getAllUser(
+  const { code, data } = await getAllUser(
     pageParams.value.cur,
     pageParams.value.size,
     formInline
@@ -390,7 +390,7 @@ const flushUserList = async () => {
 }
 //刷新角色列表
 const flushRoleList = async () => {
-  const { msg, data, code } = await getAllRoleByIndex()
+  const { data, code } = await getAllRoleByIndex()
   rolesList.value = data
   rolesList.value.push({
     id: null,
@@ -406,11 +406,15 @@ const flushRoleOptionsList = async () => {
 }
 
 const rmUserById = async row => {
-  ElMessageBox.confirm('您将指派Killer杀死此名用户,是否确认操作', 'Warning', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  })
+  ElMessageBox.confirm(
+    '您将指派Killer杀死此名用户,此操作会永远抹除此名用户,是否确认操作?',
+    '高危操作提醒',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
     .then(async () => {
       const { msg, code } = await cancellationUser({ id: row.id })
       if (code == 200) {
