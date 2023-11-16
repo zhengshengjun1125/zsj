@@ -1,11 +1,10 @@
-## 这是一个关于郑声军个人信息
-## 学习笔记的应用网站后台系统
-<div>
-<div align = "left">    
-<img src="https://edu-zsj-1010.oss-cn-beijing.aliyuncs.com/image/jun.jpg" width = 300 height = 300/>
-</div>
+## 学习笔记博客的应用网站后台系统
 
-<h1> ZSJ-SELF</h1>
+### 开发者
+@[朱远](https://gitee.com/zhu-yuanthorn11z/)<br/>
+@[郑声军](https://gitee.com/zhengshengjun/)
+<div>
+<h1> ZSJ-BLOG</h1>
 <p>加个好友一起讨论加油吧！</p>
 </div>
 
