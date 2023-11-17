@@ -1,13 +1,19 @@
 package com.zsj.system.controller;
 
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mysql.cj.log.Log;
 import com.zsj.common.utils.ObjectUtil;
 import com.zsj.system.entity.MenuEntity;
+import com.zsj.system.vo.UserVoExcel;
+import com.zsj.system.vo.UserVoList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import com.zsj.system.entity.LogEntity;
 import com.zsj.system.service.LogService;
 import com.zsj.common.utils.R;
+
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -78,5 +86,34 @@ public class LogController {
                         ObjectUtil.isNullOrEmpty(entity.getOperation()) &&
                         ObjectUtil.isNullOrEmpty(entity.getMethod()));
 
+    }
+
+    @GetMapping("/excel/export")
+    public void exportUserListExcel(HttpServletResponse response) {
+        try {
+            this.setExcelResponseProp(response, "日志列表");
+            EasyExcel
+                    .write(response.getOutputStream())
+                    .head(LogEntity.class)
+                    .sheet("日志信息表")
+                    .doWrite(logService.list());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * 设置响应结果
+     *
+     * @param response    响应结果对象
+     * @param rawFileName 文件名
+     * @throws UnsupportedEncodingException 不支持编码异常
+     */
+    private void setExcelResponseProp(HttpServletResponse response, String rawFileName) throws UnsupportedEncodingException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode(rawFileName, "UTF-8").replaceAll(" ", "%20");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
     }
 }

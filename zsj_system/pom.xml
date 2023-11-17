@@ -31,32 +31,44 @@
     <dependencies>
 
         <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.14</version>
+        </dependency>
+
+        <!--公共模块-->
+        <dependency>
             <groupId>com.zsj</groupId>
             <artifactId>zsj_common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!--web-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!--单元测试-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
+        <!--redis服务-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!--oss服务-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
             <version>2.1.0.RELEASE</version>
         </dependency>
+
 
 
         <!--引入消息队列-->

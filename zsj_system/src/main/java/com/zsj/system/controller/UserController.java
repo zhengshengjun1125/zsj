@@ -1,13 +1,16 @@
 package com.zsj.system.controller;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.google.gson.JsonObject;
 import com.zsj.common.utils.*;
 import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.system.entity.RoleEntity;
@@ -15,10 +18,7 @@ import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.RoleService;
 import com.zsj.system.service.UserFService;
 import com.zsj.system.service.UserTokenService;
-import com.zsj.system.vo.LoginBody;
-import com.zsj.system.vo.PassFormByUser;
-import com.zsj.system.vo.Token;
-import com.zsj.system.vo.UserVo;
+import com.zsj.system.vo.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zsj.system.entity.UserEntity;
 import com.zsj.system.service.UserService;
+
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -255,9 +257,8 @@ public class UserController {
             //添加成功
             initUserList();//重新初始化我们的用户列表缓存
             String to = user.getEmail();
-            EmailVoProperties emailVoProperties = new EmailVoProperties(to);
-            //消息队列推送 todo  这里要推送注册的用户账号 以及角色名称
-            rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE,GlobalValueToExchange.EMAIL_QUEUE,emailVoProperties,new CorrelationData(UUID.randomUUID().toString()));
+            EmailVoProperties emailVoProperties = new EmailVoProperties(to, count, user_role.getRoleName());
+            rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
             return R.ok("注册成功");
         }
         return R.error("注册失败");
@@ -360,5 +361,34 @@ public class UserController {
         }).collect(Collectors.toList());
     }
 
+
+    @PostMapping("/excel/export")
+    public void exportUserListExcel(HttpServletResponse response, @RequestBody UserVoList list) {
+        try {
+            this.setExcelResponseProp(response, "用户列表");
+            EasyExcel
+                    .write(response.getOutputStream())
+                    .head(UserVoExcel.class)
+                    .sheet("用户信息表")
+                    .doWrite(list.getList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * 设置响应结果
+     *
+     * @param response    响应结果对象
+     * @param rawFileName 文件名
+     * @throws UnsupportedEncodingException 不支持编码异常
+     */
+    private void setExcelResponseProp(HttpServletResponse response, String rawFileName) throws UnsupportedEncodingException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode(rawFileName, "UTF-8").replaceAll(" ", "%20");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+    }
 
 }

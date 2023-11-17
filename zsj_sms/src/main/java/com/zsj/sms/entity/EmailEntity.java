@@ -1,5 +1,6 @@
 package com.zsj.sms.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -22,7 +23,7 @@ public class EmailEntity implements Serializable {
 	/**
 	 * 邮件id
 	 */
-	@TableId
+	@TableId(type = IdType.ASSIGN_ID)
 	private String id;
 	/**
 	 * 发送人
@@ -43,7 +44,7 @@ public class EmailEntity implements Serializable {
 	/**
 	 * 邮件标题
 	 */
-	private String titile;
+	private String title;
 	/**
 	 * 邮件创建时间
 	 */

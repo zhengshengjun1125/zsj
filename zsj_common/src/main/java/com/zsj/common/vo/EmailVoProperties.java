@@ -27,6 +27,12 @@ public class EmailVoProperties implements Serializable {
     //是否为系统信息
     private Boolean IS_SYSTEM_MESSAGE;
 
+    //用户名称
+    private String username;
+
+    //角色名称
+    private String roleName;
+
     //全参构造
     public EmailVoProperties(String type, String to, Boolean IS_SYSTEM_MESSAGE) {
         this.type = type;
@@ -39,6 +45,14 @@ public class EmailVoProperties implements Serializable {
         this.type = REGISTER_USER;
         this.to = to;
         this.IS_SYSTEM_MESSAGE = true;
+    }
+
+    public EmailVoProperties(String to, String username, String roleName) {
+        this.type = REGISTER_USER;
+        this.to = to;
+        this.IS_SYSTEM_MESSAGE = true;
+        this.username = username;
+        this.roleName = roleName;
     }
 
     public EmailVoProperties() {

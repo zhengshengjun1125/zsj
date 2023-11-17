@@ -3,7 +3,6 @@ package com.zsj.gateway.filter;
 import com.zsj.common.utils.GlobalValueToExchange;
 import com.zsj.common.utils.GsonUtil;
 import com.zsj.common.utils.IPUtil;
-import com.zsj.gateway.feign.SystemFeign;
 import com.zsj.common.utils.LogEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -42,12 +41,7 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
     private RedisTemplate<String, String> redisTemplate;
 
 
-    /**
-     * 远程调用log接口
-     */
-    @Autowired
-    @Lazy
-    SystemFeign systemFeign;
+
 
 
     @Autowired

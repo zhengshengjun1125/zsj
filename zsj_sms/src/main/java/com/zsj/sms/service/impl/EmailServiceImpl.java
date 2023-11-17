@@ -52,6 +52,7 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
         if (emailVoProperties.getType().equals(EmailVoProperties.REGISTER_USER)) {
             //用户注册邮件
             MimeMessage mimeMessage = mailSender.createMimeMessage();
+            EmailEntity entity = new EmailEntity();
             try {
                 //第二个参数是 whether to create a multipart message that supports alternative texts, inline
                 //是否创建支持内联替代文本的多部分消息
@@ -62,18 +63,28 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
                 String to = emailVoProperties.getTo();
                 helper.setTo(to);
                 //邮件主题
-                helper.setSubject("祝贺您 注册ZSJ博客系统成功!");
+                String title = "祝贺您 注册ZSJ博客系统成功!";
+                helper.setSubject(title);
                 //邮件内容
-                helper.setText(EmailContentUtil.createRegisterUserEmailContent(to), true);
+                String content = EmailContentUtil.createRegisterUserEmailContent(to, emailVoProperties.getUsername(), emailVoProperties.getRoleName());
+                helper.setText(content, true);
                 mailSender.send(mimeMessage);
                 log.info("发送给{}的邮件成功发送了~ 这是一封{}类型的邮件", to, emailVoProperties.getType());
                 channel.basicAck(deliveryTag, false);//手动应答消息
+                entity.setContent(content);
+                entity.setSender(sender);
+                entity.setRecipient(to);
+                entity.setIsSystem(1);
+                entity.setTitle(title);
             } catch (MessagingException e) {
                 //出现异常 将消息回队
                 channel.basicReject(deliveryTag, true);
                 throw new RuntimeException(e);
+            } finally {
+                this.save(entity);
             }
         }
+
     }
 
     @Override

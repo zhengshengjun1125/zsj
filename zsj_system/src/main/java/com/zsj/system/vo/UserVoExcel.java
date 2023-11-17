@@ -1,31 +1,29 @@
-package com.zsj.system.entity;
+package com.zsj.system.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.zsj.system.entity.UserEntity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 /**
- * @author zsj
- * @email zsjemail666@163.com
- * @date 2023-10-05 20:07:09
+ * @author https://gitee.com/zhengshengjun
+ * @date 2023/10/7.
  */
 @Data
-@TableName("sys_user")
-@Getter
-@Setter
-public class UserEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+@AllArgsConstructor
+public class UserVoExcel {
+
+    public UserVoExcel() {
+    }
+
+
     /**
      * id
      */
@@ -57,11 +55,10 @@ public class UserEntity implements Serializable {
     @ColumnWidth(20)
     private String email;
     /**
-     * 角色
+     * 角色名称
      */
-    @ExcelProperty(value = {"用户角色id"})
-    @ColumnWidth(20)
-    private Long roleId;
+    private String roleName;
+
     /**
      * 电话
      */
@@ -73,14 +70,10 @@ public class UserEntity implements Serializable {
      */
     @ExcelIgnore
     private Integer status;
-    /**
-     * 创建时间
-     */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+
     @ExcelProperty(value = {"用户创建时间"})
     @ColumnWidth(20)
-    @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
+    private String createTime;
     /**
      * 创建者id
      */
@@ -91,4 +84,5 @@ public class UserEntity implements Serializable {
      */
     @ExcelIgnore
     private String loginStatus;
+
 }

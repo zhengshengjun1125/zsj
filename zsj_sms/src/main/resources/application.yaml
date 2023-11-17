@@ -27,22 +27,3 @@ spring:
         group: ${spring.profiles.active}
     util:
       enabled: false
-  mail:
-    #smtp服务主机  qq邮箱则为smtp.qq.com
-    host: smtp.qq.com
-    #服务协议
-    protocol: smtp
-    # 编码集
-    default-encoding: UTF-8
-    #发送邮件的账户
-    username: zsjiscoder@foxmail.com
-    #授权码
-    password: eitiuatlwmssbcec
-    test-connection: true
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
