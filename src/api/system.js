@@ -85,6 +85,15 @@ export const gettenLogList = () => {
   })
 }
 
+//导出用户列表excel
+export const exportAllLogtoExcel = () => {
+  return request({
+    url: '/api/system/log/excel/export',
+    method: 'get',
+    responseType: 'blob',
+  })
+}
+
 //获取背景图列表
 export const getImgList = () => {
   return request({

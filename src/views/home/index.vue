@@ -9,7 +9,7 @@
 -->
 <template>
   <div>
-    <h1>
+    <h1 class="animate__animated animate__backInRight">
       你好!我的朋友
       <span>（HELLO! MY FRIEND）&#128512;&#128512;&#128512;</span>
       (●'◡'●)

@@ -50,3 +50,13 @@ export const resetPass = data => {
     data,
   })
 }
+
+//导出用户列表excel
+export const exportUserListExcel = data => {
+  return request({
+    url: '/api/system/user/excel/export',
+    method: 'post',
+    data,
+    responseType: 'blob',
+  })
+}

@@ -34,7 +34,10 @@
         <el-button type="primary" @click="flushFileList">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-text class="mx-1" style="color: red">
+        <el-text
+          class="mx-1 animate__animated animate__backInRight"
+          style="color: red"
+        >
           文件大小为0的文件是老文件~都不会太大~请放心😜
         </el-text>
       </el-form-item>

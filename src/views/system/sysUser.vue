@@ -34,12 +34,32 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="flushUserList">查询</el-button>
+        <el-button
+          type="primary"
+          @click="flushUserList"
+          class="animate__animated animate__backInRight"
+        >
+          查询
+        </el-button>
       </el-form-item>
 
       <el-form-item>
-        <el-button type="success" @click="addUserdialogVisible = true">
+        <el-button
+          type="success"
+          @click="addUserdialogVisible = true"
+          class="animate__animated animate__backInRight"
+        >
           添加
+        </el-button>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button
+          type="primary"
+          @click="exportUser"
+          class="animate__animated animate__backInRight"
+        >
+          导出
         </el-button>
       </el-form-item>
     </el-form>
@@ -195,8 +215,15 @@
       </el-form>
     </el-dialog>
 
-    <el-table :data="userList" border style="width: 100%">
-      <el-table-column prop="id" label="Id" width="180" />
+    <!--   class="animate__animated animate__backInUp" -->
+    <el-table
+      @selection-change="handleSelectionChange"
+      :data="userList"
+      border
+      style="width: 100%"
+    >
+      <el-table-column type="selection" width="55" />
+      <el-table-column prop="id" label="Id" width="100" />
       <el-table-column prop="username" label="账号" width="180" />
       <el-table-column prop="avatar" label="头像" width="180">
         <template #default="scope">
@@ -224,7 +251,7 @@
       </el-table-column>
     </el-table>
 
-    <!--分页条-->
+    <!--分页条class="animate__animated animate__flip"-->
     <el-pagination
       v-model:current-page="pageParams.cur"
       v-model:page-size="pageParams.size"
@@ -244,6 +271,7 @@ import {
   registerUser,
   cancellationUser,
   upgradeUserInfo,
+  exportUserListExcel,
 } from '@/api/user'
 import { getAllRoleByIndex } from '@/api/system'
 import { OssPolicyToPhoto } from '@/api/oss'
@@ -470,6 +498,58 @@ const submitUpdateUser = async () => {
       type: 'error',
       message: msg,
     })
+  }
+}
+const selectionUserList = ref([])
+//选项改变的时候
+const handleSelectionChange = e => {
+  selectionUserList.value = e
+}
+//导出当前选择的用户列表
+const exportUser = async () => {
+  if (selectionUserList.value.length == 0) {
+    ElMessage.warning('请选中之后再进行导出')
+  } else {
+    ElMessageBox.confirm('您将会导出选择用户信息列表Excel,确认?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+      .then(async () => {
+        const res = await exportUserListExcel({
+          list: selectionUserList.value,
+        })
+        // 生成地址，形如图 2
+        const url = window.URL.createObjectURL(
+          new Blob([res], { type: '.xlsx' })
+        )
+        // 创建标签a
+        let a = document.createElement('a')
+        // 设置隐藏
+        a.style.display = 'none'
+        // 给a标签地址
+        a.href = url
+        // 设置属性download和值，这是个特殊属性，参照图 3
+        a.setAttribute('download', `用户列表.xlsx`)
+        // 把a标签放入body，创建后的 a 标签，形如图 4
+        document.body.appendChild(a)
+        // 调用手动点击事件，相当于你做了一次点击
+        a.click()
+        // 释放该文件引用地址，当你结束使用某个 URL 对象之后，应该调用这个方法来让浏览器知道不用在内存中继续保留对这个文件的引用了(如果该页面有很多文件通过这种方法下载，这一步清理引用对性能优化尤为重要)
+        window.URL.revokeObjectURL(url)
+        // 移除a标签
+        document.body.removeChild(a)
+        ElMessage({
+          type: 'success',
+          message: '导出成功',
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '取消导出',
+        })
+      })
   }
 }
 </script>

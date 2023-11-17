@@ -13,8 +13,12 @@
       <el-form-item label="IP查询">
         <el-input v-model="formInline.ip" placeholder="IP地址" clearable />
       </el-form-item>
+      <br />
       <el-form-item>
-        <el-button type="primary" @click="initLogList">查询</el-button>
+        <el-button type="success" @click="initLogList">查询</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="exportallLog">导出</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="loglist" border style="width: 100%">
@@ -46,10 +50,9 @@
 </template>
 
 <script setup>
-import { async } from '@kangc/v-md-editor'
 import { onMounted, ref, reactive } from 'vue'
-import { getLogList } from '@/api/system'
-import { ElMessage } from 'element-plus'
+import { getLogList, exportAllLogtoExcel } from '@/api/system'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 //条件渲染对象
 const formInline = reactive({
@@ -92,6 +95,29 @@ let pageParamsForm = {
 }
 //将分页信息封装为响应式对象
 const pageParams = ref(pageParamsForm)
+
+const exportallLog = () => {
+  ElMessageBox.confirm('您将会导出所有的日志信息,确认?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(async () => {
+      const res = await exportAllLogtoExcel()
+      const url = window.URL.createObjectURL(new Blob([res], { type: '.xlsx' }))
+      let a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      a.setAttribute('download', `日志列表.xlsx`)
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    })
+    .catch(() => {
+      ElMessage.info('已取消操作')
+    })
+}
 </script>
 
 <style></style>

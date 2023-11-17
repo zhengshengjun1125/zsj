@@ -83,7 +83,10 @@
         admin
       </template>
       <template v-else>
-        <img class="avatar" :src="userinfo.avatar" />
+        <img
+          class="avatar animate__animated animate__rollIn"
+          :src="userinfo.avatar"
+        />
         {{ userinfo.name }}
       </template>
     </div>

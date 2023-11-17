@@ -94,6 +94,8 @@ import '@kangc/v-md-editor/lib/style/preview-html.css'
 // highlightjs
 import hljs from 'highlight.js'
 
+import 'animate.css'
+
 //clipboard3.js
 // import clipboard3 from 'vue-clipboard3';
 

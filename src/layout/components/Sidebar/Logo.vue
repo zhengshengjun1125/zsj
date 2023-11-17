@@ -32,7 +32,11 @@
 
 <template>
   <div class="brand">
-    <img class="logo" src="~@/assets/logo.svg" @click="goHome" />
+    <img
+      class="logo animate__animated animate__rotateIn"
+      src="~@/assets/logo.svg"
+      @click="goHome"
+    />
     <div class="title">ZSJ Admin</div>
   </div>
 </template>
