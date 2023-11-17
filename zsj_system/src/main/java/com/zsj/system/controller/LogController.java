@@ -5,8 +5,11 @@ import java.util.List;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mysql.cj.log.Log;
+import com.zsj.common.utils.ObjectUtil;
 import com.zsj.system.entity.MenuEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import com.zsj.system.entity.LogEntity;
@@ -28,6 +31,7 @@ public class LogController {
 
     /**
      * 获取最近十条日志数据
+     *
      * @return 日志信息
      */
     @GetMapping("/listTen")
@@ -39,17 +43,25 @@ public class LogController {
 
     /**
      * 日志分页
-     * @param cur 当前页
+     *
+     * @param cur  当前页
      * @param size 每页数量
      * @return 分页信息
      */
-    @GetMapping("/list/{cur}/{size}")
-    public R listByPage(@PathVariable("cur") int cur, @PathVariable("size")
-    int size) {
-        //cur 当前页  size每页数量
-        Page<LogEntity> logEntityPage = new Page<>(cur, size);
-        Page<LogEntity> page = logService.page(logEntityPage);
-        return R.ok().put("data", page);
+    @PostMapping("/list/{cur}/{size}")
+    public R listByPage(@PathVariable("cur") int cur,
+                        @PathVariable("size") int size,
+                        @Nullable @RequestBody LogEntity entity) {
+        if (checkEntityIsEmptyParam(entity)) {
+            //空参查所有
+            //cur 当前页  size每页数量
+            Page<LogEntity> logEntityPage = new Page<>(cur, size);
+            Page<LogEntity> page = logService.page(logEntityPage);
+            return R.ok().put("data", page);
+        }
+        //条件查询
+        Page<LogEntity> entityPage = logService.pageByCondition(cur, size, entity);
+        return R.ok().put("data", entityPage);
     }
 
 
@@ -59,4 +71,12 @@ public class LogController {
         return R.error();
     }
 
+    private static boolean checkEntityIsEmptyParam(LogEntity entity) {
+        return ObjectUtil.objectIsNull(entity) ||
+                (ObjectUtil.isNullOrEmpty(entity.getIp()) &&
+                        ObjectUtil.isNullOrEmpty(entity.getUsername()) &&
+                        ObjectUtil.isNullOrEmpty(entity.getOperation()) &&
+                        ObjectUtil.isNullOrEmpty(entity.getMethod()));
+
+    }
 }

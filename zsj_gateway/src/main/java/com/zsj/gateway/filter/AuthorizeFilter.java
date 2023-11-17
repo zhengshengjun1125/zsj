@@ -1,32 +1,29 @@
 package com.zsj.gateway.filter;
 
-import com.alibaba.nacos.shaded.io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
+import com.zsj.common.utils.GlobalValueToExchange;
 import com.zsj.common.utils.GsonUtil;
 import com.zsj.common.utils.IPUtil;
-import com.zsj.common.utils.R;
 import com.zsj.gateway.feign.SystemFeign;
-import com.zsj.gateway.vo.LogEntity;
+import com.zsj.common.utils.LogEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author https://gitee.com/zhengshengjun
@@ -52,9 +49,13 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
     @Lazy
     SystemFeign systemFeign;
 
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-
         //todo 进行请求日志的记录 可以考虑存到es中
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
@@ -72,19 +73,14 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         logEntity.setMethod(method);
         if (!Objects.isNull(token_name)) logEntity.setUsername(token_name);
         logEntity.setOperation(path);
-
-        //异步保存日志
-        new Thread(() -> {
-            R r = systemFeign.saveLog(logEntity);
-            if (!Objects.isNull(r)) {
-                log.info(r.getMessage());
-            }
-        }).start();
-
+        //消息推送 此队列是点对点进行推送
+        rabbitTemplate.convertAndSend(GlobalValueToExchange.LOG_EXCHANGE,
+                "system.logs", logEntity, new CorrelationData(UUID.randomUUID().toString()));
         //测试功能阶段直接放行 不需要登录
         return chain.filter(exchange);
-        // 是否登录的鉴权
 
+
+        // 是否登录的鉴权
 //        if (path.contains("login") || path.contains("captcha/get")) {
 //            //登录接口放行
 //            return chain.filter(exchange);

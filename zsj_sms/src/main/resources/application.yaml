@@ -1,0 +1,48 @@
+server:
+  #服务端口号
+  port: 11111
+spring:
+  application:
+    name: zsjSms
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  profiles:
+    active: dev
+  config:
+    import: nacos:${spring.application.name}-${spring.profiles.active}.yaml
+  cloud:
+    nacos:
+      #配置中心
+      config:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+        namespace: f50a7388-6c17-418b-b2c0-8dff4705dd60
+        file-extension: yaml
+        #服务发现
+        group: ${spring.profiles.active}
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: f50a7388-6c17-418b-b2c0-8dff4705dd60
+        group: ${spring.profiles.active}
+    util:
+      enabled: false
+  mail:
+    #smtp服务主机  qq邮箱则为smtp.qq.com
+    host: smtp.qq.com
+    #服务协议
+    protocol: smtp
+    # 编码集
+    default-encoding: UTF-8
+    #发送邮件的账户
+    username: zsjiscoder@foxmail.com
+    #授权码
+    password: eitiuatlwmssbcec
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true

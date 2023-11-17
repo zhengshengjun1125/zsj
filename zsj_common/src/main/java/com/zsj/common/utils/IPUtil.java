@@ -37,7 +37,7 @@ public class IPUtil {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = serverHttpRequest.getRemoteAddress().getAddress().getHostAddress();
         }
-        log.info("the request ip address is {}", ip.equals(IPV6_LOCAL_ADDRESS) ? LOCALHOST : ip);
+//        log.info("the request ip address is {}", ip.equals(IPV6_LOCAL_ADDRESS) ? LOCALHOST : ip);
         return ip.equals("0:0:0:0:0:0:0:1") ? "127.0.0.1" : ip;
     }
 }

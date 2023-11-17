@@ -36,7 +36,7 @@
     分布式锁redisson
     实体工具lombok
     json工具Gson
-    代码生成器使用的人人开源
+    配置中心&服务发现nacos
 ```
 
 ## 💚 适合人群

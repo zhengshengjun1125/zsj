@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.google.gson.JsonObject;
 import com.zsj.common.utils.*;
+import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.system.entity.RoleEntity;
 import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.RoleService;
@@ -21,6 +23,8 @@ import com.zsj.system.vo.UserVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -56,6 +60,10 @@ public class UserController {
     @Lazy
     private UserTokenService userTokenService;
 
+
+    @Autowired
+    @Lazy
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     @Lazy
@@ -210,6 +218,7 @@ public class UserController {
     @PostMapping("/register")
     public R register(@RequestHeader("system_api_Authorize_name") String register
             , @RequestBody UserEntity user) {
+        //todo 如果数据中有这个用户并且用户的状态为被删的话 我们应该将删除状态调回来并且重新赋值为现在的这些参数
         String count = user.getUsername();
         UserEntity userEntity = userService.getOne(new QueryWrapper<UserEntity>().eq("username", count));
         if (!Objects.isNull(userEntity)) {
@@ -235,7 +244,7 @@ public class UserController {
         Long register_roleLevel = register_role.getLevel();
         RoleEntity user_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", user.getRoleId()));
         Long user_roleLevel = user_role.getLevel();
-        if (register_roleLevel >= user_roleLevel) {
+        if (register_roleLevel > user_roleLevel) {
             return R.error("越权操作");
         }
         user.setPassword(Encrypt.encrypt_md5(user.getPassword()));
@@ -245,8 +254,10 @@ public class UserController {
         if (userService.save(user)) {
             //添加成功
             initUserList();//重新初始化我们的用户列表缓存
-            //注册成功后利用消息队列发送邮件给予注册成功的用户的邮箱账号 todo
-//            String email = user.getEmail();
+            String to = user.getEmail();
+            EmailVoProperties emailVoProperties = new EmailVoProperties(to);
+            //消息队列推送 todo  这里要推送注册的用户账号 以及角色名称
+            rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE,GlobalValueToExchange.EMAIL_QUEUE,emailVoProperties,new CorrelationData(UUID.randomUUID().toString()));
             return R.ok("注册成功");
         }
         return R.error("注册失败");

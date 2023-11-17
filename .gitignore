@@ -17,11 +17,8 @@ renren-generator/
 **/mvnw
 **/mvnw.cmd
 **/.mvn
+#编译文件
 **/target/
 .idea
-
-#**/.gitignore
-#**/*.properties
-#**/*.yaml
-#**/*.bootstrap
-#**/*.yml
+#nacos输出文件
+**/nacos/

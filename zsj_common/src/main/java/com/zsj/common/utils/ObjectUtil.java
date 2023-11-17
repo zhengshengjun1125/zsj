@@ -18,6 +18,11 @@ public class ObjectUtil {
         return o != null;
     }
 
+    public static boolean objectIsNull(Object o) {
+        return o == null;
+    }
+
+    ;
 
 
 }

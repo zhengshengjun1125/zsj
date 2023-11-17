@@ -1,7 +1,7 @@
 package com.zsj.gateway.feign;
 
 import com.zsj.common.utils.R;
-import com.zsj.gateway.vo.LogEntity;
+import com.zsj.common.utils.LogEntity;
 import com.zsj.gateway.vo.UserTokenEntity;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

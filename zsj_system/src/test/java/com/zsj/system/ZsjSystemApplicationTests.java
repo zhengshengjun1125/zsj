@@ -2,6 +2,7 @@ package com.zsj.system;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zsj.common.utils.Encrypt;
+import com.zsj.common.xss.HTMLFilter;
 import com.zsj.system.dao.UserDao;
 import com.zsj.system.dao.UserTokenDao;
 import com.zsj.system.entity.UserEntity;
@@ -44,8 +45,11 @@ class ZsjSystemApplicationTests {
 
     @Test
     void contextLoads2() {
-        String md = "file.aaa.txt";
-        int i = md.lastIndexOf('.');
-        System.out.println(md.substring(i));
+        String md = "<script type=\"module\" src=\"/src/main.js\"></script>";
+        String s = HTMLFilter.htmlSpecialChars(md);
+        HTMLFilter htmlFilter = new HTMLFilter();
+        String filter = htmlFilter.filter(md);
+        log.info("filter s {}",s);
+        log.info("filter s2 {}",filter);
     }
 }

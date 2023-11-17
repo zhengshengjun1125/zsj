@@ -45,6 +45,15 @@ public class Encrypt {
         uuid = uuid.replace("-","").trim().toLowerCase();
         return uuid;
     }
+    /**
+     * 获取32位的uuid
+     * 去-符号并且大写
+     */
+    public static String encrypt_uuid_32_up(){
+        String uuid = UUID.randomUUID().toString();
+        uuid = uuid.replace("-","").trim().toUpperCase();
+        return uuid;
+    }
 
     /**
      * 获取十二位的uuid

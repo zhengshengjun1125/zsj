@@ -13,6 +13,7 @@
         <result property="createTime" column="create_time"/>
         <result property="url" column="url"/>
         <result property="disappear" column="disappear"/>
+        <result property="fileSize" column="file_size"/>
     </resultMap>
 
 

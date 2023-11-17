@@ -1,5 +1,6 @@
 package com.zsj.system.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.system.entity.LogEntity;
@@ -19,5 +20,7 @@ public interface LogService extends IService<LogEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     List<LogEntity> getTen();
+
+    Page<LogEntity> pageByCondition(int cur, int size, LogEntity entity);
 }
 

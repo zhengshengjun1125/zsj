@@ -1,40 +1,29 @@
 package com.zsj.system.controller;
 
-import java.io.FileInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.OSSException;
-import com.aliyun.oss.common.auth.CredentialsProviderFactory;
-import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
-import com.aliyun.oss.common.comm.ResponseMessage;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.aliyun.oss.model.PutObjectResult;
-import com.zsj.common.utils.BaseUtil;
-import com.zsj.common.utils.FileGlobalHelper;
+import com.zsj.common.utils.*;
 import com.zsj.system.entity.FileEntity;
 import com.zsj.system.service.FileService;
-import com.zsj.system.vo.FileVo;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import com.zsj.system.entity.OssEntity;
 import com.zsj.system.service.OssService;
-import com.zsj.common.utils.PageUtils;
-import com.zsj.common.utils.R;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -123,7 +112,9 @@ public class OssController {
                 objectName += BaseUtil.year_month_day() + "/common/";
                 break;
         }
-        String realName = BaseUtil.randomNumber(12) + '.' + suffix;
+        //之前的文件名称是生成了12位随机数字
+        //保证文件名绝对不可能重复 或者重复率小于0.000000000001%
+        String realName = Encrypt.encrypt_uuid_6() + BaseUtil.randomNumber(6) + '.' + suffix;
         objectName += realName;
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessId, secret);
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, objectName, file.getInputStream());
@@ -133,30 +124,20 @@ public class OssController {
         new Thread(() -> {
             //进行文件保存
             fileService.save(new FileEntity(originalFilename, suffix, requestU,
-                    new Date(System.currentTimeMillis()), url, realName,size));
+                    new Date(System.currentTimeMillis()), url, realName, size));
         }).start();
         //进行redis中所有文件key的删除
 
-        new Thread(()->{
+        new Thread(() -> {
             Set<String> keys = stringRedisTemplate.keys("fileList/*");
             assert keys != null;
             stringRedisTemplate.delete(keys);
         }).start();
 
-        return R.ok("上传成功").put("url",url);
+        return R.ok("上传成功").put("url", url);
     }
 
 
-    /**
-     * 多文件上传
-     *
-     * @param file 文件对象
-     */
-    @PostMapping("/uploadOssFileMultiple")
-    public R uploadOssFileMultiple(MultipartFile[] file) {
-
-        return R.error();
-    }
 
     @GetMapping("/policyToPhoto")
     public R policyToPhoto() {
