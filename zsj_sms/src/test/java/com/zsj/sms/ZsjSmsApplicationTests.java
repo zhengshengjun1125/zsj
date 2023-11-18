@@ -34,4 +34,10 @@ class ZsjSmsApplicationTests {
         amqpAdmin.declareBinding(binding);
     }
 
+
+    @Test
+    void dos(){
+        System.out.println("111aacc23f5".toUpperCase());
+    }
+
 }

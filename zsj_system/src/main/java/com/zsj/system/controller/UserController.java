@@ -16,13 +16,13 @@ import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.system.entity.RoleEntity;
 import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.RoleService;
-import com.zsj.system.service.UserFService;
 import com.zsj.system.service.UserTokenService;
 import com.zsj.system.vo.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +48,12 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("system/user")
 @Slf4j
 public class UserController {
-    //角色列表本地缓存
 
-
+/*
     @Autowired
     @Lazy
     private UserFService userFService;
+    */
 
     @Autowired
     private UserService userService;
@@ -61,7 +61,6 @@ public class UserController {
     @Autowired
     @Lazy
     private UserTokenService userTokenService;
-
 
     @Autowired
     @Lazy
@@ -107,26 +106,7 @@ public class UserController {
                         //说明查到了
                         if (Encrypt.encrypt_hash512(user.getPassword()).equals(entity.getPassword())) {
                             //说明密码正确
-                            String token = JwtUtil.getJwtToken(username);
-                            ops.set(username, token, 1, TimeUnit.DAYS);
-                            //用户账号对应的token  并且设置1天的过期时间
-                            UserTokenEntity tokenEntity = new UserTokenEntity();
-                            tokenEntity.setUserId(entity.getId());
-                            tokenEntity.setToken(token);
-                            tokenEntity.setExpireTime(new Date(System.currentTimeMillis() + 86400000));
-                            tokenEntity.setUpdateTime(new Date(System.currentTimeMillis()));
-                            entity.setLoginStatus("yeap");
-                            userTokenService.saveOrUpdateToken(tokenEntity);
-                            userService.setLoginStatus(username, true);
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    List<UserVo> userList = getUserList();
-                                    ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
-                                }
-                            }).start();
-                            //缓存用户信息 token为键  设置一天的过期时间
-                            ops.set(token, GsonUtil.gson.toJson(entity), 1, TimeUnit.DAYS);
+                            String token = initToken(ops, entity);
                             return R.ok("恭喜你登录成功！").put("data", new Token(token));
                         } else return R.error("不对哦~ 对哦~ 哦~");
                     } else return R.error("此账号已经被一个人派杀手杀死了");
@@ -140,6 +120,80 @@ public class UserController {
         return R.error("验证码已经过期,请刷新").put("data", new Token());
     }
 
+    /**
+     * 邮箱登录方法
+     *
+     * @param user 上传实体
+     * @return 登陆结果
+     */
+    @PostMapping("/emailLogin")
+    public R emailLogin(@RequestBody @NotNull LoginBody user) {
+        String email = user.getEmail();
+        String code = user.getCode();
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String ans = ops.get(email.toUpperCase() + "emailCode");
+        if (ObjectUtil.isNullOrEmpty(ans)) return R.error("验证码已经过期");
+        if (ans.equals(code)) {
+            //说明此用户是存在的
+            UserEntity one = userService.getOne(new QueryWrapper<UserEntity>().eq("email", email));
+            //生成token
+            String token = initToken(ops, one);
+            return R.ok("恭喜你登录成功！").put("data", new Token(token));
+        }
+        return R.error();
+    }
+
+    /**
+     * 登录初始化token值
+     *
+     * @param ops redis操作对象
+     * @param one 用户对象
+     * @return token信息
+     */
+    @NotNull
+    private String initToken(ValueOperations<String, String> ops, UserEntity one) {
+        String username = one.getUsername();
+        String token = JwtUtil.getJwtToken(username);
+        ops.set(username, token, 1, TimeUnit.DAYS);
+        //用户账号对应的token  并且设置1天的过期时间
+        UserTokenEntity tokenEntity = new UserTokenEntity();
+        tokenEntity.setUserId(one.getId());
+        tokenEntity.setToken(token);
+        tokenEntity.setExpireTime(new Date(System.currentTimeMillis() + 86400000));
+        tokenEntity.setUpdateTime(new Date(System.currentTimeMillis()));
+        one.setLoginStatus("yeap");
+        userTokenService.saveOrUpdateToken(tokenEntity);
+        userService.setLoginStatus(username, true);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<UserVo> userList = getUserList();
+                ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
+            }
+        }).start();
+        //缓存用户信息 token为键  设置一天的过期时间
+        ops.set(token, GsonUtil.gson.toJson(one), 1, TimeUnit.DAYS);
+        return token;
+    }
+
+    /**
+     * 邮件验证码推送队列
+     */
+    @PostMapping("/pushEmailLoginCode")
+    public R pushEmailLoginCode(@RequestBody LoginBody body) {
+        //接收人
+        String email = body.getEmail();
+        UserEntity one = userService.getOne(new QueryWrapper<UserEntity>().eq("email", email));
+        if (ObjectUtil.objectIsNull(one)) return R.error("邮箱不存在系统中");
+        //推送登录验证码邮件
+        EmailVoProperties emailVoProperties = new EmailVoProperties(EmailVoProperties.LOGIN_USER, email);
+        rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE,
+                GlobalValueToExchange.EMAIL_QUEUE,
+                emailVoProperties,
+                new CorrelationData(UUID.randomUUID().toString()));
+        return R.ok("邮件已经发送~");
+    }
+
 
     /**
      * 全局注销
@@ -147,7 +201,6 @@ public class UserController {
     @GetMapping("/logout")
     public R logout(@RequestHeader("system_api_Authorize") String token,
                     @RequestHeader("system_api_Authorize_name") String name) {
-        //删除所有值为name的key todo
         userService.setLoginStatus(name, false);
         return R.ok(Boolean.TRUE.equals(redisTemplate.delete(token))
                 && Boolean.TRUE.equals(redisTemplate.delete(name)) ? "退出登录成功" : "退出登录失败");
@@ -221,6 +274,7 @@ public class UserController {
     public R register(@RequestHeader("system_api_Authorize_name") String register
             , @RequestBody UserEntity user) {
         //todo 如果数据中有这个用户并且用户的状态为被删的话 我们应该将删除状态调回来并且重新赋值为现在的这些参数
+        //todo 上面这个todo 暂时不做 因为我们保证了账号的不可回归性 才会让用户对自己的行为负责
         String count = user.getUsername();
         UserEntity userEntity = userService.getOne(new QueryWrapper<UserEntity>().eq("username", count));
         if (!Objects.isNull(userEntity)) {
@@ -365,7 +419,7 @@ public class UserController {
     @PostMapping("/excel/export")
     public void exportUserListExcel(HttpServletResponse response, @RequestBody UserVoList list) {
         try {
-            this.setExcelResponseProp(response, "用户列表");
+            this.setExcelResponseProp(response);
             EasyExcel
                     .write(response.getOutputStream())
                     .head(UserVoExcel.class)
@@ -380,14 +434,13 @@ public class UserController {
     /**
      * 设置响应结果
      *
-     * @param response    响应结果对象
-     * @param rawFileName 文件名
+     * @param response 响应结果对象
      * @throws UnsupportedEncodingException 不支持编码异常
      */
-    private void setExcelResponseProp(HttpServletResponse response, String rawFileName) throws UnsupportedEncodingException {
+    private void setExcelResponseProp(HttpServletResponse response) throws UnsupportedEncodingException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
-        String fileName = URLEncoder.encode(rawFileName, "UTF-8").replaceAll(" ", "%20");
+        String fileName = URLEncoder.encode("用户列表", "UTF-8").replaceAll(" ", "%20");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
     }
 

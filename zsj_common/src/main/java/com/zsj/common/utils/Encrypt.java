@@ -61,8 +61,7 @@ public class Encrypt {
     public static String encrypt_uuid_12(){
         String uuid = UUID.randomUUID().toString();
         uuid.replace("-","").trim();
-        uuid.substring(0,12);
-        return uuid;
+        return uuid.substring(0,12);
     }
 
 
@@ -72,8 +71,7 @@ public class Encrypt {
     public static String encrypt_uuid_6(){
         String uuid = UUID.randomUUID().toString();
         uuid.replace("-","").trim();
-        uuid.substring(0,6);
-        return uuid;
+        return uuid.substring(0,6);
     }
 
     /**

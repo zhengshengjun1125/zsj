@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginBody {
 
+    private String email;
+
     private String username;
 
     private String password;
@@ -62,5 +64,13 @@ public class LoginBody {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

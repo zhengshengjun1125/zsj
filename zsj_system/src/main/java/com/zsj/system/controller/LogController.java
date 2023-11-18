@@ -9,11 +9,7 @@ import java.util.List;
 
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.mysql.cj.log.Log;
 import com.zsj.common.utils.ObjectUtil;
-import com.zsj.system.entity.MenuEntity;
-import com.zsj.system.vo.UserVoExcel;
-import com.zsj.system.vo.UserVoList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +38,7 @@ public class LogController {
      *
      * @return 日志信息
      */
+    @Deprecated
     @GetMapping("/listTen")
     public R listTen() {
         List<LogEntity> list = logService.getTen();
@@ -91,7 +88,7 @@ public class LogController {
     @GetMapping("/excel/export")
     public void exportUserListExcel(HttpServletResponse response) {
         try {
-            this.setExcelResponseProp(response, "日志列表");
+            this.setExcelResponseProp(response);
             EasyExcel
                     .write(response.getOutputStream())
                     .head(LogEntity.class)
@@ -106,14 +103,13 @@ public class LogController {
     /**
      * 设置响应结果
      *
-     * @param response    响应结果对象
-     * @param rawFileName 文件名
+     * @param response 响应结果对象
      * @throws UnsupportedEncodingException 不支持编码异常
      */
-    private void setExcelResponseProp(HttpServletResponse response, String rawFileName) throws UnsupportedEncodingException {
+    private void setExcelResponseProp(HttpServletResponse response) throws UnsupportedEncodingException {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
-        String fileName = URLEncoder.encode(rawFileName, "UTF-8").replaceAll(" ", "%20");
+        String fileName = URLEncoder.encode("日志列表", "UTF-8").replaceAll(" ", "%20");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
     }
 }

@@ -1,6 +1,7 @@
 package com.zsj.sms.service.impl;
 
 import com.rabbitmq.client.Channel;
+import com.zsj.common.utils.Encrypt;
 import com.zsj.common.utils.GlobalValueToExchange;
 import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.sms.util.EmailContentUtil;
@@ -10,12 +11,16 @@ import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -44,11 +49,15 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
     @Value("${spring.mail.username}")
     private String sender;
 
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     @RabbitHandler
     public void sendEmail(Message message, EmailVoProperties emailVoProperties, Channel channel) throws IOException {
         log.info("接收到的邮件信息为:{}", emailVoProperties);
         long deliveryTag = message.getMessageProperties().getDeliveryTag();//当前消息的tag
-        //发送邮件
+        //发送注册成功邮件
         if (emailVoProperties.getType().equals(EmailVoProperties.REGISTER_USER)) {
             //用户注册邮件
             MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -67,15 +76,7 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
                 helper.setSubject(title);
                 //邮件内容
                 String content = EmailContentUtil.createRegisterUserEmailContent(to, emailVoProperties.getUsername(), emailVoProperties.getRoleName());
-                helper.setText(content, true);
-                mailSender.send(mimeMessage);
-                log.info("发送给{}的邮件成功发送了~ 这是一封{}类型的邮件", to, emailVoProperties.getType());
-                channel.basicAck(deliveryTag, false);//手动应答消息
-                entity.setContent(content);
-                entity.setSender(sender);
-                entity.setRecipient(to);
-                entity.setIsSystem(1);
-                entity.setTitle(title);
+                send(emailVoProperties, channel, deliveryTag, mimeMessage, entity, helper, to, title, content);
             } catch (MessagingException e) {
                 //出现异常 将消息回队
                 channel.basicReject(deliveryTag, true);
@@ -84,7 +85,48 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
                 this.save(entity);
             }
         }
+        //发送验证码邮件
+        if (emailVoProperties.getType().equals(EmailVoProperties.LOGIN_USER)) {
+            //存放email邮件code 其中key是他的邮箱号码+emailcode  value 就是我们生成的uuid五位
+            ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+            String value = Encrypt.encrypt_uuid_6().toUpperCase();
+            ops.set(emailVoProperties.getTo().toUpperCase()+"emailCode", value, 120, TimeUnit.SECONDS);//设置2分钟的过期时间
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            EmailEntity entity = new EmailEntity();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                //发送者
+                helper.setFrom(sender);
+                //接收者
+                String to = emailVoProperties.getTo();
+                helper.setTo(to);
+                //邮件主题
+                String title = "zsj博客登录的验证码";
+                helper.setSubject(title);
+                //邮件内容
+                String emailContent = EmailContentUtil.createLoginUserEmailContent(value);
+                send(emailVoProperties, channel, deliveryTag, mimeMessage, entity, helper, to, title, emailContent);
+            } catch (MessagingException e) {
+                //出现异常 将消息回队
+                channel.basicReject(deliveryTag, true);
+                throw new RuntimeException(e);
+            }finally {
+                this.save(entity);
+            }
+        }
+    }
 
+    private void send(EmailVoProperties emailVoProperties, Channel channel, long deliveryTag, MimeMessage mimeMessage, EmailEntity entity, MimeMessageHelper helper, String to, String title, String emailContent) throws MessagingException, IOException {
+        helper.setText(emailContent, true);
+        mailSender.send(mimeMessage);
+        log.info("发送给{}的邮件成功发送了~ 这是一封{}类型的邮件", to, emailVoProperties.getType());
+        channel.basicAck(deliveryTag, false);//手动应答消息
+        entity.setContent(emailContent);
+        entity.setSender(sender);
+        entity.setRecipient(to);
+        entity.setIsSystem(1);
+        entity.setTitle(title);
+        entity.setCreateTime(new Date(System.currentTimeMillis()));
     }
 
     @Override

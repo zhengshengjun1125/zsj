@@ -16,4 +16,13 @@ public class EmailContentUtil {
                 "        <h2>已经为你生成默认密码<span style=\"color: red;\">123456</span> 请进入系统后自己修改想要的密码</h2>\n" +
                 "    </div>";
     }
+
+
+    public static String createLoginUserEmailContent(String code) {
+        return "<div class=\"content\" style=\" text-align: center; margin: 0;padding: 0;\">\n" +
+                "        <img src=\"https://image-zsj.oss-cn-beijing.aliyuncs.com/logo.svg\" alt=\"欢迎呀~\">\n" +
+                "        <h1 class=\"title\"><span style=\"color: blue; font-size: 25px;font: bold;\">ZSJ</span>博客管理系统</h1>\n" +
+                "        <h2>您的邮件验证码是<span style=\"color: red;\">"+code+"</span> </h2>\n" +
+                "    </div>";
+    }
 }
