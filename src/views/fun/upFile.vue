@@ -1,10 +1,11 @@
 <template>
+  <!--     action="http://124.70.34.218:88/api/system/oss/uploadOssFileSingle" -->
   <el-upload
     :headers="baseRequest"
     drag
     :show-file-list="false"
     class="baseUpload"
-    action="http://localhost:88/api/system/oss/uploadOssFileSingle"
+    action="http://124.70.34.218:88/api/system/oss/uploadOssFileSingle"
     :before-upload="beforceUpload"
     :on-success="handleFileSuccess"
     :on-progress="handleFileProgress"
