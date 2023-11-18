@@ -303,7 +303,7 @@ public class UserController {
         if (register_roleLevel > user_roleLevel) {
             return R.error("越权操作");
         }
-        user.setPassword(Encrypt.encrypt_md5(user.getPassword()));
+        user.setPassword(Encrypt.encrypt_hash512(user.getPassword()));
         user.setCreateTime(new Date(System.currentTimeMillis()));
         user.setStatus(1);
         user.setCreatUserId(one.getId());
