@@ -9,50 +9,109 @@
 <template>
   <div class="login">
     <el-form class="form" :model="model" :rules="rules" ref="loginForm">
-      <h1 class="title">{{ $t('login.title') }}</h1>
-      <el-form-item prop="username">
-        <el-input
-          class="text"
-          v-model="model.username"
-          prefix-icon="User"
-          clearable
-          :placeholder="$t('login.username')"
-        />
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input
-          class="text"
-          v-model="model.password"
-          prefix-icon="Lock"
-          show-password
-          clearable
-          :placeholder="$t('login.password')"
-        />
-      </el-form-item>
-
-      <el-form-item prop="captcha">
-        <div class="captcha">
+      <h1 class="title">
+        {{ $t('login.title') }}
+      </h1>
+      <!-- 做一个邮箱登录的方法 -->
+      <div v-show="emailLogin">
+        <el-form-item prop="email">
           <el-input
             class="text"
-            v-model="model.code"
-            prefix-icon="Picture"
-            :placeholder="$t('login.tips')"
-          ></el-input>
-          <img :src="captchaSrc" @click="refreshCaptcha" />
-        </div>
-      </el-form-item>
+            v-model="model.email"
+            prefix-icon="User"
+            clearable
+            :placeholder="$t('login.email')"
+          />
+        </el-form-item>
+        <el-form-item prop="captcha">
+          <div class="captcha">
+            <el-input
+              class="text"
+              v-model="model.code"
+              prefix-icon="Picture"
+              :placeholder="$t('login.emailtips')"
+            ></el-input>
+            <el-button
+              type="primary"
+              style="margin-left: 20px; width: 262px"
+              size="large"
+              :disabled="GetCodeStatus"
+              @click="getEmailCode"
+            >
+              <span v-show="!GetCodeStatus">获取验证码</span>
+              <span v-show="GetCodeStatus">验证码已经发送({{ recount }})</span>
+            </el-button>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            :loading="loading"
+            type="primary"
+            class="btn"
+            size="large"
+            @click="submitEmail"
+          >
+            {{ btnText }}
+          </el-button>
+          <a
+            @click="changeEmailLogin"
+            style="font-size: 15px; margin-left: 320px; margin-top: 10px"
+          >
+            {{ $t('login.changeAl') }}
+          </a>
+        </el-form-item>
+      </div>
+      <div v-show="simpleLogin">
+        <el-form-item prop="username">
+          <el-input
+            class="text"
+            v-model="model.username"
+            prefix-icon="User"
+            clearable
+            :placeholder="$t('login.username')"
+          />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            class="text"
+            v-model="model.password"
+            prefix-icon="Lock"
+            show-password
+            clearable
+            :placeholder="$t('login.password')"
+          />
+        </el-form-item>
 
-      <el-form-item>
-        <el-button
-          :loading="loading"
-          type="primary"
-          class="btn"
-          size="large"
-          @click="submit"
-        >
-          {{ btnText }}
-        </el-button>
-      </el-form-item>
+        <el-form-item prop="captcha">
+          <div class="captcha">
+            <el-input
+              class="text"
+              v-model="model.code"
+              prefix-icon="Picture"
+              :placeholder="$t('login.tips')"
+            ></el-input>
+            <img :src="captchaSrc" @click="refreshCaptcha" />
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            :loading="loading"
+            type="primary"
+            class="btn"
+            size="large"
+            @click="submit"
+          >
+            {{ btnText }}
+          </el-button>
+          <a
+            @click="changeEmailLogin"
+            class="animate__animated animate__rotateInUpRight"
+            style="font-size: 15px; margin-left: 320px; margin-top: 10px"
+          >
+            {{ $t('login.changeEl') }}
+          </a>
+        </el-form-item>
+      </div>
     </el-form>
   </div>
   <div class="change-lang">
@@ -71,11 +130,17 @@ import {
   watch,
   onMounted,
 } from 'vue'
-import { Login, GetValidateCode } from '@/api/login'
+import {
+  Login,
+  emailLoginF,
+  GetValidateCode,
+  getEmailLoginCode,
+} from '@/api/login'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLang from '@/layout/components/Topbar/ChangeLang.vue'
 import useLang from '@/i18n/useLang'
 import { useApp } from '@/pinia/modules/app'
+import { ElMessage } from 'element-plus'
 
 export default defineComponent({
   components: { ChangeLang },
@@ -84,7 +149,15 @@ export default defineComponent({
     const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
     const router = useRouter()
     const route = useRoute()
+    const recount = ref(60)
+    const GetCodeStatus = ref(false)
+    const simpleLogin = ref(true)
+    const emailLogin = ref(false)
     const { lang } = useLang()
+    const changeEmailLogin = () => {
+      simpleLogin.value = !simpleLogin.value
+      emailLogin.value = !emailLogin.value
+    }
     watch(lang, () => {
       state.rules = getRules()
     })
@@ -117,6 +190,7 @@ export default defineComponent({
     })
     const state = reactive({
       model: {
+        email: '',
         username: '',
         password: '',
         code: '', // 用户输入的验证码
@@ -133,8 +207,63 @@ export default defineComponent({
       btnText: computed(() =>
         state.loading ? ctx.$t('login.logining') : ctx.$t('login.login')
       ),
-
+      //获取邮箱验证码
+      getEmailCode: async () => {
+        const emailAC = state.model.email
+        if (emailAC === '' || emailAC == null || emailAC == undefined) {
+          ElMessage.error(ctx.$t('login.emailillegality'))
+        } else {
+          const { code, msg } = await getEmailLoginCode(state.model)
+          if (code == 200) {
+            GetCodeStatus.value = true
+            ElMessage.success(msg)
+            const timer = setInterval(() => {
+              recount.value--
+              if (recount.value == 0) {
+                clearInterval(timer)
+                recount.value = 60
+                GetCodeStatus.value = false
+              }
+            }, 1000)
+          } else {
+            ElMessage.error(msg)
+          }
+        }
+      },
       loginForm: ref(null),
+      submitEmail: async () => {
+        //提交邮箱登录
+        if (state.loading) {
+          return
+        }
+        if (state.model.email == '' || state.model.code == '') {
+          ElMessage.error('邮箱或者验证码不能为空')
+        } else {
+          state.loading = true
+          const { code, data, msg } = await emailLoginF(state.model)
+          if (+code === 200) {
+            ctx.$message.success({
+              message: ctx.$t('login.loginsuccess'),
+              duration: 1000,
+            })
+            const targetPath = decodeURIComponent(route.query.redirect)
+            if (targetPath.startsWith('http')) {
+              // 如果是一个url地址
+              window.location.href = targetPath
+            } else if (targetPath.startsWith('/')) {
+              // 如果是内部路由地址
+              router.push(targetPath)
+            } else {
+              router.push('/')
+            }
+            // localStorage.setItem('username', state.model.username)
+            useApp().initToken(data)
+          } else {
+            ctx.$message.error(msg)
+          }
+          state.loading = false
+        }
+      },
       submit: () => {
         if (state.loading) {
           return
@@ -158,7 +287,7 @@ export default defineComponent({
               } else {
                 router.push('/')
               }
-              localStorage.setItem('username', state.model.username)
+              // localStorage.setItem('username', state.model.username)
               useApp().initToken(data)
             } else {
               ctx.$message.error(msg)
@@ -171,6 +300,11 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
+      simpleLogin,
+      emailLogin,
+      changeEmailLogin,
+      GetCodeStatus,
+      recount,
     }
   },
 })

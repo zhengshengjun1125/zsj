@@ -92,7 +92,9 @@
     </div>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item>{{ $t('topbar.center') }}</el-dropdown-item>
+        <el-dropdown-item @click="openSelfCenter">
+          {{ $t('topbar.center') }}
+        </el-dropdown-item>
         <el-dropdown-item @click="openResetPass">
           {{ $t('topbar.password') }}
         </el-dropdown-item>
@@ -112,6 +114,7 @@ import LockModal from './LockModal.vue'
 import { useApp } from '@/pinia/modules/app'
 import { Logout } from '@/api/login'
 import { resetPass } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 export default defineComponent({
   components: {
@@ -173,6 +176,11 @@ export default defineComponent({
       }
     }
 
+    const openSelfCenter = () => {
+      router.push('/')
+      // ElMessage.warning('暂未开放此功能')
+    }
+
     // 退出
     const logout = async () => {
       const { code, msg } = await Logout()
@@ -198,6 +206,7 @@ export default defineComponent({
       newPass,
       checkNewPass,
       submitResetPassword,
+      openSelfCenter,
     }
   },
 })

@@ -1,5 +1,10 @@
 export default {
   title: 'ZSJ 管理系统',
+  changeAl: '切换普通账号登录',
+  changeEl: '切换邮箱登录',
+  email: '邮箱账号',
+  emailillegality: '邮箱输入不合法',
+  emailtips: '输入邮箱中的验证码',
   username: '用户名',
   password: '密码',
   login: '登录',

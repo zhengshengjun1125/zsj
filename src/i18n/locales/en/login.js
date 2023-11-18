@@ -1,5 +1,10 @@
 export default {
   title: 'ZSJ ADMIN',
+  changeAl: 'choose account login',
+  changeEl: 'choose email login',
+  email: 'email account',
+  emailillegality: 'email is illegality',
+  emailtips: 'code from email',
   username: 'Username',
   password: 'Password',
   login: 'Login',
