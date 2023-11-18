@@ -1,0 +1,29 @@
+server:
+  #服务端口号
+  port: 7777
+spring:
+  application:
+    name: zsjSystem
+  mvc:
+    pathmatch:
+      #解决高版本springboot与swagger适配问题 :Failed to start bean 'documentationPluginsBootstrapper‘
+      #并且实现完全的路径重写 将无法访问静态资源 所有控制器都会变成rest风格
+      matching-strategy: ant_path_matcher
+  profiles:
+    active: dev
+  config:
+    import: nacos:${spring.application.name}-${spring.profiles.active}.yaml
+  cloud:
+    nacos:
+      #配置中心
+      config:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+        namespace:  f50a7388-6c17-418b-b2c0-8dff4705dd60
+        file-extension: yaml
+        #服务发现
+        group: ${spring.profiles.active}
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace:  f50a7388-6c17-418b-b2c0-8dff4705dd60
+        group: ${spring.profiles.active}

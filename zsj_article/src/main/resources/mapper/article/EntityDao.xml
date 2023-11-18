@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zsj.article.dao.EntityDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.zsj.article.entity.EntityEntity" id="entityMap">
+        <result property="id" column="id"/>
+        <result property="artTitle" column="art_title"/>
+        <result property="artClassId" column="art_class_id"/>
+        <result property="artContent" column="art_content"/>
+        <result property="artRequestMonth" column="art_request_month"/>
+        <result property="artRequestDay" column="art_request_day"/>
+        <result property="artRequestTotal" column="art_request_total"/>
+        <result property="artAuther" column="art_auther"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="artStatus" column="art_status"/>
+    </resultMap>
+
+    <!-- List<EntityEntity> getAllArt();-->
+    <select id="getAllArt" resultType="com.zsj.article.entity.EntityEntity">
+        select *
+        from art_entity
+        where art_status = 1;
+    </select>
+</mapper>

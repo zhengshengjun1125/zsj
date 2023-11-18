@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zsj.system.dao.LogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.zsj.system.entity.LogEntity" id="logMap">
+        <result property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="operation" column="operation"/>
+        <result property="method" column="method"/>
+        <result property="params" column="params"/>
+        <result property="ip" column="ip"/>
+        <result property="createDate" column="create_date"/>
+    </resultMap>
+
+
+    <select id="getTen" resultMap="logMap">
+        SELECT *
+        FROM sys_log
+        WHERE id > (SELECT MAX(id) FROM sys_log) - 10 -- 获取最后十条数据
+          AND operation NOT LIKE '%log%' -- 排除字段值包含"log"的数据
+        ORDER BY id DESC;
+    </select>
+</mapper>
