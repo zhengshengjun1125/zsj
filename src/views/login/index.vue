@@ -38,8 +38,10 @@
               :disabled="GetCodeStatus"
               @click="getEmailCode"
             >
-              <span v-show="!GetCodeStatus">获取验证码</span>
-              <span v-show="GetCodeStatus">验证码已经发送({{ recount }})</span>
+              <span v-show="!GetCodeStatus">{{ $t('login.getCode') }}</span>
+              <span v-show="GetCodeStatus">
+                {{ $t('login.senedCode') }}({{ recount }})
+              </span>
             </el-button>
           </div>
         </el-form-item>

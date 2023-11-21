@@ -3,6 +3,8 @@ export default {
   changeAl: '切换普通账号登录',
   changeEl: '切换邮箱登录',
   email: '邮箱账号',
+  getCode: '获取验证码',
+  senedCode: '验证码已经发送',
   emailillegality: '邮箱输入不合法',
   emailtips: '输入邮箱中的验证码',
   username: '用户名',

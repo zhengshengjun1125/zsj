@@ -133,6 +133,14 @@ const review = e => {
 
 const copyValue = v => {
   copy(v)
+  const ta = document.createElement('textarea')
+  ta.value = v ?? ''
+  ta.style.position = 'absolute'
+  ta.style.opacity = '0'
+  document.body.appendChild(ta)
+  ta.select()
+  document.execCommand('copy')
+  ta.remove()
   ElNotification({
     title: '提示',
     message: h('i', { style: 'color: teal' }, '拷贝成功'),
@@ -146,3 +154,4 @@ const copyValue = v => {
   height: 200px;
 }
 </style>
+115C63

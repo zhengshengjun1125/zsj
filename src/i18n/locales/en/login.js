@@ -4,6 +4,8 @@ export default {
   changeEl: 'choose email login',
   email: 'email account',
   emailillegality: 'email is illegality',
+  getCode: 'GetCode',
+  senedCode: 'CodeIsSend',
   emailtips: 'code from email',
   username: 'Username',
   password: 'Password',

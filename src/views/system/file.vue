@@ -39,6 +39,11 @@
           style="color: red"
         >
           文件大小为0的文件是老文件~都不会太大~请放心😜
+          <br />
+          如果复制失效的话
+          请使用https://request-oss-zsj.oss-cn-beijing.aliyuncs.com/ +
+          <span style="color: blue">username</span>
+          +/日期+/type+/云文件名称
         </el-text>
       </el-form-item>
     </el-form>
@@ -103,7 +108,10 @@ const fileType = ref([
   },
 ])
 const curUrl = ref('')
-const { text, copy, copied, isSupported } = useClipboard({ curUrl })
+const { text, copy, copied, isSupported } = useClipboard({
+  curUrl,
+  legacy: true,
+})
 const isROOT = ref(false)
 const total = ref(0)
 const fileList = ref([])
@@ -117,8 +125,17 @@ const formInline = reactive({
   affiliation: '',
 })
 const copyUrl = e => {
-  copy(e.url)
   console.log(e)
+  //这里 详见博客《useClipboard的问题》就知道为什么要这样写了
+  copy(e.url)
+  const ta = document.createElement('textarea')
+  ta.value = e.url ?? ''
+  ta.style.position = 'absolute'
+  ta.style.opacity = '0'
+  document.body.appendChild(ta)
+  ta.select()
+  document.execCommand('copy')
+  ta.remove()
   ElNotification({
     title: e.upFileName,
     message: h('i', { style: 'color: teal' }, '复制URL成功'),
