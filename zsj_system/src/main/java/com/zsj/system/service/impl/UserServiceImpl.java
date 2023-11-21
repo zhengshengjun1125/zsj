@@ -82,6 +82,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
         return pageUtils;
     }
 
+    //todo 修改用户手机号会报错
     @Override
     public String updateUserInfoById(UserVo vo, String name) {
         Long id = vo.getId();
