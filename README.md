@@ -9,25 +9,28 @@
     1、混和使用了markdown编辑器 可以在自己的博客中插入各种各样的表情图片以及对markdown语法的更好支持
     2、实现了oss服务端签名直传,不会对服务器造成过大压力并且提高渲染速度（前端直接可以通过拼接的方法得到上传后的链接 不用等服务器端返回）
     3、权限系统的校验 根据不同登陆角色来决定登录的权限
-    4、使用websocket实现聊天功能
+    4、使用websocket实现聊天功能(不建议使用此功能 不喜欢的小伙伴可以删掉 本项目的聊天功能测试出来是有xss注入的风险的)
 ~~~
 ###  :laughing: 项目技术栈
 - vuex+pinia 实现全局对象处理
 - vue-router 动态路由功能
 - vue3  更好的ts语法支持
+- v-md-editor 提供了更好的markdown文本编辑方式以及html格式文本的支持
 - 项目还提供了基础设施支持，包括按钮级别的权限控制、国际化支持、代码规范、Git 提交规范以及常用组件的封装，以便开发人员更高效地开发和维护项目。
+
 
 ###  :sunglasses: 特性
 
 ```
     1、项目足够简单 可以让刚接触微服务或者刚使用vue3的同学进行学习使用
+    2、封装了基本的axios请求方式 更好的接口请求扩展方式
 ```
 
 ## 开发
 
 ```bash
 # 克隆项目
-git clone https://gitee.com/zhengshengjun/zsj.git
+git clone origin admin https://gitee.com/zhengshengjun/zsj.git
 
 # 进入项目目录
 cd zsj
@@ -42,11 +45,14 @@ npm install --registry=https://registry.npm.taobao.org
 npm run dev
 ```
 
-浏览器访问 http://localhost:9527
+浏览器访问 http://localhost:19999
 
 ## 发布
 
 ```bash
+# 直接构建
+npm run build
+
 # 构建测试环境
 npm run build:stage
 
