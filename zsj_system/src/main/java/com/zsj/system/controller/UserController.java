@@ -100,6 +100,7 @@ public class UserController {
                 String username = user.getUsername();
                 QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("username", username);
+                //select * from tb_user where username = ?
                 UserEntity entity = userService.getOne(queryWrapper);
                 if (null != entity) {
                     if (entity.getStatus().equals(1)) {
@@ -303,7 +304,7 @@ public class UserController {
         if (register_roleLevel > user_roleLevel) {
             return R.error("越权操作");
         }
-        user.setPassword(Encrypt.encrypt_md5(user.getPassword()));
+        user.setPassword(Encrypt.encrypt_hash512(user.getPassword()));
         user.setCreateTime(new Date(System.currentTimeMillis()));
         user.setStatus(1);
         user.setCreatUserId(one.getId());
@@ -376,11 +377,11 @@ public class UserController {
                 QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("username", name);
                 UserEntity one = userService.getOne(queryWrapper);
-                if (Encrypt.encrypt_md5(oldPassword).equals(one.getPassword())) {
+                if (Encrypt.encrypt_hash512(oldPassword).equals(one.getPassword())) {
                     //旧密码正确
                     UpdateWrapper<UserEntity> wrapper = new UpdateWrapper<>();
                     wrapper.eq("username", name);//对指定账号进行修改 因为账号是唯一的
-                    wrapper.set("password", Encrypt.encrypt_md5(user.getNewPassword()));
+                    wrapper.set("password", Encrypt.encrypt_hash512(user.getNewPassword()));
                     initUserList();
                     return userService.update(wrapper) ? R.ok("修改成功") : R.error("修改失败");
                 } else {

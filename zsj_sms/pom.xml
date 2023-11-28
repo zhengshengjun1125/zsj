@@ -92,6 +92,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+<!--                    <skip>true</skip>-->
                     <!-- 指定该Main Class为全局的唯一入口 -->
                     <mainClass>com.zsj.sms.ZsjSmsApplication</mainClass>
                     <layout>ZIP</layout>

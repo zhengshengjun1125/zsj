@@ -74,6 +74,7 @@ public class LogServiceImpl extends ServiceImpl<LogDao, LogEntity> implements Lo
     @RabbitHandler
     public void saveLog(Message message, com.zsj.common.utils.LogEntity logEntity, Channel channel) {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();//当前消息id
+        //todo 进行请求日志的记录 可以考虑存到es中
         this.save(new com.zsj.system.entity.LogEntity(logEntity));
         try {
             //单个应答
