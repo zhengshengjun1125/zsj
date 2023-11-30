@@ -1,5 +1,0 @@
-server:
-  port: 12222
-
-time:
-  fixedDelay: 5000
