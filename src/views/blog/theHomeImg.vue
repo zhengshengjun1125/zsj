@@ -2,7 +2,7 @@
   <el-form :inline="true" :model="formInline" class="demo-form-inline">
     <el-form-item>
       <el-button type="success" @click="openinsertImgDialog = true">
-        添加
+        添加或修改
       </el-button>
     </el-form-item>
   </el-form>
@@ -63,10 +63,7 @@
     </el-table-column>
     <el-table-column prop="createTime" label="创建时间" />
     <el-table-column label="操作" width="150" #default="scope">
-      <el-button type="primary" size="small" @click="upUserById(scope.row)">
-        修改
-      </el-button>
-      <el-button type="danger" size="small" @click="rmUserById(scope.row)">
+      <el-button type="danger" size="small" @click="rmImgById(scope.row)">
         删除
       </el-button>
     </el-table-column>
@@ -74,7 +71,7 @@
 </template>
 
 <script setup>
-import { getImgList, insertImg } from '@/api/system'
+import { getImgList, insertImg, deleteImg } from '@/api/system'
 import { OssPolicyToPhoto } from '@/api/oss'
 import { async } from '@kangc/v-md-editor'
 import { onMounted, ref } from 'vue'
@@ -131,7 +128,7 @@ const submitInsertImg = async () => {
     belongUserId: insertInfo.value.id,
   })
   if (msg == '添加成功' && code == 200) {
-    ElMessage.success(msg)
+    ElMessage.success('操作成功')
     flushList()
   } else {
     ElMessage.success(msg)
@@ -141,6 +138,23 @@ const submitInsertImg = async () => {
 const cancelInsertImg = () => {
   openinsertImgDialog.value = false
   flushList()
+}
+
+const rmImgById = async r => {
+  ElMessageBox.confirm(`你将永远删除这个封面图. 确定吗?`, '温馨提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'error',
+  }).then(async () => {
+    const id = r.id
+    const { code, msg } = await deleteImg({ id })
+    if (code == 200) {
+      ElMessage.success(msg)
+      flushList()
+    } else {
+      ElMessage.error(msg)
+    }
+  })
 }
 </script>
 

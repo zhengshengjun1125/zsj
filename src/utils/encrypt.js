@@ -89,3 +89,32 @@ export function decryptByBase64(cipherText) {
 export function encryptByMd5(password) {
   return md5(password).toString()
 }
+
+//六位uuid
+export function generateRandomString() {
+  var characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  var result = ''
+
+  for (var i = 0; i < 6; i++) {
+    var randomIndex = Math.floor(Math.random() * characters.length)
+    result += characters.charAt(randomIndex)
+  }
+
+  return result
+}
+
+//获取rgba的各项属性值 'rgba(86, 88, 93,1)'
+export function getRgbaBYstring(rgba) {
+  let arr = [77, 77, 77, 1]
+  if (typeof rgba != 'string') return arr
+  else {
+    //开始截取
+    let numberList = rgba.substring(rgba.indexOf('(') + 1, rgba.indexOf(')'))
+    let numbers = numberList.split(',')
+    for (let i = 0; i < numbers.length; i++) {
+      arr[i] = numbers[i].trim()
+    }
+    return arr
+  }
+}

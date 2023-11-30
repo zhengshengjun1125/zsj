@@ -2,6 +2,7 @@ export default {
   center: 'User center',
   password: 'Modify password',
   logout: 'Logout',
+  recharge: 'recharge Z coin',
   'lock-title': 'Lock screen',
   'lock-password': 'Password',
   'lock-rules-password': 'Please input Screen password',

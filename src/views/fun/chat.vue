@@ -140,7 +140,7 @@ const init = async () => {
     alert('您的浏览器不支持WebSocket')
   } else {
     // console.log('您的浏览器支持WebSocket')
-    let socketUrl = 'ws://124.70.34.218:88/api/chat/' + username
+    let socketUrl = 'ws://localhost:88/api/chat/' + username
     // let socketUrl = 'ws://localhost:88/api/chat/' + username
     if (socket != null) {
       socket.close()

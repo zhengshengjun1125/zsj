@@ -2,6 +2,7 @@ export default {
   center: '个人中心',
   password: '修改密码',
   logout: '退出登录',
+  recharge: '充值Z币',
   'lock-title': '锁定屏幕',
   'lock-password': '锁屏密码',
   'lock-rules-password': '请输入锁屏密码',

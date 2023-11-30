@@ -6,6 +6,7 @@ export default {
   fun: '功能列表',
   userm: '用户管理',
   rolem: '角色管理',
+  imageUtil: '图片工具',
   menum: '菜单管理',
   logm: '日志管理',
   articlem: '文章管理',

@@ -111,11 +111,50 @@ export const insertImg = data => {
   })
 }
 
+//删除背景图列表
+export const deleteImg = params => {
+  return request({
+    url: '/api/system/bloghomehp/delete',
+    method: 'get',
+    params,
+  })
+}
+
 //获取文件列表
 export const getfileList = (cur, size, data) => {
   return request({
     url: '/api/system/file/list/' + cur + '/' + size,
     method: 'post',
     data,
+  })
+}
+
+//压缩图片
+export const exportImageCompress = data => {
+  return request({
+    url: '/api/system/file/compress',
+    method: 'post',
+    data,
+    responseType: 'blob',
+  })
+}
+
+//图片水印
+export const exportImageWaterMark = (data, params) => {
+  return request({
+    url: '/api/system/file/watermark',
+    method: 'post',
+    data,
+    params,
+    responseType: 'blob',
+  })
+}
+
+//获取重置二维码
+export const getQRcode = () => {
+  return request({
+    url: '/api/system/file/qrcode',
+    method: 'get',
+    responseType: 'blob',
   })
 }

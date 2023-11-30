@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
+    "removeComments": true,
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["src/*"]
     }
   },
   "exclude": ["node_modules", "dist"],

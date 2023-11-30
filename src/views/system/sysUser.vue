@@ -409,10 +409,13 @@ const flushUserList = async () => {
     formInline
   )
   if (code == 200) {
+    /*
     userList.value = data.list.map(user => {
       user.createTime = user.createTime.substring(0, 10)
       return user
     })
+    */
+    userList.value = data.list
     total.value = data.totalCount
   }
 }

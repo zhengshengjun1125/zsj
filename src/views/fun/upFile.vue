@@ -5,7 +5,7 @@
     drag
     :show-file-list="false"
     class="baseUpload"
-    action="http://124.70.34.218:88/api/system/oss/uploadOssFileSingle"
+    action="http://localhost:88/api/system/oss/uploadOssFileSingle"
     :before-upload="beforceUpload"
     :on-success="handleFileSuccess"
     :on-progress="handleFileProgress"
@@ -90,7 +90,7 @@ onMounted(() => {
 const successFile = new Map()
 const baseRequest = ref({
   system_api_Authorize_name: localStorage.getItem('username'),
-  system_api_Authorize: localStorage.getItem('VEA-TOKEN').token,
+  system_api_Authorize: JSON.parse(localStorage.getItem('VEA-TOKEN')).token,
 })
 //上传前的钩子
 const beforceUpload = f => {

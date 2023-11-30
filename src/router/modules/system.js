@@ -10,6 +10,7 @@ const theHomeImg = () => import('@/views/blog/theHomeImg.vue')
 const chat = () => import('@/views/fun/chat.vue')
 const upFile = () => import('@/views/fun/upFile.vue')
 const sysFile = () => import('@/views/system/file.vue')
+const imageUtil = () => import('@/views/fun/imageUtil.vue')
 // 导出该组件
 export default [
   {
@@ -133,6 +134,15 @@ export default [
         component: upFile,
         meta: {
           title: 'menu.upfile',
+        },
+        hidden: false,
+      },
+      {
+        path: '/imageUtil',
+        name: 'imageUtil',
+        component: imageUtil,
+        meta: {
+          title: 'menu.imageUtil',
         },
         hidden: false,
       },

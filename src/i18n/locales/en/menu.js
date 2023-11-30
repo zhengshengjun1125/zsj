@@ -4,6 +4,7 @@ export default {
   blog: 'blog management',
   system: 'system management',
   fun: 'function list',
+  imageUtil: 'image Util',
   userm: 'user management',
   rolem: 'role management',
   menum: 'menu management',

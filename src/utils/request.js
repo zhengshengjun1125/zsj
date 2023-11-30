@@ -5,13 +5,14 @@ import { useApp } from '@/pinia/modules/app'
 
 // const base = 'http://localhost:81' nginx
 
-const prod = 'http://124.70.34.218:88'
+// const prod = 'http://124.70.34.218:88'
 
-// const base = 'http://localhost:88'
+const base = 'http://localhost:88'
 
 const service = axios.create({
   // baseURL: '/',
-  baseURL: prod,
+  // baseURL: prod,
+  baseURL: base,
   timeout: 10000,
   withCredentials: true,
 })

@@ -43,7 +43,6 @@
  -->
 
 <template>
-  <!-- 修改密码对话框 todo -->
   <el-dialog v-model="openResetPassDig" title="修改密码" width="30%" draggable>
     <el-form label-width="120px">
       <el-form-item label="旧密码">
@@ -76,6 +75,23 @@
       </el-form-item>
     </el-form>
   </el-dialog>
+
+  <el-dialog v-model="openRechargeDialog" title="充值Z币" width="30%" draggable>
+    <el-form label-width="120px">
+      <span style="color: red">每次扫码都可以获得1000的Z币哦~</span>
+      <br />
+      <span style="color: red">如果扫码了,请您刷新页面来进行余额查询~</span>
+      <el-image
+        style="width: 300px; height: 300px"
+        :src="qrcodeUrl"
+        fit="fill"
+      />
+      <el-form-item>
+        <el-button type="primary" @click="openRecharge">完成</el-button>
+        <el-button type="success" @click="getQR">刷新二维码</el-button>
+      </el-form-item>
+    </el-form>
+  </el-dialog>
   <el-dropdown trigger="hover">
     <div class="userinfo">
       <template v-if="!userinfo">
@@ -98,6 +114,9 @@
         <el-dropdown-item @click="openResetPass">
           {{ $t('topbar.password') }}
         </el-dropdown-item>
+        <el-dropdown-item @click="openRecharge">
+          {{ $t('topbar.recharge') }}
+        </el-dropdown-item>
         <lock-modal />
         <el-dropdown-item @click="logout">
           {{ $t('topbar.logout') }}
@@ -107,7 +126,7 @@
   </el-dropdown>
 </template>
 <script>
-import { defineComponent, getCurrentInstance, ref } from 'vue'
+import { defineComponent, getCurrentInstance, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserinfo } from '@/components/Avatar/hooks/useUserinfo'
 import LockModal from './LockModal.vue'
@@ -115,16 +134,18 @@ import { useApp } from '@/pinia/modules/app'
 import { Logout } from '@/api/login'
 import { resetPass } from '@/api/user'
 import { ElMessage } from 'element-plus'
-
+import { getQRcode } from '@/api/system'
+import { useAccount } from '@/pinia/modules/account'
 export default defineComponent({
   components: {
     LockModal,
   },
   setup() {
+    const qrcodeUrl = ref('')
     const ordPass = ref('')
     const newPass = ref('')
     const checkNewPass = ref('')
-
+    const openRechargeDialog = ref(false)
     const openResetPassDig = ref(false)
     const router = useRouter()
 
@@ -132,8 +153,18 @@ export default defineComponent({
 
     const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
 
+    onMounted(() => {
+      getQR()
+    })
     const openResetPass = () => {
       openResetPassDig.value = true
+    }
+
+    const openRecharge = async () => {
+      openRechargeDialog.value = !openRechargeDialog.value
+      getQR()
+      const { userinfo, getUserinfo } = useAccount()
+      await getUserinfo()
     }
 
     const submitResetPassword = async () => {
@@ -178,7 +209,6 @@ export default defineComponent({
 
     const openSelfCenter = () => {
       router.push('/')
-      // ElMessage.warning('暂未开放此功能')
     }
 
     // 退出
@@ -196,17 +226,27 @@ export default defineComponent({
         ctx.$message.error(msg)
       }
     }
+    const getQR = async () => {
+      const res = await getQRcode()
+      qrcodeUrl.value = window.URL.createObjectURL(res)
+    }
 
     return {
+      useAccount,
+      onMounted,
       userinfo,
       logout,
       openResetPass,
       openResetPassDig,
+      openRechargeDialog,
       ordPass,
       newPass,
+      qrcodeUrl,
       checkNewPass,
       submitResetPassword,
       openSelfCenter,
+      openRecharge,
+      getQR,
     }
   },
 })

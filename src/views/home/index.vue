@@ -36,6 +36,12 @@
                   : {{ curUser.username }}
                 </span>
                 <br />
+                <span style="color: #73bb5e">
+                  <span style="color: black">余额</span>
+                  : {{ curUser.balance }}
+                </span>
+                Z币
+                <br />
                 <span style="color: green">
                   <span style="color: #d8d41b">角色</span>
                   : {{ curUser.roleName }}
