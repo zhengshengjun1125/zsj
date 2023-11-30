@@ -2,6 +2,7 @@ package com.zsj.gateway.vo;
 
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -13,11 +14,11 @@ import java.util.Date;
  * @date 2023-10-05 20:07:09
  */
 @Data
+@NoArgsConstructor
 public class UserTokenEntity {
 
 
-    public UserTokenEntity() {
-    }
+
 
 
     public UserTokenEntity(Long userId, String token, Date expireTime, Date updateTime) {

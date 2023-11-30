@@ -2,20 +2,39 @@ package com.zsj.system.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.reflect.TypeToken;
-import com.zsj.common.utils.GsonUtil;
-import com.zsj.common.utils.ObjectUtil;
-import com.zsj.common.utils.R;
+import com.zsj.common.utils.*;
+import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.system.entity.FileEntity;
+import com.zsj.system.entity.UserEntity;
+import com.zsj.system.param.Location;
+import com.zsj.system.service.UserService;
+import com.zsj.system.util.QRCodeUtil;
+import com.zsj.system.util.WaterMarkUtil;
+import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.zsj.system.service.FileService;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.io.*;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -25,14 +44,23 @@ import com.zsj.system.service.FileService;
  */
 @RestController
 @RequestMapping("system/file")
+@Slf4j
 public class FileController {
     @Autowired
     private FileService fileService;
 
+    @Autowired
+    @Lazy
+    private UserService userService;
 
     @Autowired
     @Lazy
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    @Lazy
+    private RabbitTemplate rabbitTemplate;
+
 
     @PostMapping("/list/{cur}/{size}")
     public R list(@RequestHeader("system_api_Authorize_name") String name,
@@ -65,10 +93,137 @@ public class FileController {
         }.getType()));
     }
 
+    @GetMapping("/qrcode/check")
+    @Transactional
+    public String check(@RequestParam("key") String key, @RequestParam("user") String user) {
+        String obj = stringRedisTemplate.opsForValue().get(key);
+        if (!ObjectUtil.isNullOrEmpty(obj)) {
+            //给用户添加10000的Z币
+            double add = 10000d;
+            UserEntity one = userService.getOne(new QueryWrapper<UserEntity>().eq("username", user));
+            if (!ObjectUtil.objectIsNull(one)) {
+                boolean update = userService.update(new UpdateWrapper<UserEntity>().eq("username", one.getUsername()).set("balance", one.getBalance() + add));
+                if (update) {
+                    EmailVoProperties emailVoProperties = new EmailVoProperties(one.getEmail(), EmailVoProperties.RECHARGE, add, one.getUsername(), BaseUtil.currentTime());
+                    rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+                } else log.error("出现了错误,充值邮件错误");
+            }
+            //删除redis中的key
+            stringRedisTemplate.delete(key);
+            String token = stringRedisTemplate.opsForValue().get(user);
+            //这里我们把token删了
+            if (!ObjectUtil.isNullOrEmpty(token)) stringRedisTemplate.delete(token);
+            return "<div><h1 style=\"color: red;text-align: center;font-size: 60px;\">充值成功</h1></div>";
+        }
+        return "<div><h1 style=\"color: red;text-align: center;font-size: 60px;\">充值失败</h1></div>";
+    }
+
+    @GetMapping("/qrcode")
+    public void getQrCode(@RequestHeader("system_api_Authorize_name") String user,
+                          HttpServletResponse response) {
+        String name = Encrypt.encrypt_uuid_6();
+        try {
+            String key = Encrypt.encrypt_uuid_12();
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            response.setCharacterEncoding("utf-8");
+            String filename = URLEncoder.encode(name, "UTF-8").replaceAll(" ", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + filename + ".jpg");
+            //todo  这里上线后 要写成线上地址
+            QRCodeUtil.encode("http://localhost:88/api/system/file/qrcode/check?key=" + key + "&user=" + user, QRCodeUtil.DEFAULT_LOGO_URL, response, filename + ".jpg", true);
+            //生成了二维码之后
+            stringRedisTemplate.opsForValue().set(key, key + filename, 1, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 图片压缩 扣除用户1z币
+     */
+    @Transactional
+    @PostMapping(value = "/compress")
+    public void fileCompress(@RequestHeader("system_api_Authorize_name") String user,
+                             @NotNull @RequestBody MultipartFile file,
+                             HttpServletResponse response) {
+        boolean deduct = deduct(user, (double) file.getSize() / 1024);
+        if (deduct) {
+            try {
+                response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+                response.setCharacterEncoding("utf-8");
+                String filename = URLEncoder.encode("加工图片", "UTF-8").replaceAll(" ", "%20");
+                response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + filename + ".jpg");
+                byte[] bytes = file.getBytes();
+                log.info("force{}", bytes.length);
+                Thumbnails.of(new ByteArrayInputStream(bytes))
+                        .scale(1f) //图片大小（长宽）压缩比例 从0-1，1表示原图
+                        .outputQuality(0.7f) //图片质量压缩比例 从0-1，越接近1质量越好
+                        .toOutputStream(response.getOutputStream());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
+    /**
+     * 图片加水印
+     */
+    @Transactional
+    @PostMapping(value = "/watermark")
+    public void fileWatermark(@RequestHeader("system_api_Authorize_name") String user,
+                              @NotNull MultipartFile file,
+                              HttpServletResponse response,
+                              @NotNull @RequestParam("location") String location,
+                              @NotNull @RequestParam("text") String text,
+                              @NotNull @RequestParam("r") Integer r,
+                              @NotNull @RequestParam("g") Integer g,
+                              @NotNull @RequestParam("b") Integer b,
+                              @NotNull @RequestParam("a") Double a) {
+        boolean deduct = deduct(user, (double) file.getSize() / 1024);
+        if (deduct) {
+            //进行判断
+            if (location.equals("")) location = Location.MID;
+            if (text.equals("")) text = "ZSJ_BLOG";
+            try {
+                Color self = new Color(r, g, b, (int) (a * 255));
+                response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+                response.setCharacterEncoding("utf-8");
+                String filename = URLEncoder.encode("水印图片", "UTF-8").replaceAll(" ", "%20");
+                response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + filename + ".jpg");
+                WaterMarkUtil.waterMark(file.getInputStream(), self, text, location, response);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    //todo  这里可以加锁还可以对消费进行记录
+    public boolean deduct(String name, double z) {
+        UserEntity one = userService.getOne(new QueryWrapper<UserEntity>().eq("username", name));
+        if (ObjectUtil.objectIsNotNull(one)) {
+            //拿一下当前用户的余额 如果不足以支付就false
+            if (one.getBalance() >= z) {
+                boolean update = userService.update(new UpdateWrapper<UserEntity>().eq("username", name).set("balance", one.getBalance() - z));
+                if (update) {
+                    EmailVoProperties emailVoProperties = new EmailVoProperties(one.getEmail(), EmailVoProperties.CONSUMPTION, z, one.getUsername(), BaseUtil.currentTime());
+                    rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+                }
+                return update;
+            }else {
+                //发送邮件提醒余额不足
+                EmailVoProperties emailVoProperties =
+                        new EmailVoProperties(EmailVoProperties.INSUFFICIENT_BALANCE,one.getEmail());
+                rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+            }
+        }
+        return false;
+    }
 
     /**
      * 传参鉴定 看所有查询条件是否为一个空串
      * 或整个实体为null
+     *
      * @param entity 条件实体
      * @return 是 否
      */
@@ -79,4 +234,5 @@ public class FileController {
                 && ObjectUtil.isNullOrEmpty(entity.getAffiliation())
                 && ObjectUtil.isNullOrEmpty(entity.getFileSuffix()));
     }
+
 }

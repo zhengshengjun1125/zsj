@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @date 2023/9/9.
  */
 @Configuration
-public class GuliCorsConfiguration {
+public class ZsjCorsConfiguration {
 
     /**
      * 进行跨域配置

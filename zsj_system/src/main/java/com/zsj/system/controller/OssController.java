@@ -81,7 +81,7 @@ public class OssController {
         String originalFilename = file.getOriginalFilename();
         long size = file.getSize();//文件大小 图片不可以超过
         log.info("上传文件名为:{} 文件大小字节为:{}", originalFilename, size);
-        assert originalFilename != null;
+        assert originalFilename != null;//这种写法是非常危险的  但是我们保证了这个file对象绝对不为空 除非黑客恶意攻击我们的服务器绕过了这个代码的检查 否则我们直接干掉系统
         String suffix = FileGlobalHelper.getSuffix(originalFilename);
         Map<String, String> filter_map = FileGlobalHelper.fileTypeMap();
         String type = filter_map.get(suffix) == null ? "other" : filter_map.get(suffix);

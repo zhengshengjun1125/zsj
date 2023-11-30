@@ -1,5 +1,6 @@
 package com.zsj.system;
 
+import cn.hutool.extra.qrcode.QrCodeUtil;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zsj.common.utils.Encrypt;
 import com.zsj.common.xss.HTMLFilter;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Lazy;
 
 import java.awt.*;
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -51,5 +53,6 @@ class ZsjSystemApplicationTests {
         String filter = htmlFilter.filter(md);
         log.info("filter s {}",s);
         log.info("filter s2 {}",filter);
+
     }
 }

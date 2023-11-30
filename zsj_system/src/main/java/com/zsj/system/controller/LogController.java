@@ -8,6 +8,7 @@ import java.util.List;
 
 
 import com.alibaba.excel.EasyExcel;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zsj.common.utils.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,10 +59,9 @@ public class LogController {
                         @PathVariable("size") int size,
                         @Nullable @RequestBody LogEntity entity) {
         if (checkEntityIsEmptyParam(entity)) {
-            //空参查所有
             //cur 当前页  size每页数量
             Page<LogEntity> logEntityPage = new Page<>(cur, size);
-            Page<LogEntity> page = logService.page(logEntityPage);
+            Page<LogEntity> page = logService.page(logEntityPage,new QueryWrapper<LogEntity>().orderByDesc("id"));
             return R.ok().put("data", page);
         }
         //条件查询

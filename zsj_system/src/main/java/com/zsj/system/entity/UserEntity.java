@@ -44,6 +44,13 @@ public class UserEntity implements Serializable {
      */
     @ExcelIgnore
     private String password;
+
+    /**
+     * 余额
+     */
+    @ExcelIgnore
+    private Double balance;
+
     /**
      * 头像
      */

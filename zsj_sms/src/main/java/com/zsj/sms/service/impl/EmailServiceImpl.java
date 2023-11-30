@@ -90,7 +90,7 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
             //存放email邮件code 其中key是他的邮箱号码+emailcode  value 就是我们生成的uuid五位
             ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
             String value = Encrypt.encrypt_uuid_6().toUpperCase();
-            ops.set(emailVoProperties.getTo().toUpperCase()+"emailCode", value, 120, TimeUnit.SECONDS);//设置2分钟的过期时间
+            ops.set(emailVoProperties.getTo().toUpperCase() + "emailCode", value, 120, TimeUnit.SECONDS);//设置2分钟的过期时间
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             EmailEntity entity = new EmailEntity();
             try {
@@ -110,7 +110,80 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
                 //出现异常 将消息回队
                 channel.basicReject(deliveryTag, true);
                 throw new RuntimeException(e);
-            }finally {
+            } finally {
+                this.save(entity);
+            }
+        }
+        //发送消费邮件
+        if (emailVoProperties.getType().equals(EmailVoProperties.CONSUMPTION)) {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            EmailEntity entity = new EmailEntity();
+            try {
+                //第二个参数是 whether to create a multipart message that supports alternative texts, inline
+                //是否创建支持内联替代文本的多部分消息
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                //发送者
+                helper.setFrom(sender);
+                //接收者
+                String to = emailVoProperties.getTo();
+                helper.setTo(to);
+                //邮件主题
+                String title = "ZSJ_BlOG消费提醒";
+                helper.setSubject(title);
+                //邮件内容
+                String content = EmailContentUtil
+                        .createConsumptionEmailContent(emailVoProperties.getUsername(),
+                                emailVoProperties.getConsumption(),
+                                emailVoProperties.getTime());
+                send(emailVoProperties, channel, deliveryTag, mimeMessage, entity, helper, to, title, content);
+            } catch (MessagingException e) {
+                //出现异常 将消息回队
+                channel.basicReject(deliveryTag, true);
+                throw new RuntimeException(e);
+            } finally {
+                this.save(entity);
+            }
+        }
+        //发送充值邮件
+        if (emailVoProperties.getType().equals(EmailVoProperties.RECHARGE)) {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            EmailEntity entity = new EmailEntity();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                helper.setFrom(sender);
+                String to = emailVoProperties.getTo();
+                helper.setTo(to);
+                String title = "ZSJ_BlOG充值提醒";
+                helper.setSubject(title);
+                String content = EmailContentUtil
+                        .createRechargeEmailContent(emailVoProperties.getUsername(),
+                                emailVoProperties.getRecharge(),
+                                emailVoProperties.getTime());
+                send(emailVoProperties, channel, deliveryTag, mimeMessage, entity, helper, to, title, content);
+            } catch (MessagingException e) {
+                channel.basicReject(deliveryTag, true);
+                throw new RuntimeException(e);
+            } finally {
+                this.save(entity);
+            }
+        }
+        //余额不足邮件
+        if (emailVoProperties.getType().equals(EmailVoProperties.INSUFFICIENT_BALANCE)) {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            EmailEntity entity = new EmailEntity();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                helper.setFrom(sender);
+                String to = emailVoProperties.getTo();
+                helper.setTo(to);
+                String title = "ZSJ_BlOG余额提醒";
+                helper.setSubject(title);
+                String content = EmailContentUtil.createInsufficientBalanceEmailContent();
+                send(emailVoProperties, channel, deliveryTag, mimeMessage, entity, helper, to, title, content);
+            } catch (MessagingException e) {
+                channel.basicReject(deliveryTag, true);
+                throw new RuntimeException(e);
+            } finally {
                 this.save(entity);
             }
         }

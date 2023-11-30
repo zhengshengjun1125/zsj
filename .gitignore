@@ -10,8 +10,10 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 
-#忽略代码生成模块
+#代码生成器
 renren-generator/
+#未生效的模块
+zsj_task/
 
 # 忽略提交文件
 **/mvnw

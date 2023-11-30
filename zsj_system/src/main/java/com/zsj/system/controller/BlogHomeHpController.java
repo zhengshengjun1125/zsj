@@ -62,6 +62,14 @@ public class BlogHomeHpController {
     }
 
     /**
+     * 删除
+     */
+    @GetMapping("/delete")
+    public R delete(@RequestParam("id") Long id) {
+        return blogHomeHpService.removeById(id) ? R.ok("删除成功") : R.error("未知异常，请联系管理员");
+    }
+
+    /**
      * 列表
      */
     @RequestMapping("/list")
@@ -102,14 +110,6 @@ public class BlogHomeHpController {
         return R.ok();
     }
 
-    /**
-     * 删除
-     */
-    @RequestMapping("/delete")
-    public R delete(@RequestBody Long[] ids) {
-        blogHomeHpService.removeByIds(Arrays.asList(ids));
 
-        return R.ok();
-    }
 
 }

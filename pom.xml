@@ -28,6 +28,7 @@
 
     <modules>
         <module>zsj_sms</module>
+        <module>zsj_task</module>
         <module>renren-generator</module>
         <module>zsj_gateway</module>
         <module>zsj_system</module>

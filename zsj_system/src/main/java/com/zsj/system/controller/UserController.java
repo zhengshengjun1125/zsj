@@ -22,6 +22,7 @@ import com.zsj.system.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,6 +32,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import com.zsj.system.entity.UserEntity;
@@ -226,6 +228,7 @@ public class UserController {
                 Long userId = one.getUserId();
                 UserEntity no_do_info = userService.getOne(new QueryWrapper<UserEntity>().eq("id", userId));
                 RoleEntity role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", no_do_info.getRoleId()));
+                ops.set(token, GsonUtil.gson.toJson(no_do_info), 1, TimeUnit.DAYS);
                 return R.ok().put("data", new UserVo(no_do_info, role.getRoleName()));
             }
             return R.error("警告!非法请求!伪造token是非法的,请停止您的行为!");
@@ -285,6 +288,10 @@ public class UserController {
         //到这里说明账号没有被使用 但是我们需要检查手机号有没有被使用过
         if (!Objects.isNull(entity)) {
             return R.error("手机号已经被使用了");
+        }
+        UserEntity entity2 = userService.getOne(new QueryWrapper<UserEntity>().eq("email", user.getEmail()));
+        if (!Objects.isNull(entity2)) {
+            return R.error("邮箱已经被使用了");
         }
         //开始校验邮箱  手机号 是否合法
         if (!user.getMobile().matches(MatcherFormat.mobile_matcher)) return R.error("手机格式错误");
@@ -361,6 +368,7 @@ public class UserController {
      * 需要保证用户不会直接请求到用户服务这里 我们还是需要进行鉴权
      */
     @PostMapping("/resetPass")
+    @Transactional
     public R resetCurUserPass(@RequestHeader("system_api_Authorize_name") String name,
                               @RequestHeader("system_api_Authorize") String token,
                               @RequestBody PassFormByUser user) {
@@ -389,7 +397,7 @@ public class UserController {
                 }
 
             } else {
-                return R.error(401, "请重新登录");
+                return R.error(HttpStatus.SC_UNAUTHORIZED, "请重新登录");
             }
         }
         return R.error("非法操作");
@@ -399,6 +407,7 @@ public class UserController {
      * 修改用户信息
      */
     @PostMapping("/upgradeUserInfo")
+    @Transactional
     public R upgradeUserInfo(@RequestHeader("system_api_Authorize_name") String name, @RequestBody UserVo vo) {
         String message = userService.updateUserInfoById(vo, name);
         //根据用户id修改用户信息

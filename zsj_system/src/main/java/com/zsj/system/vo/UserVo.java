@@ -27,11 +27,13 @@ public class UserVo {
         this.createTime = user.getCreateTime();
         this.creatUserId = user.getCreatUserId();
         this.loginStatus = user.getLoginStatus();
+        this.balance = user.getBalance();
     }
 
 
     public UserVo(UserEntity user, String roleName) {
         this.id = user.getId();
+        this.balance = user.getBalance();
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.roleName = roleName;
@@ -64,6 +66,13 @@ public class UserVo {
      */
     @ExcelIgnore
     private String password;
+
+    /**
+     * 余额
+     */
+    @ExcelIgnore
+    private Double balance;
+
     /**
      * 头像
      */

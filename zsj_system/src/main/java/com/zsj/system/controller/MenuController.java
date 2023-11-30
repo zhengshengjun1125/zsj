@@ -63,7 +63,7 @@ public class MenuController {
     public R removeById(@PathVariable Long id) {
         UpdateWrapper<MenuEntity> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id",id);
-        updateWrapper.set("is_deleted",0);
+        updateWrapper.set("is_deleted",1);
         if (menuService.update(updateWrapper)) return R.ok("删除成功");
         else return R.error("删除失败");
     }
