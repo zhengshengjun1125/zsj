@@ -19,7 +19,7 @@
 - 🤪 [zsj_webSocket](zsj_webSocket) socket模块
 - 💪 [zsj_sms](zsj_sms) 短讯模块
 - 💌 [zsj_task](zsj_task) 定时任务模块
-- 💖 [Test README](renren-generator) 代码生成器模块
+- 💖 [renren-generator](renren-generator) 代码生成器模块
 - 🤗 [sentinel-dashboard](sentinel-dashboard) 资源控制模块
 
 ## 🌐 项目地址

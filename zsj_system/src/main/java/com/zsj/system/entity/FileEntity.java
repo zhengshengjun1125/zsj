@@ -22,13 +22,14 @@ import lombok.Data;
 public class FileEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private static String VIDEO_TYPE = "视频";
+    public static String VIDEO_TYPE = "视频";
 
-    private static String IMAGE_TYPE = "图片";
+    public static String IMAGE_TYPE = "图片";
 
-    private static String MUSIC_TYPE = "音乐";
+    public static String MUSIC_TYPE = "音乐";
 
-    private static String OTHER_TYPE = "其它";
+    public static String OTHER_TYPE = "其它";
+
     /**
      * 文件id(雪花)
      */

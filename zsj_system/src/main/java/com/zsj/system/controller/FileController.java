@@ -10,6 +10,7 @@ import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.system.entity.FileEntity;
 import com.zsj.system.entity.UserEntity;
 import com.zsj.system.param.Location;
+import com.zsj.system.request.MusicRequestBody;
 import com.zsj.system.service.UserService;
 import com.zsj.system.util.QRCodeUtil;
 import com.zsj.system.util.WaterMarkUtil;
@@ -99,6 +100,22 @@ public class FileController {
         }.getType()));
     }
 
+
+    @PostMapping("/word/music")
+    public R getSelfMusic(@RequestHeader("system_api_Authorize_name") String name
+            , @NotNull @RequestBody MusicRequestBody requestBody) {
+        QueryWrapper<FileEntity> queryWrapper = new QueryWrapper<>();
+        if (requestBody.getIsSelf().equals(1)) {
+            //说明只查自己的
+            queryWrapper.eq("Affiliation", name);
+        }
+        if (!requestBody.getFileName().equals("")) {
+            queryWrapper.like("file_name", requestBody.getFileName());
+        }
+        queryWrapper.eq("type", FileEntity.MUSIC_TYPE);
+        return R.ok("获取成功").put("data", fileService.list(queryWrapper));
+    }
+
     @GetMapping("/qrcode/check")
     @Transactional
     public String check(@RequestParam("key") String key, @RequestParam("user") String user) {
@@ -173,15 +190,16 @@ public class FileController {
 
     /**
      * 图片加水印
-     * @param user 操作用户
-     * @param file 文件对象
+     *
+     * @param user     操作用户
+     * @param file     文件对象
      * @param response 响应体
      * @param location 水印位置
-     * @param text 水印文本
-     * @param r 三原色之一
-     * @param g 三原色之一
-     * @param b 三原色之一
-     * @param a 透明度 越小越透明
+     * @param text     水印文本
+     * @param r        三原色之一
+     * @param g        三原色之一
+     * @param b        三原色之一
+     * @param a        透明度 越小越透明
      */
     @Transactional
     @PostMapping(value = "/watermark")

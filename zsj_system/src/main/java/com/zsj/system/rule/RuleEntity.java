@@ -4,9 +4,7 @@ import java.util.Date;
 
 import com.alibaba.csp.sentinel.slots.block.Rule;
 
-/**
- * @author leyou
- */
+
 public interface RuleEntity {
 
     Long getId();
