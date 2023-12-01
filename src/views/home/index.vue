@@ -1,9 +1,3 @@
-<!--
- * @Descripttion: 
- * @version: 1.1
- * @LastEditors:  zsj
- * @Author:   zsj
--->
 <template>
   <div>
     <h1
@@ -32,28 +26,28 @@
             <el-card class="box-card" style="margin-left: 10px">
               <div style="font-size: 25px" class="userTextInfo">
                 <span style="color: red">
-                  <span style="color: blue">账号</span>
+                  <span style="color: blue">{{ $t('public.account') }}</span>
                   : {{ curUser.username }}
                 </span>
                 <br />
                 <span style="color: #73bb5e">
-                  <span style="color: black">余额</span>
+                  <span style="color: black">{{ $t('public.balance') }}</span>
                   : {{ curUser.balance }}
                 </span>
-                Z币
+                {{ $t('public.zcoin') }}
                 <br />
                 <span style="color: green">
-                  <span style="color: #d8d41b">角色</span>
+                  <span style="color: #d8d41b">{{ $t('public.role') }}</span>
                   : {{ curUser.roleName }}
                 </span>
                 <br />
                 <span style="color: pink">
-                  <span style="color: #5aa8e3">邮箱</span>
+                  <span style="color: #5aa8e3">{{ $t('public.email') }}</span>
                   : {{ curUser.email }}
                 </span>
                 <br />
                 <span style="color: #1f1f1f">
-                  <span style="color: #e4c79e">时间</span>
+                  <span style="color: #e4c79e">{{ $t('public.curTime') }}</span>
                   : {{ time }}
                 </span>
               </div>
@@ -94,10 +88,11 @@
 <script setup>
 import { gettenLogList } from '@/api/system'
 import { async } from '@kangc/v-md-editor'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, getCurrentInstance } from 'vue'
 import { useAccount } from '@/pinia/modules/account'
 import { MoreFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+const { proxy: ctx } = getCurrentInstance()
 const logList = ref([])
 const curUser = ref({})
 const sayHello = ref(true)
@@ -110,20 +105,20 @@ const canner = [
 ]
 const activities = [
   {
-    content: '项目开始',
+    content: ctx.$t('public.startTime'),
     timestamp: '2023-11-12',
     size: 'large',
     type: 'primary',
     icon: MoreFilled,
   },
   {
-    content: '项目作者',
-    timestamp: '郑声军 朱远',
+    content: ctx.$t('public.author'),
+    timestamp: ctx.$t('public.authorname'),
     type: 'primary',
     hollow: true,
   },
   {
-    content: '项目雏形',
+    content: ctx.$t('public.Projectprototype'),
     timestamp: '2023-11-18',
     size: 'large',
     color: '#0bbd87',
@@ -155,7 +150,7 @@ const jump = e => {
     window.open('https://github.com/zhengshengjun1125/zsj')
   }
   if (e.search('logo') != -1) {
-    ElMessage.success('感谢你的使用~')
+    ElMessage.success(ctx.$t('public.tkutips'))
   }
 }
 </script>

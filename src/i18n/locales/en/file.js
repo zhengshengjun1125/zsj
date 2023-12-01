@@ -1,0 +1,16 @@
+export default {
+  zip: 'Picture byte compression',
+  AddWatermark: 'Add watermark',
+  mid: 'MID',
+  leftup: 'LeftUp',
+  rightup: 'RightUp',
+  leftdown: 'LeftDown',
+  rightdown: 'RightDown',
+  full: 'Full',
+  tips: 'Enter watermark text (default: ZSJ_BLOG)',
+  drag: 'dragFile',
+  or: 'or',
+  click: 'clickUpload',
+  watertips: 'watermark color',
+  formatTips: 'The file must be in jpg or png format',
+}

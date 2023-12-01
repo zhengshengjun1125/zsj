@@ -1,0 +1,16 @@
+export default {
+  zip: '图片字节压缩',
+  AddWatermark: '添加水印',
+  mid: '中间',
+  leftup: '左上',
+  rightup: '右上',
+  leftdown: '左下',
+  rightdown: '右下',
+  full: '铺满',
+  tips: '输入水印文字(默认ZSJ_BLOG)',
+  drag: '拖拽文件',
+  or: '或者',
+  click: '点击上传',
+  watertips: '水印颜色',
+  formatTips: '文件只能是jpg或者png格式',
+}

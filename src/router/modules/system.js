@@ -11,6 +11,7 @@ const chat = () => import('@/views/fun/chat.vue')
 const upFile = () => import('@/views/fun/upFile.vue')
 const sysFile = () => import('@/views/system/file.vue')
 const imageUtil = () => import('@/views/fun/imageUtil.vue')
+const song = () => import('@/views/fun/song.vue')
 // 导出该组件
 export default [
   {
@@ -85,6 +86,7 @@ export default [
         component: article,
         meta: {
           title: 'menu.articlem',
+          keepAlive: true,
         },
         hidden: false,
       },
@@ -134,6 +136,7 @@ export default [
         component: upFile,
         meta: {
           title: 'menu.upfile',
+          keepAlive: true,
         },
         hidden: false,
       },
@@ -143,6 +146,15 @@ export default [
         component: imageUtil,
         meta: {
           title: 'menu.imageUtil',
+        },
+        hidden: false,
+      },
+      {
+        path: '/song',
+        name: 'song',
+        component: song,
+        meta: {
+          title: 'menu.song',
         },
         hidden: false,
       },

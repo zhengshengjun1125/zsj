@@ -200,9 +200,13 @@ export default defineComponent({
       },
       captchaSrc: '',
       refreshCaptcha: async () => {
-        const data = await GetValidateCode()
-        state.model.key = data.key_id
-        state.captchaSrc = data.captcha
+        const { msg, code, captcha, key_id } = await GetValidateCode()
+        if (code == 200) {
+          state.model.key = key_id
+          state.captchaSrc = captcha
+        } else {
+          ElMessage.error(msg)
+        }
       },
       rules: getRules(),
       loading: false,

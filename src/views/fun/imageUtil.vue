@@ -1,8 +1,12 @@
 <template>
   <div v-loading="loading">
     <el-radio-group v-model="Operation" class="ml-4" @change="showItem">
-      <el-radio label="compress" size="large" border>图片字节压缩</el-radio>
-      <el-radio label="watermark" size="large" border>添加水印</el-radio>
+      <el-radio label="compress" size="large" border>
+        {{ $t('file.zip') }}
+      </el-radio>
+      <el-radio label="watermark" size="large" border>
+        {{ $t('file.AddWatermark') }}
+      </el-radio>
     </el-radio-group>
     <br />
     <div v-show="showwatermarkLocationOperation">
@@ -12,17 +16,29 @@
         class="ml-4"
         @change="watermarkLocationBind"
       >
-        <el-radio label="mid" size="large" border>中间</el-radio>
-        <el-radio label="leftup" size="large" border>左上</el-radio>
-        <el-radio label="rightup" size="large" border>右上</el-radio>
-        <el-radio label="leftdown" size="large" border>左下</el-radio>
-        <el-radio label="rightdown" size="large" border>右下</el-radio>
-        <el-radio label="full" size="large" border>铺满</el-radio>
+        <el-radio label="mid" size="large" border>
+          {{ $t('file.mid') }}
+        </el-radio>
+        <el-radio label="leftup" size="large" border>
+          {{ $t('file.leftup') }}
+        </el-radio>
+        <el-radio label="rightup" size="large" border>
+          {{ $t('file.rightup') }}
+        </el-radio>
+        <el-radio label="leftdown" size="large" border>
+          {{ $t('file.leftdown') }}
+        </el-radio>
+        <el-radio label="rightdown" size="large" border>
+          {{ $t('file.rightdown') }}
+        </el-radio>
+        <el-radio label="full" size="large" border>
+          {{ $t('file.full') }}
+        </el-radio>
         <el-input
           style="margin-top: 20px"
           v-model="watermarkText"
           maxlength="10"
-          placeholder="输入水印文字(默认ZSJ_BLOG)"
+          :placeholder="$t('file.tips')"
           clearable
           show-word-limit
         />
@@ -30,7 +46,7 @@
           class="tipsWaterMark"
           v-model="watermarkColor"
           disabled
-          placeholder="水印颜色"
+          :placeholder="$t('file.watertips')"
           clearable
         />
         <el-color-picker
@@ -57,9 +73,9 @@
     >
       <el-icon class="el-icon--upload"><upload-filled /></el-icon>
       <div class="el-upload__text">
-        <span style="color: green">拖拽文件到这里上传</span>
-        <span style="color: red">或者</span>
-        <em>点击上传文件</em>
+        <span style="color: green">{{ $t('file.drag') }}</span>
+        <span style="color: red">{{ $t('file.or') }}</span>
+        <em>{{ $t('file.click') }}</em>
       </div>
     </el-upload>
     <!-- 水印上传组件 -->
@@ -78,20 +94,21 @@
     >
       <el-icon class="el-icon--upload"><upload-filled /></el-icon>
       <div class="el-upload__text">
-        <span style="color: green">拖拽文件到这里上传</span>
-        <span style="color: red">或者</span>
-        <em>点击上传文件</em>
+        <span style="color: green">{{ $t('file.drag') }}</span>
+        <span style="color: red">{{ $t('file.or') }}</span>
+        <em>{{ $t('file.click') }}</em>
       </div>
     </el-upload>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import { exportImageCompress, exportImageWaterMark } from '@/api/system'
 import { generateRandomString, getRgbaBYstring } from '@/utils/encrypt'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAccount } from '@/pinia/modules/account'
+const { ctx } = getCurrentInstance()
 const watermarkColor = ref('rgba(86, 88, 93,1)')
 const Operation = ref('compress')
 const showwatermarkLocationOperation = ref(Operation.value == 'watermark')

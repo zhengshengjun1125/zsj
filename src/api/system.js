@@ -158,3 +158,12 @@ export const getQRcode = () => {
     responseType: 'blob',
   })
 }
+
+//获取音乐列表
+export const getMusicList = data => {
+  return request({
+    url: '/api/system/file/word/music',
+    method: 'post',
+    data,
+  })
+}

@@ -5,6 +5,7 @@ export default {
   system: 'system management',
   fun: 'function list',
   imageUtil: 'image Util',
+  song: 'Music player',
   userm: 'user management',
   rolem: 'role management',
   menum: 'menu management',
