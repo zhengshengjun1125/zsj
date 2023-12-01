@@ -27,6 +27,7 @@
 
 
     <modules>
+        <module>sentinel-dashboard</module>
         <module>zsj_sms</module>
         <module>zsj_task</module>
         <module>renren-generator</module>

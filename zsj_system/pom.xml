@@ -76,12 +76,6 @@
             <version>2.1.0.RELEASE</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.alibaba.cloud/spring-cloud-starter-alibaba-sentinel -->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-            <version>${spring-cloud.version}</version>
-        </dependency>
 
         <!-- Sentinel Datasource 依赖 -->
         <dependency>
