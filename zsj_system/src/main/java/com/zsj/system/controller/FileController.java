@@ -16,6 +16,8 @@ import com.zsj.system.util.WaterMarkUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +47,8 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("system/file")
 @Slf4j
 public class FileController {
+    private static final String DEDUCT_LOCK_NAME = "DEDUCT-CUT-LOCK";
+
     @Autowired
     private FileService fileService;
 
@@ -61,6 +64,9 @@ public class FileController {
     @Lazy
     private RabbitTemplate rabbitTemplate;
 
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @PostMapping("/list/{cur}/{size}")
     public R list(@RequestHeader("system_api_Authorize_name") String name,
@@ -85,7 +91,7 @@ public class FileController {
                 entityPage = fileService.page(new Page<>(cur, size),
                         new QueryWrapper<FileEntity>().eq("Affiliation", name));
             }
-            ops.set("fileList/" + name + cur + size, GsonUtil.gson.toJson(entityPage));
+            ops.set("fileList/" + name + cur + size, GsonUtil.gson.toJson(entityPage), 1, TimeUnit.HOURS);
             return R.ok().put("data", entityPage);
         }
         //缓存命中
@@ -138,7 +144,7 @@ public class FileController {
     }
 
     /**
-     * 图片压缩 扣除用户1z币
+     * 图片压缩
      */
     @Transactional
     @PostMapping(value = "/compress")
@@ -167,6 +173,15 @@ public class FileController {
 
     /**
      * 图片加水印
+     * @param user 操作用户
+     * @param file 文件对象
+     * @param response 响应体
+     * @param location 水印位置
+     * @param text 水印文本
+     * @param r 三原色之一
+     * @param g 三原色之一
+     * @param b 三原色之一
+     * @param a 透明度 越小越透明
      */
     @Transactional
     @PostMapping(value = "/watermark")
@@ -198,22 +213,39 @@ public class FileController {
 
     }
 
-    //todo  这里可以加锁还可以对消费进行记录
+    /**
+     * 在操作用户的余额的时候 进行了分布式的事务控制 <br></br>
+     * 在需要操作用户的余额的时候 进行业务锁的操作 <br></br>
+     * 每个锁是根据用户的当前账号名称+deduct来命令的<br></br>
+     *
+     * @param name 用户名称
+     * @param z    金额
+     * @return 操作成功或者失败
+     */
     public boolean deduct(String name, double z) {
         UserEntity one = userService.getOne(new QueryWrapper<UserEntity>().eq("username", name));
         if (ObjectUtil.objectIsNotNull(one)) {
-            //拿一下当前用户的余额 如果不足以支付就false
+            //拿一下当前用户的余额 如果不足以支付就直接返回false就行
             if (one.getBalance() >= z) {
-                boolean update = userService.update(new UpdateWrapper<UserEntity>().eq("username", name).set("balance", one.getBalance() - z));
-                if (update) {
-                    EmailVoProperties emailVoProperties = new EmailVoProperties(one.getEmail(), EmailVoProperties.CONSUMPTION, z, one.getUsername(), BaseUtil.currentTime());
-                    rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+                RLock d_lock = redissonClient.getLock(name + DEDUCT_LOCK_NAME);
+                boolean update;
+                //这里加锁  这里应该锁的是当前用户的账户锁 其它锁不要动  业务执行应该是在10秒之内
+                d_lock.lock();//阻塞锁
+                try {
+                    update = userService.update(new UpdateWrapper<UserEntity>().eq("username", name).set("balance", one.getBalance() - z));
+                    if (update) {
+                        EmailVoProperties emailVoProperties = new EmailVoProperties(one.getEmail(), EmailVoProperties.CONSUMPTION, z, one.getUsername(), BaseUtil.currentTime());
+                        rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+                    }
+                } finally {
+                    //进行解锁操作
+                    d_lock.unlock();
                 }
                 return update;
-            }else {
+            } else {
                 //发送邮件提醒余额不足
                 EmailVoProperties emailVoProperties =
-                        new EmailVoProperties(EmailVoProperties.INSUFFICIENT_BALANCE,one.getEmail());
+                        new EmailVoProperties(EmailVoProperties.INSUFFICIENT_BALANCE, one.getEmail());
                 rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
             }
         }

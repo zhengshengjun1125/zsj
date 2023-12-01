@@ -1,4 +1,4 @@
-package com.zsj.system.controller;
+package com.zsj.system.controller.v1;
 
 
 import com.zsj.common.utils.R;

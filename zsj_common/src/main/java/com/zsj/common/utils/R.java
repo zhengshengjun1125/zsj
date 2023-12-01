@@ -35,6 +35,14 @@ public class R extends HashMap<String, Object> {
         return error(HttpStatus.SC_UNAUTHORIZED, "请先登录好吗？");
     }
 
+    public static R reject() {
+        return error(HttpStatus.SC_FORBIDDEN, "服务请求量过大,请稍后再试");
+    }
+
+    public static R reject(String msg) {
+        return error(HttpStatus.SC_FORBIDDEN, msg);
+    }
+
     public static R error(String msg) {
         return error(HttpStatus.SC_INTERNAL_SERVER_ERROR, msg);
     }

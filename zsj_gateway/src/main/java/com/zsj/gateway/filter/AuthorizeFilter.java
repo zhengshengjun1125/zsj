@@ -4,6 +4,8 @@ import com.alibaba.nacos.shaded.io.grpc.netty.shaded.io.netty.util.internal.Stri
 import com.zsj.common.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RSemaphore;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,18 @@ import java.util.UUID;
 @Component
 public class AuthorizeFilter implements GlobalFilter, Ordered {
 
+    private static final String SYSTEM_API_AUTHORIZE_NAME = "system_api_Authorize_name";
+
+    private static final String SYSTEM_API_AUTHORIZE = "system_api_Authorize";
 
     @Autowired
     @Lazy
     private RedisTemplate<String, String> redisTemplate;
+
+
+    @Autowired
+    @Lazy
+    private RedissonClient redissonClient;
 
 
     @Autowired
@@ -50,30 +60,32 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        RSemaphore semaphore = redissonClient.getSemaphore("GLOBAL_REQUEST_FLOW_RATE");
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
-        String path = request.getURI().getPath();
-        String ipAddress = IPUtil.getRealIpAddress(request);
-        MultiValueMap<String, String> queryParams = request.getQueryParams();
-        String params = GsonUtil.gson.toJson(queryParams);
-        String token_name = request.getHeaders().getFirst("system_api_Authorize_name");
-        String token = request.getHeaders().getFirst("system_api_Authorize");
-        String method = Objects.requireNonNull(request.getMethod()).toString();
-        LogEntity logEntity = new LogEntity();
-        logEntity.setIp(ipAddress);
-        logEntity.setCreateDate(new Date(System.currentTimeMillis()));
-        logEntity.setParams(params);
-        logEntity.setMethod(method);
-        if (!Objects.isNull(token_name)) logEntity.setUsername(token_name);
-        logEntity.setOperation(path);
-        //消息推送 此队列是点对点进行推送
-        rabbitTemplate.convertAndSend(GlobalValueToExchange.LOG_EXCHANGE,
-                "system.logs", logEntity, new CorrelationData(UUID.randomUUID().toString()));
-
-        //接口测试
-        return chain.filter(exchange);
-
-        //是否登录的鉴权
+        if (semaphore.tryAcquire(1)) {
+            try {
+                log.info("接收一个请求,线程id为{}", Thread.currentThread().getId());
+                String path = request.getURI().getPath();
+                String ipAddress = IPUtil.getRealIpAddress(request);
+                MultiValueMap<String, String> queryParams = request.getQueryParams();
+                String params = GsonUtil.gson.toJson(queryParams);
+                String token_name = request.getHeaders().getFirst(SYSTEM_API_AUTHORIZE_NAME);
+                String token = request.getHeaders().getFirst(SYSTEM_API_AUTHORIZE);
+                String method = Objects.requireNonNull(request.getMethod()).toString();
+                LogEntity logEntity = new LogEntity();
+                logEntity.setIp(ipAddress);
+                logEntity.setCreateDate(new Date(System.currentTimeMillis()));
+                logEntity.setParams(params);
+                logEntity.setMethod(method);
+                if (!Objects.isNull(token_name)) logEntity.setUsername(token_name);
+                logEntity.setOperation(path);
+                //消息推送 此队列是点对点进行推送
+                rabbitTemplate.convertAndSend(GlobalValueToExchange.LOG_EXCHANGE,
+                        "system.logs", logEntity, new CorrelationData(UUID.randomUUID().toString()));
+                //接口测试放行 生产注释
+                return chain.filter(exchange);
+                //是否登录的鉴权
 
 //        if (path.contains("login") || path.contains("captcha/get")
 //                || path.contains("user/pushEmailLoginCode")
@@ -104,6 +116,14 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
 //            return response.writeWith(Flux.just(getDataBuffer(response)));
 //        }
 //        return chain.filter(exchange);
+            } finally {
+                //业务执行完成之后释放信号量
+                semaphore.release(1);
+                log.info("释放一个请求,线程id为{}", Thread.currentThread().getId());
+            }
+        } else return response.writeWith(Flux.just(excessivePressure(response)));
+
+
     }
 
     @NotNull
@@ -114,6 +134,13 @@ public class AuthorizeFilter implements GlobalFilter, Ordered {
         return response.bufferFactory().wrap(rs.getBytes());
     }
 
+    @NotNull
+    private static DataBuffer excessivePressure(ServerHttpResponse response) {
+        //封装拒绝返回体
+        response.setStatusCode(HttpStatus.FORBIDDEN);
+        String rs = GsonUtil.gson.toJson(R.reject());
+        return response.bufferFactory().wrap(rs.getBytes());
+    }
 
     @Override
     public int getOrder() {

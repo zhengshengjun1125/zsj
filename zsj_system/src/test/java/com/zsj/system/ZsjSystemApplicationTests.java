@@ -12,6 +12,8 @@ import com.zsj.system.service.UserTokenService;
 import com.zsj.system.vo.UserVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Lazy;
@@ -34,6 +36,12 @@ class ZsjSystemApplicationTests {
     @Lazy
     private UserDao userDao;
 
+
+    @Autowired
+    @Lazy
+    RedissonClient redissonClient;
+
+
     @Test
     void contextLoads() {
         String md = Encrypt.encrypt_md5("123456");
@@ -51,8 +59,23 @@ class ZsjSystemApplicationTests {
         String s = HTMLFilter.htmlSpecialChars(md);
         HTMLFilter htmlFilter = new HTMLFilter();
         String filter = htmlFilter.filter(md);
-        log.info("filter s {}",s);
-        log.info("filter s2 {}",filter);
+        log.info("filter s {}", s);
+        log.info("filter s2 {}", filter);
+    }
+
+    @Test
+    void redissonTest() {
+        RLock lock = redissonClient.getLock("test");
+        lock.lock();
+        try {
+            log.info("加锁之后执行业务逻辑,业务Id" + Thread.currentThread().getId());
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            log.info("解锁操作");
+            lock.unlock();
+        }
 
     }
 }

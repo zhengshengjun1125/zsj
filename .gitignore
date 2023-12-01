@@ -9,13 +9,13 @@ buildNumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
-
+# 忽略提交文件
 #代码生成器
 renren-generator/
 #未生效的模块
-zsj_task/
-
-# 忽略提交文件
+#zsj_task/
+#sql文件
+sqlback/
 **/mvnw
 **/mvnw.cmd
 **/.mvn

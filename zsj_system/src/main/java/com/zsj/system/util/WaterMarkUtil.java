@@ -14,6 +14,9 @@ import java.io.InputStream;
  */
 public class WaterMarkUtil {
 
+    /**
+     * 字体默认大小
+     */
     public static Integer SIZE = 60;
 
     /**

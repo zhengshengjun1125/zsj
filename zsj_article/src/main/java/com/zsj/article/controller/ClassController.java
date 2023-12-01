@@ -1,6 +1,7 @@
 package com.zsj.article.controller;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -151,7 +152,7 @@ public class ClassController {
 
     private List<ClassVoForTreeForElement> getClassVoForTreeForElements(ValueOperations<String, String> ops) {
         List<ClassVoForTreeForElement> classVoForTreeForElements = classService.listTree4ELE();
-        ops.set("getAllClassForELE", GsonUtil.gson.toJson(classVoForTreeForElements));
+        ops.set("getAllClassForELE", GsonUtil.gson.toJson(classVoForTreeForElements),1, TimeUnit.HOURS);
         return classVoForTreeForElements;
     }
     private void extracted() {

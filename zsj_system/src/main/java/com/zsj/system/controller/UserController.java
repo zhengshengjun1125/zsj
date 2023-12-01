@@ -7,12 +7,14 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.zsj.common.utils.*;
 import com.zsj.common.vo.EmailVoProperties;
+import com.zsj.system.blockHandler.EmailLoginHandler;
 import com.zsj.system.entity.RoleEntity;
 import com.zsj.system.entity.UserTokenEntity;
 import com.zsj.system.service.RoleService;
@@ -84,7 +86,7 @@ public class UserController {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         //将所有信息缓存到redis中
         List<UserVo> userList = getUserList();
-        ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
+        ops.set("userList", GsonUtil.gson.toJson(userList),1,TimeUnit.HOURS);//缓存用户集合
     }
 
 
@@ -171,7 +173,7 @@ public class UserController {
             @Override
             public void run() {
                 List<UserVo> userList = getUserList();
-                ops.set("userList", GsonUtil.gson.toJson(userList));//缓存用户集合
+                ops.set("userList", GsonUtil.gson.toJson(userList),1, TimeUnit.HOURS);//缓存用户集合
             }
         }).start();
         //缓存用户信息 token为键  设置一天的过期时间
@@ -183,6 +185,12 @@ public class UserController {
      * 邮件验证码推送队列
      */
     @PostMapping("/pushEmailLoginCode")
+    @SentinelResource(value = "emailLogin",
+            blockHandler = "getEmailCodeBlockHandler",
+            blockHandlerClass = EmailLoginHandler.class,
+            fallback = "getEmailCodeErrorFallback",
+            fallbackClass = EmailLoginHandler.class
+    )
     public R pushEmailLoginCode(@RequestBody LoginBody body) {
         //接收人
         String email = body.getEmail();
@@ -251,7 +259,7 @@ public class UserController {
         } else {
             //说明缓存没查到 从db里去查
             List<UserVo> collect = getUserList();
-            ops.set("userList", GsonUtil.gson.toJson(collect));
+            ops.set("userList", GsonUtil.gson.toJson(collect),1,TimeUnit.HOURS);
             return R.ok("获取成功").put("data", collect);
         }
     }

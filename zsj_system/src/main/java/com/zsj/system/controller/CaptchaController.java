@@ -1,13 +1,14 @@
 package com.zsj.system.controller;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.wf.captcha.ArithmeticCaptcha;
+import com.zsj.system.blockHandler.CaptchaHandler;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -19,9 +20,6 @@ import com.zsj.system.entity.CaptchaEntity;
 import com.zsj.system.service.CaptchaService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.common.utils.R;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -39,28 +37,34 @@ public class CaptchaController {
 
     @Autowired
     @Lazy
-    RedisTemplate<String,String> redisTemplate;
+    RedisTemplate<String, String> redisTemplate;
 
 
     /**
-     * 获取验证码 算术验证码
-     *
-     * 思路
-     * 后端接收到请求 将图片以及uuid返回给前端
-     * 并且将uuid对应的结果值保存到redis中 设置过期时间为1分钟
+     * 获取验证码 算术验证码 <br/>
+     * 思路<br/>
+     * 后端接收到请求 将图片以及uuid返回给前端<br/>
+     * 并且将uuid对应的结果值保存到redis中 设置过期时间为1分钟<br/>
+     * qps设置为3<br/>
      */
     @GetMapping("/get")
-    public R getCaptcha() throws IOException {
-        ArithmeticCaptcha captcha = new ArithmeticCaptcha(120,40);
+    @SentinelResource(value = "getCaptchaResource",
+            blockHandler = "getCaptchaNoBlockHandler",
+            blockHandlerClass = CaptchaHandler.class,
+            fallback = "getCaptchaErrorFallback",
+            fallbackClass = CaptchaHandler.class)
+    public R getCaptcha() {
+        ArithmeticCaptcha captcha = new ArithmeticCaptcha(120, 40);
         captcha.setLen(3);
         String result = captcha.text();
         UUID uuid = UUID.randomUUID();
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        ops.set(uuid.toString(),result,60, TimeUnit.SECONDS);
+        ops.set(uuid.toString(), result, 60, TimeUnit.SECONDS);
         String base64 = captcha.toBase64();
-        captchaService.saveCaptcha(new CaptchaEntity(uuid.toString(),result,new Date(System.currentTimeMillis()+60000),base64));
-        return R.ok("获取验证码成功").put("captcha",base64).put("key_id",uuid.toString());
+        captchaService.saveCaptcha(new CaptchaEntity(uuid.toString(), result, new Date(System.currentTimeMillis() + 60000), base64));
+        return R.ok("获取验证码成功").put("captcha", base64).put("key_id", uuid.toString());
     }
+
 
     /**
      * @deprecated 此方法已经废弃
@@ -68,10 +72,10 @@ public class CaptchaController {
      */
     @Deprecated
     @GetMapping("/check")
-    public R checkCaptcha(@Param("key")String key,@Param("code")String code){
+    public R checkCaptcha(@Param("key") String key, @Param("code") String code) {
         ValueOperations<String, String> op = redisTemplate.opsForValue();
-        if (op.get(key) !=null){
-            if (code.equals(op.get(key))){
+        if (op.get(key) != null) {
+            if (code.equals(op.get(key))) {
                 redisTemplate.delete(key);//删除对应key
                 return R.ok("验证成功");
             }
@@ -84,7 +88,7 @@ public class CaptchaController {
      * 列表
      */
     @RequestMapping("/list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = captchaService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -95,8 +99,8 @@ public class CaptchaController {
      * 信息
      */
     @RequestMapping("/info/{uuid}")
-    public R info(@PathVariable("uuid") String uuid){
-		CaptchaEntity captcha = captchaService.getById(uuid);
+    public R info(@PathVariable("uuid") String uuid) {
+        CaptchaEntity captcha = captchaService.getById(uuid);
 
         return R.ok().put("captcha", captcha);
     }
@@ -105,8 +109,8 @@ public class CaptchaController {
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody CaptchaEntity captcha){
-		captchaService.save(captcha);
+    public R save(@RequestBody CaptchaEntity captcha) {
+        captchaService.save(captcha);
 
         return R.ok();
     }
@@ -115,8 +119,8 @@ public class CaptchaController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody CaptchaEntity captcha){
-		captchaService.updateById(captcha);
+    public R update(@RequestBody CaptchaEntity captcha) {
+        captchaService.updateById(captcha);
 
         return R.ok();
     }
@@ -125,8 +129,8 @@ public class CaptchaController {
      * 删除
      */
     @RequestMapping("/delete")
-    public R delete(@RequestBody String[] uuids){
-		captchaService.removeByIds(Arrays.asList(uuids));
+    public R delete(@RequestBody String[] uuids) {
+        captchaService.removeByIds(Arrays.asList(uuids));
 
         return R.ok();
     }

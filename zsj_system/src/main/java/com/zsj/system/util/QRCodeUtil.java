@@ -95,7 +95,7 @@ public class QRCodeUtil {
             g.dispose();
             src = image;
         }
-        // 插入LOGO
+        // 插入LOGO 正中间
         Graphics2D graph = source.createGraphics();
         int x = (QRCODE_WIDTH - width) / 2;
         int y = (QRCODE_HEIGHT - height) / 2;
@@ -171,9 +171,6 @@ public class QRCodeUtil {
         result = new MultiFormatReader().decode(bitmap, hints);
         return result.getText();
     }
-
-
-
 
 
 }

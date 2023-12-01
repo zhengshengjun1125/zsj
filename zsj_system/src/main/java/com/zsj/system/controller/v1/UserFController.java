@@ -1,7 +1,8 @@
-package com.zsj.system.controller;
+package com.zsj.system.controller.v1;
 
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.reflect.TypeToken;
@@ -62,7 +63,7 @@ public class UserFController {
                 if (data.size() != 0) {
                     //缓存
                     String key = name + "friendsList";
-                    ops.set(key, GsonUtil.gson.toJson(data));
+                    ops.set(key, GsonUtil.gson.toJson(data),1, TimeUnit.HOURS);
                 }
                 return R.ok().put("data", data);
             }
