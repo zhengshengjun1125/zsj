@@ -2,29 +2,43 @@ package com.zsj.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rabbitmq.client.Channel;
+import com.zsj.common.utils.*;
+import com.zsj.common.vo.BalanceVoProperties;
+import com.zsj.common.vo.EmailVoProperties;
+import com.zsj.system.controller.FileController;
 import com.zsj.system.entity.RoleEntity;
 import com.zsj.system.service.RoleService;
 import com.zsj.system.vo.UserVo;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zsj.common.utils.PageUtils;
-import com.zsj.common.utils.Query;
 
 import com.zsj.system.dao.UserDao;
 import com.zsj.system.entity.UserEntity;
 import com.zsj.system.service.UserService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("userService")
+@RabbitListener(queues = {GlobalValueToExchange.DEDUCT_QUEUE})
 public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements UserService {
 
     @Autowired
@@ -36,6 +50,16 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
     @Lazy
     private RoleService roleService;
 
+
+    @Autowired
+    @Lazy
+    private RedissonClient redissonClient;
+
+    @Autowired
+    @Lazy
+    private RabbitTemplate rabbitTemplate;
+
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<UserEntity> page = this.page(
@@ -44,6 +68,37 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
         );
 
         return new PageUtils(page);
+    }
+
+    @RabbitHandler
+    @Transactional
+    public void deduct(Message message, BalanceVoProperties properties, Channel channel) throws IOException {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        //到这里再检验一次余额度是否足够
+        UserEntity entity = userDao.selectOne(new QueryWrapper<UserEntity>().eq("username", properties.getUser()));
+        if (ObjectUtil.objectIsNull(entity)) return;
+        if (entity.getBalance() < properties.getDeduct()) {
+            //发送邮件提醒余额不足
+            EmailVoProperties emailVoProperties =
+                    new EmailVoProperties(EmailVoProperties.INSUFFICIENT_BALANCE, entity.getEmail());
+            rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE,
+                    emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+            return;
+        }
+        RLock lock = redissonClient.getLock(properties.getUser() + FileController.DEDUCT_LOCK_NAME);
+        lock.lock();//阻塞锁
+        try {
+            boolean update = this.update(new UpdateWrapper<UserEntity>()
+                    .eq("username", properties.getUser())
+                    .set("balance", entity.getBalance() - properties.getDeduct()));
+            if (update) {
+                EmailVoProperties emailVoProperties = new EmailVoProperties(entity.getEmail(), EmailVoProperties.CONSUMPTION, properties.getDeduct(), entity.getUsername(), BaseUtil.currentTime());
+                rabbitTemplate.convertAndSend(GlobalValueToExchange.EMAIL_EXCHANGE, GlobalValueToExchange.EMAIL_QUEUE, emailVoProperties, new CorrelationData(UUID.randomUUID().toString()));
+            }
+        } finally {
+            channel.basicAck(deliveryTag,false);
+            lock.unlock();
+        }
     }
 
     @Override
@@ -82,7 +137,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
         return pageUtils;
     }
 
-    //todo 修改用户手机号会报错
     @Override
     public String updateUserInfoById(UserVo vo, String name) {
         Long id = vo.getId();

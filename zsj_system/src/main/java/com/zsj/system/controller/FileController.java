@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("system/file")
 @Slf4j
 public class FileController {
-    private static final String DEDUCT_LOCK_NAME = "DEDUCT-CUT-LOCK";
+    public static final String DEDUCT_LOCK_NAME = "DEDUCT-CUT-LOCK";
 
     @Autowired
     private FileService fileService;
@@ -155,6 +155,7 @@ public class FileController {
             QRCodeUtil.encode("http://localhost:88/api/system/file/qrcode/check?key=" + key + "&user=" + user, QRCodeUtil.DEFAULT_LOGO_URL, response, filename + ".jpg", true);
             //生成了二维码之后
             stringRedisTemplate.opsForValue().set(key, key + filename, 1, TimeUnit.MINUTES);
+            reloadUserInfoByToken(stringRedisTemplate.opsForValue().get(user));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -170,13 +171,14 @@ public class FileController {
                              HttpServletResponse response) {
         boolean deduct = deduct(user, (double) file.getSize() / 1024);
         if (deduct) {
+            reloadUserInfoByToken(stringRedisTemplate.opsForValue().get(user));
             try {
                 response.setContentType(MediaType.IMAGE_JPEG_VALUE);
                 response.setCharacterEncoding("utf-8");
                 String filename = URLEncoder.encode("加工图片", "UTF-8").replaceAll(" ", "%20");
                 response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + filename + ".jpg");
                 byte[] bytes = file.getBytes();
-                log.info("force{}", bytes.length);
+//                log.info("force{}", bytes.length);
                 Thumbnails.of(new ByteArrayInputStream(bytes))
                         .scale(1f) //图片大小（长宽）压缩比例 从0-1，1表示原图
                         .outputQuality(0.7f) //图片质量压缩比例 从0-1，越接近1质量越好
@@ -214,6 +216,7 @@ public class FileController {
                               @NotNull @RequestParam("a") Double a) {
         boolean deduct = deduct(user, (double) file.getSize() / 1024);
         if (deduct) {
+            reloadUserInfoByToken(stringRedisTemplate.opsForValue().get(user));
             //进行判断
             if (location.equals("")) location = Location.MID;
             if (text.equals("")) text = "ZSJ_BLOG";
@@ -285,4 +288,7 @@ public class FileController {
                 && ObjectUtil.isNullOrEmpty(entity.getFileSuffix()));
     }
 
+    private void reloadUserInfoByToken(String token){
+        stringRedisTemplate.delete(token);
+    }
 }

@@ -1,6 +1,5 @@
 package com.zsj.sms.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -15,42 +14,47 @@ import lombok.Data;
  * 
  * @author zsj
  * @email zsjemail666@163.com
- * @date 2023-11-17 15:37:42
+ * @date 2023-12-02 14:52:48
  */
 @Data
-@TableName("sms_email")
-public class EmailEntity implements Serializable {
+@TableName("sms_props")
+public class PropsEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 邮件id
+	 * uuid
 	 */
-	@TableId(type = IdType.ASSIGN_ID)
+	@TableId
 	private String id;
 	/**
-	 * 发送人
+	 * 邮件服务器
 	 */
-	private String sender;
+	private String host;
 	/**
-	 * 接收人
+	 * 邮箱账号
 	 */
-	private String recipient;
+	private String username;
 	/**
-	 * 是否为系统消息
+	 * 邮箱认证码
 	 */
-	private Integer isSystem;
+	private String smtp;
 	/**
-	 * 邮件内容
+	 * 所属用户
 	 */
-	private String content;
+	private String belongUser;
 	/**
-	 * 邮件标题
-	 */
-	private String title;
-	/**
-	 * 邮件创建时间
+	 * 创建时间
 	 */
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date createTime;
+	/**
+	 * 修改时间
+	 */
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private Date updateTime;
+	/**
+	 * 乐观锁
+	 */
+	private Long version;
 
 }

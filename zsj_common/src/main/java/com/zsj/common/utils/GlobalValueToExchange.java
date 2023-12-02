@@ -13,6 +13,9 @@ public class GlobalValueToExchange {
     public static final String EMAIL_EXCHANGE = "ex.sms.email";
     public static final String EMAIL_QUEUE = "sms.email";
 
+    //扣款队列和交换机
+    public static final String DEDUCT_EXCHANGE = "ex.system.deduct";
+    public static final String DEDUCT_QUEUE = "system.deduct";
 
 
 }

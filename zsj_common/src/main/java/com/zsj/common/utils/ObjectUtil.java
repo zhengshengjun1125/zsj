@@ -14,6 +14,10 @@ public class ObjectUtil {
         else return s.equals("");
     }
 
+    public static boolean isNotNullOrEmpty(String s) {
+        return !isNullOrEmpty(s);
+    }
+
     public static boolean objectIsNotNull(Object o) {
         return o != null;
     }
@@ -21,8 +25,6 @@ public class ObjectUtil {
     public static boolean objectIsNull(Object o) {
         return o == null;
     }
-
-
 
 
 }

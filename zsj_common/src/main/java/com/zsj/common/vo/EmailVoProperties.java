@@ -56,6 +56,8 @@ public class EmailVoProperties implements Serializable {
     //发生时间
     private String time;
 
+    private String content;
+
 
     //单参数构造  默认系统信息
     public EmailVoProperties(String to) {
@@ -69,7 +71,7 @@ public class EmailVoProperties implements Serializable {
         if (type.equals(EmailVoProperties.CONSUMPTION)) {//消费事件
             this.type = EmailVoProperties.CONSUMPTION;
             this.consumption = price;
-        } else if (type.equals(EmailVoProperties.RECHARGE)){//充值事件
+        } else if (type.equals(EmailVoProperties.RECHARGE)) {//充值事件
             this.type = EmailVoProperties.RECHARGE;
             this.recharge = price;
         }
@@ -83,6 +85,13 @@ public class EmailVoProperties implements Serializable {
         this.type = type;
         this.to = to;
         this.IS_SYSTEM_MESSAGE = true;
+    }
+
+    public EmailVoProperties(String type, String to, String content,boolean system) {
+        this.type = type;
+        this.to = to;
+        this.IS_SYSTEM_MESSAGE = system;
+        this.content = content;
     }
 
     public EmailVoProperties(String to, String username, String roleName) {

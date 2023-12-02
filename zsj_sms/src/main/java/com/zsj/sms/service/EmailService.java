@@ -1,9 +1,12 @@
 package com.zsj.sms.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.sms.entity.EmailEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,5 +22,6 @@ public interface EmailService extends IService<EmailEntity> {
 
 
 
+    IPage<EmailEntity> pageByCondition(int cur, int size, EmailEntity entity);
 }
 

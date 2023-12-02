@@ -36,10 +36,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import com.zsj.system.entity.UserEntity;
 import com.zsj.system.service.UserService;
-
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -86,7 +84,7 @@ public class UserController {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         //将所有信息缓存到redis中
         List<UserVo> userList = getUserList();
-        ops.set("userList", GsonUtil.gson.toJson(userList),1,TimeUnit.HOURS);//缓存用户集合
+        ops.set("userList", GsonUtil.gson.toJson(userList), 1, TimeUnit.HOURS);//缓存用户集合
     }
 
 
@@ -100,7 +98,6 @@ public class UserController {
         if (ops.get(key) != null) {
             //回答错了
             if (code.equals(ops.get(key))) {
-                redisTemplate.delete(key);//删除对应key
                 String username = user.getUsername();
                 QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
                 queryWrapper.eq("username", username);
@@ -111,6 +108,7 @@ public class UserController {
                         //说明查到了
                         if (Encrypt.encrypt_hash512(user.getPassword()).equals(entity.getPassword())) {
                             //说明密码正确
+                            redisTemplate.delete(key);//删除对应key
                             String token = initToken(ops, entity);
                             return R.ok("恭喜你登录成功！").put("data", new Token(token));
                         } else return R.error("不对哦~ 对哦~ 哦~");
@@ -173,7 +171,7 @@ public class UserController {
             @Override
             public void run() {
                 List<UserVo> userList = getUserList();
-                ops.set("userList", GsonUtil.gson.toJson(userList),1, TimeUnit.HOURS);//缓存用户集合
+                ops.set("userList", GsonUtil.gson.toJson(userList), 1, TimeUnit.HOURS);//缓存用户集合
             }
         }).start();
         //缓存用户信息 token为键  设置一天的过期时间
@@ -259,7 +257,7 @@ public class UserController {
         } else {
             //说明缓存没查到 从db里去查
             List<UserVo> collect = getUserList();
-            ops.set("userList", GsonUtil.gson.toJson(collect),1,TimeUnit.HOURS);
+            ops.set("userList", GsonUtil.gson.toJson(collect), 1, TimeUnit.HOURS);
             return R.ok("获取成功").put("data", collect);
         }
     }
@@ -462,4 +460,16 @@ public class UserController {
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
     }
 
+
+    @PostMapping("/getBalance")
+    public R getBalance(@NotNull @RequestBody UserEntity entity) {
+        String username = entity.getUsername();
+        QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<UserEntity> wrapper = queryWrapper.eq("username", username);
+        UserEntity one = userService.getOne(wrapper);
+        if (ObjectUtil.objectIsNotNull(one)) {
+            return R.ok().put("data", one.getBalance());
+        }
+        return R.error("用户不存在");
+    }
 }

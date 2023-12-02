@@ -1,8 +1,8 @@
 package com.zsj.sms.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rabbitmq.client.Channel;
-import com.zsj.common.utils.Encrypt;
-import com.zsj.common.utils.GlobalValueToExchange;
+import com.zsj.common.utils.*;
 import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.sms.util.EmailContentUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zsj.common.utils.PageUtils;
-import com.zsj.common.utils.Query;
 
 import com.zsj.sms.dao.EmailDao;
 import com.zsj.sms.entity.EmailEntity;
@@ -40,6 +39,10 @@ import javax.mail.internet.MimeMessage;
 @RabbitListener(queues = {GlobalValueToExchange.EMAIL_QUEUE})
 @Slf4j
 public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> implements EmailService {
+
+
+    @Autowired
+    private EmailDao emailDao;
 
 
     @Autowired
@@ -187,6 +190,26 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
                 this.save(entity);
             }
         }
+        //普通活动邮件
+        if (emailVoProperties.getType().equals(EmailVoProperties.ACTIVITY)) {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            EmailEntity entity = new EmailEntity();
+            try {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                helper.setFrom(sender);
+                String to = emailVoProperties.getTo();
+                helper.setTo(to);
+                String title = "ZSJ_BlOG系统推送";
+                helper.setSubject(title);
+                String content = emailVoProperties.getContent();
+                send(emailVoProperties, channel, deliveryTag, mimeMessage, entity, helper, to, title, content);
+            } catch (MessagingException e) {
+                channel.basicReject(deliveryTag, true);
+                throw new RuntimeException(e);
+            } finally {
+                this.save(entity);
+            }
+        }
     }
 
     private void send(EmailVoProperties emailVoProperties, Channel channel, long deliveryTag, MimeMessage mimeMessage, EmailEntity entity, MimeMessageHelper helper, String to, String title, String emailContent) throws MessagingException, IOException {
@@ -210,6 +233,30 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public IPage<EmailEntity> pageByCondition(int cur, int size, EmailEntity entity) {
+        Page<EmailEntity> page = new Page<>(cur, size);
+        QueryWrapper<EmailEntity> queryWrapper = new QueryWrapper<>();
+        String base = entity.getSender();
+        String title = entity.getTitle();
+        String recipient = entity.getRecipient();
+        Integer isSystem = entity.getIsSystem();
+        if (ObjectUtil.isNotNullOrEmpty(base)) {
+            queryWrapper.like("sender", base);
+        }
+        if (ObjectUtil.isNotNullOrEmpty(title)) {
+            queryWrapper.like("title", title);
+        }
+        if (ObjectUtil.isNotNullOrEmpty(recipient)) {
+            queryWrapper.like("recipient", recipient);
+        }
+        if (ObjectUtil.objectIsNotNull(isSystem)) {
+            queryWrapper.eq("is_system", isSystem);
+        }
+        Page<EmailEntity> pages = emailDao.selectPage(page, queryWrapper);
+        return pages;
     }
 
 }
