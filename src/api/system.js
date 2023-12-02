@@ -167,3 +167,36 @@ export const getMusicList = data => {
     data,
   })
 }
+
+//获取邮件列表
+export const getEmailList = (cur, size, data) => {
+  return request({
+    url: '/api/sms/email/list/' + cur + '/' + size,
+    method: 'post',
+    data,
+  })
+}
+
+//应用配置信息
+export const initEmailProperties = data => {
+  return request({
+    url: '/api/sms/props/disposition',
+    method: 'post',
+    data,
+  })
+}
+//获取自己的配置
+export const getEmailProperties = () => {
+  return request({
+    url: '/api/sms/props/self',
+    method: 'get',
+  })
+}
+//发送邮件
+export const sendEmail = data => {
+  return request({
+    url: '/api/sms/email/sendEmail',
+    method: 'post',
+    data,
+  })
+}

@@ -21,6 +21,7 @@ export const useTags = defineStore('tags', {
     saveActivePosition(index) {
       this.activePosition = index
     },
+    //添加面包屑的方法
     addTag({ path, fullPath, name, meta, params, query }) {
       if (this.tagList.some(v => v.path === path)) return false
       // 添加tagList
@@ -44,6 +45,7 @@ export const useTags = defineStore('tags', {
       // 保存到localStorage
       setItem(TAGLIST, this.tagList)
 
+      console.log(name)
       // 添加cacheList
       if (this.cacheList.includes(name)) return
       if (!meta.noCache) {

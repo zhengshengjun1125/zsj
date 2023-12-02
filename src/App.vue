@@ -24,7 +24,6 @@
  * @version: 1.1
  * @LastEditors:  zsj
  * @Author:   zsj
-
  -->
 <template>
   <el-config-provider :locale="locales[lang]">

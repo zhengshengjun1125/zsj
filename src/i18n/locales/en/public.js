@@ -38,4 +38,7 @@ export default {
   songname: 'SongName',
   musicer: 'UpLink',
   oper: 'Controls',
+  preview: 'Preview',
+  createTime: 'CreateTime',
+  close: 'close',
 }

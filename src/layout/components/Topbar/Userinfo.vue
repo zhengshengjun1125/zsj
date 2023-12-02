@@ -220,6 +220,9 @@ export default defineComponent({
         localStorage.removeItem('username') //删除用户账号名称
         localStorage.removeItem('VEA-TOKEN') //清楚token
         localStorage.removeItem('cur_user_id') //删除用户账号名称
+        localStorage.removeItem('email_host') //删除用户账号名称
+        localStorage.removeItem('email_username') //删除用户账号名称
+        localStorage.removeItem('email_smtp') //删除用户账号名称
         useApp().clearToken()
         router.push('/login')
       } else {

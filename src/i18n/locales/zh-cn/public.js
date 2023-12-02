@@ -38,4 +38,7 @@ export default {
   songname: '歌曲名称',
   musicer: '上传人',
   oper: '操作',
+  preview: '预览',
+  createTime: '创建时间',
+  close: '关闭',
 }

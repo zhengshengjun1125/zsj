@@ -12,6 +12,9 @@ const upFile = () => import('@/views/fun/upFile.vue')
 const sysFile = () => import('@/views/system/file.vue')
 const imageUtil = () => import('@/views/fun/imageUtil.vue')
 const song = () => import('@/views/fun/song.vue')
+const emailList = () => import('@/views/sms/emailList.vue')
+const sendEmail = () => import('@/views/sms/sendEmail.vue')
+const setting = () => import('@/views/setting/index.vue')
 // 导出该组件
 export default [
   {
@@ -29,6 +32,7 @@ export default [
         component: sysRole,
         meta: {
           title: 'menu.rolem',
+          noCache: true,
         },
         hidden: false,
       },
@@ -38,6 +42,7 @@ export default [
         component: sysUser,
         meta: {
           title: 'menu.userm',
+          noCache: false,
         },
         hidden: false,
       },
@@ -86,7 +91,7 @@ export default [
         component: article,
         meta: {
           title: 'menu.articlem',
-          keepAlive: true,
+          noCache: false,
         },
         hidden: false,
       },
@@ -157,6 +162,55 @@ export default [
           title: 'menu.song',
         },
         hidden: false,
+      },
+    ],
+  },
+  {
+    path: '/sms',
+    component: Layout,
+    name: 'sms',
+    meta: {
+      title: 'menu.sms',
+    },
+    icon: 'Document',
+    children: [
+      {
+        path: '/emailList',
+        name: 'emailList',
+        component: emailList,
+        meta: {
+          title: 'menu.emailList',
+          noCache: false,
+        },
+      },
+      {
+        path: '/sendEmail',
+        name: 'sendEmail',
+        component: sendEmail,
+        meta: {
+          title: 'menu.sendEmail',
+          noCache: false,
+        },
+      },
+    ],
+  },
+  {
+    path: '/setting',
+    component: Layout,
+    name: 'setting',
+    meta: {
+      title: 'menu.setting',
+    },
+    icon: 'Setting',
+    children: [
+      {
+        path: '/properties',
+        name: 'properties',
+        component: setting,
+        meta: {
+          title: 'menu.setting',
+          noCache: false,
+        },
       },
     ],
   },

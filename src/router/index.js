@@ -56,6 +56,7 @@ const router = createRouter({
     ...login,
     ...lock,
     ...fixedRoutes,
+    ...asyncRoutes,
     ...error,
   ],
   scrollBehavior(to, from, savedPosition) {

@@ -86,7 +86,7 @@
   </div>
 </template>
 <script setup>
-import { gettenLogList } from '@/api/system'
+import { gettenLogList, getEmailProperties } from '@/api/system'
 import { async } from '@kangc/v-md-editor'
 import { onMounted, ref, getCurrentInstance } from 'vue'
 import { useAccount } from '@/pinia/modules/account'
@@ -130,6 +130,7 @@ const getTime = () => {
   time.value = new Date().toLocaleString()
 }
 onMounted(() => {
+  initEmailProperties()
   time.value = new Date().toLocaleString()
   const { userinfo } = useAccount()
   // console.log(userinfo)
@@ -141,7 +142,16 @@ onMounted(() => {
     sayHello.value = false
   }, 3000)
 })
-
+const initEmailProperties = async () => {
+  const { data, msg, code } = await getEmailProperties()
+  if (code == 200) {
+    localStorage.setItem('email_host', data.host)
+    localStorage.setItem('email_username', data.username)
+    localStorage.setItem('email_smtp', data.smtp)
+  } else {
+    ElMessage.warning(msg)
+  }
+}
 const jump = e => {
   if (e.search('gitee') != -1) {
     window.open('https://gitee.com/zhengshengjun/zsj')

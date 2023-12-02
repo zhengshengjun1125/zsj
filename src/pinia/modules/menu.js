@@ -1,12 +1,3 @@
-/*
- * @Descripttion:
- * @version:
- *
- * @LastEditors:  zsj
- * 
- * @Author:   zsj
-
- */
 import { defineStore } from 'pinia'
 import { fixedRoutes, asyncRoutes } from '@/router'
 import { GetMenus } from '@/api/menu'
@@ -76,8 +67,10 @@ export const useMenus = defineStore('menu', () => {
 
   const generateMenus = async () => {
     const { code, data } = await GetMenus()
-    console.log(data)
-
+    // console.log("后端获取的菜单")
+    // console.log(data);
+    // console.log("未初始化之前的路由对象");
+    // console.log(router);
     if (+code === 200) {
       // 添加路由之前先删除所有动态路由
       asyncRoutes.forEach(item => {
