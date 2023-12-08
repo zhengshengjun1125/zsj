@@ -10,6 +10,19 @@
         <result property="expireTime" column="expire_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.zsj.system.entity.UserEntity" id="userMap">
+        <result property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="mobile" column="mobile"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="creatUserId" column="creat_user_id"/>
+    </resultMap>
+
     <!--int saveToken(UserTokenEntity entity);-->
     <insert id="saveToken">
         insert into sys_user_token(user_id, token, expire_time, update_time)
@@ -19,10 +32,18 @@
     <!--int updateToken(UserTokenEntity entity);-->
     <update id="updateToken">
         update sys_user_token
-        set token =#{entity.token},
+        set token       =#{entity.token},
             expire_time = #{entity.expireTime},
             update_time = #{entity.updateTime}
         where user_id = #{entity.userId}
     </update>
+
+    <select id="getUserByToken" resultType="com.zsj.system.entity.UserEntity">
+        SELECT u.*
+        from sys_user_token as t
+                 INNER JOIN sys_user as u
+                            ON u.id = t.user_id
+        where t.token = #{token};
+    </select>
 
 </mapper>

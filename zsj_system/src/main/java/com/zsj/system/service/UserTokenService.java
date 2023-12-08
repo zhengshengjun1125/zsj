@@ -2,6 +2,7 @@ package com.zsj.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zsj.common.utils.PageUtils;
+import com.zsj.system.entity.UserEntity;
 import com.zsj.system.entity.UserTokenEntity;
 
 import java.util.Map;
@@ -18,5 +19,7 @@ public interface UserTokenService extends IService<UserTokenEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     boolean saveOrUpdateToken(UserTokenEntity entity);
+
+    UserEntity getUserBytoken(String token);
 }
 

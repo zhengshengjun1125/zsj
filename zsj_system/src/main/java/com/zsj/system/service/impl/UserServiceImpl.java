@@ -106,6 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
         Page<UserEntity> page = new Page<>(cur, size);
         QueryWrapper<UserEntity> queryWrapper = new QueryWrapper<>();
         //模拟sql的写法
+        //select * from sys_user where username =''
         if (user.getUsername() != null) {
             queryWrapper.like("username", user.getUsername());
         }
@@ -168,7 +169,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
             RoleEntity bcz_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", bcz_role_id));
             RoleEntity cz_role = roleService.getOne(new QueryWrapper<RoleEntity>().eq("id", cz_role_id));
             if (!name.equals("zsj")) {
-                if (cz_role.getLevel() >= bcz_role.getLevel()) {
+                if (cz_role.getLevel() > bcz_role.getLevel()) {
                     return "越权操作!";
                 }
                 if (vo.getUsername().equals("zsj")) {

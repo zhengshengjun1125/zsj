@@ -7,4 +7,7 @@ package com.zsj.common.utils;
 public class SystemMessage {
     public static String WARING_DANGER_OPERATION_CN = "警告!非法操作!";
     public static String WARING_DANGER_OPERATION_EN = "Warning! Illegal operation!";
+
+    public static final String SYSTEM_SIGN_CODE = "AHAHEGASSEMMETSYSGOLBJSZ";
+
 }

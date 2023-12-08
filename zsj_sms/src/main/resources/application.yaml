@@ -16,13 +16,13 @@ spring:
       #配置中心
       config:
         enabled: true
-        server-addr: 127.0.0.1:8848
+        server-addr: 47.108.177.31:8848
         #        server-addr: 47.108.177.31:8848
         namespace:  f50a7388-6c17-418b-b2c0-8dff4705dd60
         file-extension: yaml
         #服务发现
         group: ${spring.profiles.active}
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 47.108.177.31:8848
         namespace:  f50a7388-6c17-418b-b2c0-8dff4705dd60
         group: ${spring.profiles.active}

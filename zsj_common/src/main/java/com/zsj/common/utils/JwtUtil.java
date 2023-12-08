@@ -40,7 +40,7 @@ public class JwtUtil {
                 .withClaim("userId", 20)//payload
                 .withClaim("username", username)
                 .withExpiresAt(expire) //指定令牌过期时间
-                .sign(Algorithm.HMAC256("fdahuifeuw78921"));
+                .sign(Algorithm.HMAC256(SystemMessage.SYSTEM_SIGN_CODE));
     }
 
 }

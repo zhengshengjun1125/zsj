@@ -28,6 +28,7 @@ import java.util.List;
 class ZsjSystemApplicationTests {
 
 
+
     @Autowired
     @Lazy
     private UserTokenDao userTokenDao;
@@ -76,6 +77,12 @@ class ZsjSystemApplicationTests {
             log.info("解锁操作");
             lock.unlock();
         }
+    }
 
+    @Test
+    void token(){
+        UserEntity userByToken = userTokenDao
+                .getUserByToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6ImVmZDQ2Njk1MmNhMjRlYzk4N2NjMjRmZDc4NmU2YjU2IiwiYWNjb3VudCI6InpzaiJ9.T7-eC6-is-PZGdatePTIHL-JNCp-_PsdE7uZbYhu9nA");;
+        log.info("user{}",userByToken);
     }
 }

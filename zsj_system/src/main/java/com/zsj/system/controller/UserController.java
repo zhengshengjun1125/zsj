@@ -108,7 +108,7 @@ public class UserController {
                         //说明查到了
                         if (Encrypt.encrypt_hash512(user.getPassword()).equals(entity.getPassword())) {
                             //说明密码正确
-                            redisTemplate.delete(key);//删除对应key
+                            redisTemplate.delete(key);//删除对应验证码key
                             String token = initToken(ops, entity);
                             return R.ok("恭喜你登录成功！").put("data", new Token(token));
                         } else return R.error("不对哦~ 对哦~ 哦~");
@@ -211,8 +211,9 @@ public class UserController {
     public R logout(@RequestHeader("system_api_Authorize") String token,
                     @RequestHeader("system_api_Authorize_name") String name) {
         userService.setLoginStatus(name, false);
-        return R.ok(Boolean.TRUE.equals(redisTemplate.delete(token))
-                && Boolean.TRUE.equals(redisTemplate.delete(name)) ? "退出登录成功" : "退出登录失败");
+        redisTemplate.delete(token);
+        redisTemplate.delete(name);
+        return R.ok("退出登录成功");
     }
 
 
@@ -423,6 +424,9 @@ public class UserController {
 
 
     List<UserVo> getUserList() {
+        //数据类型 变量名称 = we
+
+        //select * from sys_user where status =1
         List<UserEntity> list = userService.list(new QueryWrapper<UserEntity>().eq("status", 1));
         return list.stream().map(user ->
         {

@@ -243,6 +243,10 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
         String title = entity.getTitle();
         String recipient = entity.getRecipient();
         Integer isSystem = entity.getIsSystem();
+        String id = entity.getId();
+        if (ObjectUtil.isNotNullOrEmpty(id)) {
+            queryWrapper.eq("id", id);
+        }
         if (ObjectUtil.isNotNullOrEmpty(base)) {
             queryWrapper.like("sender", base);
         }
@@ -255,8 +259,9 @@ public class EmailServiceImpl extends ServiceImpl<EmailDao, EmailEntity> impleme
         if (ObjectUtil.objectIsNotNull(isSystem)) {
             queryWrapper.eq("is_system", isSystem);
         }
-        Page<EmailEntity> pages = emailDao.selectPage(page, queryWrapper);
-        return pages;
+        queryWrapper.eq("deleted", 0);//未被删除的邮件
+        queryWrapper.orderByDesc("create_time");
+        return emailDao.selectPage(page, queryWrapper);
     }
 
 }

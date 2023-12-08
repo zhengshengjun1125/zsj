@@ -15,8 +15,6 @@ import com.zsj.system.service.RoleService;
 import com.zsj.common.utils.PageUtils;
 import com.zsj.common.utils.R;
 
-import javax.management.relation.Role;
-
 
 /**
  * @author zsj

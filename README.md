@@ -3,7 +3,8 @@
 ### 开发者
 
 @[朱远](https://gitee.com/zhu-yuanthorn11z/)<br/>
-@[郑声军](https://gitee.com/zhengshengjun/)
+@[郑声军](https://gitee.com/zhengshengjun/)<br/>
+@[冉涛](https://gitee.com/rantao/)
 <div>
 <h1 style="font-family: fantasy;color: cyan"> ZSJBLOG</h1>
 </div>
@@ -83,7 +84,8 @@
 5、数据库使用集群方式，读写分离,主从方式部署<br/>
 6、封装一些好玩的三方接口以供小伙伴们来访问<br/>
     文生图/图生图(stable-diffusion)<br/>
-    图片加入水印<br/>
+    ~~图片加入水印~~<br/>
+    ~~音乐播放器~~<br/>
     .............<br/>
 7、~~引入一些危险的余额积分操作,数据库的事务操作,或者更高级别的重锁来进行业务的开发<br/>~~
 8、使用Jenkins进行cicd部署,提高开发效率    <br/>

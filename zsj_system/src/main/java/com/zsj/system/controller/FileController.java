@@ -12,6 +12,7 @@ import com.zsj.system.entity.UserEntity;
 import com.zsj.system.param.Location;
 import com.zsj.system.request.MusicRequestBody;
 import com.zsj.system.service.UserService;
+import com.zsj.system.service.UserTokenService;
 import com.zsj.system.util.QRCodeUtil;
 import com.zsj.system.util.WaterMarkUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -68,6 +70,10 @@ public class FileController {
 
     @Autowired
     private RedissonClient redissonClient;
+
+    @Autowired
+    @Lazy
+    private UserTokenService userTokenService;
 
     @PostMapping("/list/{cur}/{size}")
     public R list(@RequestHeader("system_api_Authorize_name") String name,
@@ -133,13 +139,16 @@ public class FileController {
             }
             //删除redis中的key
             stringRedisTemplate.delete(key);
-            String token = stringRedisTemplate.opsForValue().get(user);
-            //这里我们把token删了
-            if (!ObjectUtil.isNullOrEmpty(token)) stringRedisTemplate.delete(token);
+            //重新初始化一下用户信息
+            reloadUserInfoByToken(stringRedisTemplate.opsForValue().get(user));
             return "<div><h1 style=\"color: red;text-align: center;font-size: 60px;\">充值成功</h1></div>";
         }
         return "<div><h1 style=\"color: red;text-align: center;font-size: 60px;\">充值失败</h1></div>";
     }
+
+    @Value("${spring.cloud.sentinel.transport.client-ip}")
+    String address;
+
 
     @GetMapping("/qrcode")
     public void getQrCode(@RequestHeader("system_api_Authorize_name") String user,
@@ -151,8 +160,7 @@ public class FileController {
             response.setCharacterEncoding("utf-8");
             String filename = URLEncoder.encode(name, "UTF-8").replaceAll(" ", "%20");
             response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + filename + ".jpg");
-            //todo  这里上线后 要写成线上地址
-            QRCodeUtil.encode("http://localhost:88/api/system/file/qrcode/check?key=" + key + "&user=" + user, QRCodeUtil.DEFAULT_LOGO_URL, response, filename + ".jpg", true);
+            QRCodeUtil.encode("http://" + address + ":88/api/system/file/qrcode/check?key=" + key + "&user=" + user, QRCodeUtil.DEFAULT_LOGO_URL, response, filename + ".jpg", true);
             //生成了二维码之后
             stringRedisTemplate.opsForValue().set(key, key + filename, 1, TimeUnit.MINUTES);
             reloadUserInfoByToken(stringRedisTemplate.opsForValue().get(user));
@@ -237,7 +245,7 @@ public class FileController {
     /**
      * 在操作用户的余额的时候 进行了分布式的事务控制 <br></br>
      * 在需要操作用户的余额的时候 进行业务锁的操作 <br></br>
-     * 每个锁是根据用户的当前账号名称+deduct来命令的<br></br>
+     * 每个锁是根据用户的当前账号名称+deduct来命名的<br></br>
      *
      * @param name 用户名称
      * @param z    金额
@@ -288,7 +296,9 @@ public class FileController {
                 && ObjectUtil.isNullOrEmpty(entity.getFileSuffix()));
     }
 
-    private void reloadUserInfoByToken(String token){
-        stringRedisTemplate.delete(token);
+    private void reloadUserInfoByToken(String token) {
+        //更新缓存中的用户信息
+        UserEntity entity = userTokenService.getUserBytoken(token);
+        stringRedisTemplate.opsForValue().set(token, GsonUtil.gson.toJson(entity));
     }
 }

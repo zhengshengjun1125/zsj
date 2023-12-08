@@ -3,9 +3,11 @@ package com.zsj.sms.controller;
 import java.util.Date;
 import java.util.UUID;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zsj.common.utils.GlobalValueToExchange;
 import com.zsj.common.utils.ObjectUtil;
+import com.zsj.common.utils.SystemMessage;
 import com.zsj.common.vo.BalanceVoProperties;
 import com.zsj.common.vo.EmailVoProperties;
 import com.zsj.common.vo.User;
@@ -59,6 +61,13 @@ public class EmailController {
     }
 
 
+    @DeleteMapping("/rmem")
+    public R removeEmailByID(@RequestParam("id") String id) {
+        boolean update = emailService.update(new UpdateWrapper<EmailEntity>().set("deleted", 1).eq("id", id));
+        if (update) return R.ok("删除成功");
+        else return R.error(SystemMessage.WARING_DANGER_OPERATION_CN);
+    }
+
     //自定义发送邮件信息
     @PostMapping("/sendEmail")
     public R sendEmail(@NotNull @RequestHeader("system_api_Authorize_name") String sender,
@@ -96,7 +105,7 @@ public class EmailController {
                         rabbitTemplate.convertAndSend(GlobalValueToExchange.DEDUCT_EXCHANGE, GlobalValueToExchange.DEDUCT_QUEUE, new BalanceVoProperties(z, sender), new CorrelationData(UUID.randomUUID().toString()));
                     } catch (MessagingException e) {
                         throw new RuntimeException(e);
-                    }finally {
+                    } finally {
                         //自定义消息手动保存一下
                         entity.setContent(text);
                         entity.setSender(content.getUsername());

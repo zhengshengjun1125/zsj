@@ -1,5 +1,7 @@
 package com.zsj.system.service.impl;
 
+import com.zsj.system.entity.UserEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -17,6 +19,11 @@ import com.zsj.system.service.UserTokenService;
 
 @Service("userTokenService")
 public class UserTokenServiceImpl extends ServiceImpl<UserTokenDao, UserTokenEntity> implements UserTokenService {
+
+
+    @Autowired
+    private UserTokenDao tokenDao;
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -36,14 +43,19 @@ public class UserTokenServiceImpl extends ServiceImpl<UserTokenDao, UserTokenEnt
             if (null != one) {
                 //修改
                 int i = baseMapper.updateToken(entity);
-            }else {
+            } else {
                 int i = baseMapper.saveToken(entity);
             }
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public UserEntity getUserBytoken(String token) {
+        return tokenDao.getUserByToken(token);
     }
 
 

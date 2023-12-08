@@ -73,7 +73,7 @@ public class LogEntity implements Serializable {
     private Date createDate;
 
 
-    public LogEntity(com.zsj.common.utils.LogEntity entity) {
+    public LogEntity(com.zsj.common.vo.LogEntity entity) {
         this.id = entity.getId();
         this.username = entity.getUsername();
         this.operation = entity.getOperation();

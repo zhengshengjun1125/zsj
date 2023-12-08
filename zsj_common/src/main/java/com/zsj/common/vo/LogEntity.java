@@ -1,4 +1,4 @@
-package com.zsj.common.utils;
+package com.zsj.common.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -9,7 +9,7 @@
 package com.zsj.common.xss;
 
 
-import com.zsj.common.utils.RRException;
+import com.zsj.common.exception.RRException;
 import org.apache.commons.lang.StringUtils;
 
 /**
