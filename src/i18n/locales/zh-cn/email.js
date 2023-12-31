@@ -8,6 +8,7 @@ export default {
   recipient_tips: '输入接收人邮箱',
   system: '系统级别',
   id: 'ID',
+  id_tips: '输入 id',
   yes: '是',
   no: '否',
   emailContent: '邮件内容',

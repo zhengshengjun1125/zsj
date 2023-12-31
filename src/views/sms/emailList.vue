@@ -1,5 +1,12 @@
 <template>
   <el-form :inline="true" :model="baseRequest" class="demo-form-inline">
+    <el-form-item :label="$t('email.id')">
+      <el-input
+        v-model="baseRequest.id"
+        :placeholder="$t('email.id_tips')"
+        clearable
+      />
+    </el-form-item>
     <el-form-item :label="$t('email.title')">
       <el-input
         v-model="baseRequest.title"
@@ -31,13 +38,13 @@
       />
     </el-form-item>
     <el-form-item>
-      <el-button
-        color="#626aef"
-        :dark="isDark"
-        type="success"
-        @click="flushEmailList"
-      >
+      <el-button color="#626aef" type="success" @click="flushEmailList">
         {{ $t('email.query') }}
+      </el-button>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="success" @click="flushEmailListAndRest">
+        {{ $t('public.Reset') }}
       </el-button>
     </el-form-item>
   </el-form>
@@ -96,9 +103,8 @@
 
 <script setup>
 import { getCurrentInstance, onMounted, reactive, ref } from 'vue'
-import { getEmailList } from '@/api/system'
-import { async } from '@kangc/v-md-editor'
-import { ElMessage } from 'element-plus'
+import { getEmailList, rmEmailPojo } from '@/api/system'
+import { ElMessage, ElMessageBox } from 'element-plus'
 let pageParamsForm = {
   cur: 1,
   size: 10,
@@ -109,6 +115,7 @@ const baseRequest = reactive({
   recipient: '',
   isSystem: 1,
   title: '',
+  id: '',
 })
 const emailData = ref()
 onMounted(() => {
@@ -144,12 +151,31 @@ const openMdPrivew = e => {
   emailtitle.value = e.title
 }
 
-const rmEmailByid = async () => {
-  ElMessage.error('你删你爹没用')
+const rmEmailByid = async e => {
+  // console.log(e.id)
+  ElMessageBox.confirm('确定吗?', '温馨提示').then(async () => {
+    const { msg, code } = await rmEmailPojo({ id: e.id })
+    if (code == 200) {
+      ElMessage.success(msg)
+      flushEmailList()
+    } else {
+      ElMessage.error(msg)
+    }
+  })
 }
 
 const changeSystemStatus = e => {
   if (!e) baseRequest.isSystem = 0
   else baseRequest.isSystem = 1
+}
+
+const flushEmailListAndRest = () => {
+  baseRequest.sender = ''
+  baseRequest.recipient = ''
+  baseRequest.isSystem = 1
+  baseRequest.title = ''
+  baseRequest.id = ''
+  isSystemStatus.value = true
+  flushEmailList()
 }
 </script>

@@ -27,7 +27,7 @@ export default {
   curTime: '当前时间',
   zcoin: 'Z币',
   author: '作者',
-  authorname: '郑声军 朱远 冉涛',
+  authorname: '郑声军 朱远 冉滔',
   startTime: '开始 时间',
   Projectprototype: '项目雏形',
   tkutips: '感谢你的使用~',
@@ -41,4 +41,5 @@ export default {
   preview: '预览',
   createTime: '创建时间',
   close: '关闭',
+  Reset: '重置',
 }

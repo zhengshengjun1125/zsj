@@ -86,14 +86,12 @@
   </div>
 </template>
 <script setup>
-import { gettenLogList, getEmailProperties } from '@/api/system'
-import { async } from '@kangc/v-md-editor'
+import { getEmailProperties } from '@/api/system'
 import { onMounted, ref, getCurrentInstance } from 'vue'
 import { useAccount } from '@/pinia/modules/account'
 import { MoreFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 const { proxy: ctx } = getCurrentInstance()
-const logList = ref([])
 const curUser = ref({})
 const sayHello = ref(true)
 const curDate = ref(new Date())
@@ -130,10 +128,9 @@ const getTime = () => {
   time.value = new Date().toLocaleString()
 }
 onMounted(() => {
-  initEmailProperties()
-  time.value = new Date().toLocaleString()
   const { userinfo } = useAccount()
-  // console.log(userinfo)
+  initEmailProperties(userinfo)
+  time.value = new Date().toLocaleString()
   curUser.value = userinfo
   setInterval(() => {
     getTime()
@@ -142,14 +139,16 @@ onMounted(() => {
     sayHello.value = false
   }, 3000)
 })
-const initEmailProperties = async () => {
-  const { data, msg, code } = await getEmailProperties()
-  if (code == 200) {
-    localStorage.setItem('email_host', data.host)
-    localStorage.setItem('email_username', data.username)
-    localStorage.setItem('email_smtp', data.smtp)
-  } else {
-    ElMessage.warning(msg)
+const initEmailProperties = async e => {
+  if (e.roleName == '超级管理员') {
+    const { data, msg, code } = await getEmailProperties()
+    if (code == 200) {
+      localStorage.setItem('email_host', data.host)
+      localStorage.setItem('email_username', data.username)
+      localStorage.setItem('email_smtp', data.smtp)
+    } else {
+      ElMessage.warning(msg)
+    }
   }
 }
 const jump = e => {

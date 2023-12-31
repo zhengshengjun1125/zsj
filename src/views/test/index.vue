@@ -237,7 +237,7 @@ export default defineComponent({
       },
       // 请求函数
       async getList(params) {
-        console.log(params)
+        // console.log(params)
         // params是从组件接收的，包含分页和搜索字段。
         const { data } = await getUsers(params)
 

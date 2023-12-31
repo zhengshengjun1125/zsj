@@ -185,8 +185,9 @@ const setRootType = async () => {
     if (code == 200) {
       OpenaddRootTypeDialog.value = false
       gtl()
+      ElMessage.success(msg)
     } else {
-      ElMessage(msg)
+      ElMessage.error(msg)
     }
   }
 }

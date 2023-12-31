@@ -41,4 +41,5 @@ export default {
   preview: 'Preview',
   createTime: 'CreateTime',
   close: 'close',
+  Reset: 'Reset',
 }

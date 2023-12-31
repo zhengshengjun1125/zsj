@@ -139,9 +139,8 @@ const init = async () => {
   if (typeof WebSocket == 'undefined') {
     alert('您的浏览器不支持WebSocket')
   } else {
-    // console.log('您的浏览器支持WebSocket')
+    // let socketUrl = 'ws://124.70.34.218:88/api/chat/' + username
     let socketUrl = 'ws://localhost:88/api/chat/' + username
-    // let socketUrl = 'ws://localhost:88/api/chat/' + username
     if (socket != null) {
       socket.close()
       socket = null
@@ -155,26 +154,29 @@ const init = async () => {
     }
     //  浏览器端收消息，获得从服务端发送过来的文本消息
     socket.onmessage = function(msg) {
-      // console.log('收到msg数据====' + msg.data)
-      let data = JSON.parse(msg.data) // 对收到的json数据进行解析， 类似这样的： {"users": [{"username": "zhang"},{ "username": "admin"}]}
+      //这里线上环境会无法渲染用户列表 不知道为什么 TODO
+      let data = JSON.parse(msg.data) // 对收到的json数据进行解析
       if (data.users || data.globalMessage) {
         const users = data.users
         // console.log(data.globalMessage)
         globalMessages.value.push({ message: data.globalMessage })
-        users.forEach(element => {
-          name_avatar.set(element.username, element.avatar)
-        })
-        // console.log(name_avatar)
+        if (users) {
+          users.forEach(element => {
+            name_avatar.set(element.username, element.avatar)
+          })
+          // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
+          ctx.users = data.users.filter(user => user.username !== username)
+        }
+        // console.log("当前在线人员");
+        // console.log(_this.users)
         // 获取在线人员信息
-        _this.users = data.users.filter(user => user.username !== username) // 获取当前连接的所有用户信息，并且排除自身，自己不会出现在自己的聊天列表里
       } else {
-        console.log(data)
         // 如果服务器端发送过来的json数据 不包含 users 这个key，那么发送过来的就是聊天文本json数据
-        //  // {"from": "zhang", "text": "hello"}
-        if (data.fromUser === _this.chatUser) {
-          _this.messages.push(data)
+        //  // {"from": "zsj", "text": "hello"}
+        if (data.fromUser === ctx.chatUser) {
+          ctx.messages.push(data)
           // 构建接收消息内容 todo  这里应该不着急直接生成html内容
-          _this.createContent(data.fromUser, null, data.text)
+          ctx.createContent(data.fromUser, null, data.text)
         } else {
           ElMessageBox.confirm(
             '用户' + data.fromUser + '发消息给你了,是否查看?',
@@ -198,9 +200,9 @@ const init = async () => {
             }
           )
             .then(() => {
-              _this.chatUser = data.fromUser
-              _this.messages.push(data)
-              _this.createContent(data.fromUser, null, data.text)
+              ctx.chatUser = data.fromUser
+              ctx.messages.push(data)
+              ctx.createContent(data.fromUser, null, data.text)
             })
             .catch(() => {
               //将未读消息放入到列表中
@@ -224,8 +226,8 @@ const init = async () => {
       // console.log('websocket已关闭')
     }
     //发生了错误事件
-    socket.onerror = function() {
-      console.log('websocket发生了错误')
+    socket.onerror = function(e) {
+      console.log('websocket连接发生了错误')
     }
   }
 }
@@ -327,8 +329,6 @@ const toChat = async row => {
     }
   }
 }
-
-const rmF = () => {}
 </script>
 <style>
 .tip {

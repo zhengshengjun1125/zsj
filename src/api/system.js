@@ -200,3 +200,12 @@ export const sendEmail = data => {
     data,
   })
 }
+
+//删除邮件
+export const rmEmailPojo = params => {
+  return request({
+    url: '/api/sms/email/rmem',
+    method: 'delete',
+    params,
+  })
+}

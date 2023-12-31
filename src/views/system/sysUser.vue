@@ -345,6 +345,7 @@ const handleAvatarSuccess = (r, u) => {
   curUpObject.value.avatar = curAvatarUrl.value
 }
 
+//在页面初始化的时候进行调用
 onMounted(() => {
   flushUserList()
   flushRoleList()

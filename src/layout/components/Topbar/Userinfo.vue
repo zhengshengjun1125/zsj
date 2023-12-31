@@ -35,11 +35,8 @@
  * 
  * @Descripttion: 
  * @version: 1.1
- *
  * @LastEditors:  zsj
- * 
  * @Author:   zsj
-
  -->
 
 <template>
@@ -133,7 +130,6 @@ import LockModal from './LockModal.vue'
 import { useApp } from '@/pinia/modules/app'
 import { Logout } from '@/api/login'
 import { resetPass } from '@/api/user'
-import { ElMessage } from 'element-plus'
 import { getQRcode } from '@/api/system'
 import { useAccount } from '@/pinia/modules/account'
 export default defineComponent({
@@ -151,7 +147,7 @@ export default defineComponent({
 
     const { userinfo } = useUserinfo()
 
-    const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
+    const { proxy: ctx } = getCurrentInstance()
 
     onMounted(() => {
       getQR()
@@ -163,10 +159,11 @@ export default defineComponent({
     const openRecharge = async () => {
       openRechargeDialog.value = !openRechargeDialog.value
       getQR()
-      const { userinfo, getUserinfo } = useAccount()
+      const { getUserinfo } = useAccount()
       await getUserinfo()
     }
 
+    //重新设置密码的前置验证
     const submitResetPassword = async () => {
       //提交之前的验证
       //新密码的长度最少为6个

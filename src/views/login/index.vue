@@ -1,9 +1,7 @@
 <!--
  * @Descripttion: 
  * @version: 1.1
- *
  * @LastEditors: zsj
- * 
  * @Author:   zsj
 -->
 <template>
@@ -345,6 +343,7 @@ export default defineComponent({
       }
     }
     .title {
+      font-family: fantasy;
       color: #fff;
       text-align: center;
       font-size: 24px;

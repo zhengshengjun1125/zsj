@@ -8,6 +8,7 @@ export default {
   recipient_tips: 'the recipient email address',
   system: 'system level',
   id: 'ID',
+  id_tips: 'enter id',
   yes: 'yes',
   no: 'no',
   emailContent: 'Content',

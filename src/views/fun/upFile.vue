@@ -1,5 +1,7 @@
 <template>
-  <!--     action="http://124.70.34.218:88/api/system/oss/uploadOssFileSingle" -->
+  <!--     
+    action="http://124.70.34.218:88/api/system/oss/uploadOssFileSingle"
+   -->
   <el-upload
     :headers="baseRequest"
     drag

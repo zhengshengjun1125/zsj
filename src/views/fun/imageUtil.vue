@@ -58,6 +58,7 @@
       </el-radio-group>
     </div>
     <!-- 压缩上传组件 -->
+    <!-- action="http://124.70.34.218:88/api/system/file/compress" -->
     <el-upload
       v-show="!showwatermarkLocationOperation"
       style="margin-top: 20px"

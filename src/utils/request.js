@@ -10,7 +10,6 @@ import { useApp } from '@/pinia/modules/app'
 const base = 'http://localhost:88'
 
 const service = axios.create({
-  // baseURL: '/',
   // baseURL: prod,
   baseURL: base,
   timeout: 10000,
